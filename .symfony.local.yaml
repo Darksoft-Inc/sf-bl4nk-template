@@ -6,6 +6,9 @@ http:
 
 # Processes that automatically run with the server (https://symfony.com/doc/current/setup/symfony_cli.html#configuring-workers)
 workers:
+    # Watch and build Sass files
+    sass:
+        cmd: ['symfony', 'console', 'sass:build', '--watch']
     # Consume async messages, and restart the worker when the code changes
     #messenger_consume_async:
     #    cmd: ['symfony', 'console', 'messenger:consume', 'async']

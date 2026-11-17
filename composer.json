@@ -7,18 +7,70 @@
         "php": ">=8.4",
         "ext-ctype": "*",
         "ext-iconv": "*",
+        "doctrine/doctrine-bundle": "^3.4",
+        "doctrine/doctrine-migrations-bundle": "^4.0",
+        "doctrine/orm": "^3.8",
+        "phpdocumentor/reflection-docblock": "^6.0",
+        "phpstan/phpdoc-parser": "^2.4",
+        "symfony/asset": "8.2.*",
+        "symfony/asset-mapper": "8.2.*",
         "symfony/console": "8.2.*",
+        "symfony/debug-bundle": "8.2.*",
+        "symfony/doctrine-messenger": "8.2.*",
         "symfony/dotenv": "8.2.*",
+        "symfony/expression-language": "8.2.*",
+        "symfony/finder": "8.2.*",
         "symfony/flex": "^2",
+        "symfony/form": "8.2.*",
         "symfony/framework-bundle": "8.2.*",
+        "symfony/http-client": "8.2.*",
+        "symfony/intl": "8.2.*",
+        "symfony/mailer": "8.2.*",
+        "symfony/maker-bundle": "^1.68",
+        "symfony/messenger": "8.2.*",
+        "symfony/mime": "8.2.*",
+        "symfony/monolog-bundle": "^3.0|^4.0",
+        "symfony/notifier": "8.2.*",
+        "symfony/process": "8.2.*",
+        "symfony/property-access": "8.2.*",
+        "symfony/property-info": "8.2.*",
         "symfony/runtime": "8.2.*",
-        "symfony/yaml": "8.2.*"
-    },
-    "require-dev": {
+        "symfony/scheduler": "8.2.*",
+        "symfony/security-bundle": "8.2.*",
+        "symfony/serializer": "8.2.*",
+        "symfony/stimulus-bundle": "^3.7",
+        "symfony/string": "8.2.*",
+        "symfony/translation": "8.2.*",
+        "symfony/tui": "8.2.*",
+        "symfony/twig-bundle": "8.2.*",
+        "symfony/uid": "8.2.*",
+        "symfony/ux-autocomplete": "^3.7",
+        "symfony/ux-chartjs": "^3.7",
+        "symfony/ux-dropzone": "^3.7",
+        "symfony/ux-icons": "^3.7",
+        "symfony/ux-inspector": "^3.7",
+        "symfony/ux-leaflet-map": "^3.7",
+        "symfony/ux-map": "^3.7",
+        "symfony/ux-pagination": "^3.7",
+        "symfony/ux-router": "^3.7",
+        "symfony/ux-translator": "^3.7",
+        "symfony/ux-twig-component": "^3.7",
+        "symfony/validator": "8.2.*",
+        "symfony/web-link": "8.2.*",
+        "symfony/yaml": "8.2.*",
+        "symfonycasts/reset-password-bundle": "^1.26",
+        "symfonycasts/sass-bundle": "^0.10.0",
+        "symfonycasts/verify-email-bundle": "^1.18",
+        "twbs/bootstrap": "^5.3",
+        "twig/extra-bundle": "^2.12|^3.0",
+        "twig/intl-extra": "^3.30",
+        "twig/twig": "^2.12|^3.0"
     },
     "config": {
         "allow-plugins": {
+            "pestphp/pest-plugin": true,
             "php-http/discovery": true,
+            "phpstan/extension-installer": true,
             "symfony/flex": true,
             "symfony/runtime": true
         },
@@ -50,7 +102,8 @@
     "scripts": {
         "auto-scripts": {
             "cache:clear": "symfony-cmd",
-            "assets:install %PUBLIC_DIR%": "symfony-cmd"
+            "assets:install %PUBLIC_DIR%": "symfony-cmd",
+            "importmap:install": "symfony-cmd"
         },
         "post-install-cmd": [
             "@auto-scripts"
@@ -65,7 +118,22 @@
     "extra": {
         "symfony": {
             "allow-contrib": false,
-            "require": "8.2.*"
+            "require": "8.2.*",
+            "docker": true
         }
+    },
+    "require-dev": {
+        "pestphp/pest": "^5.3",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^2.3",
+        "phpstan/phpstan-doctrine": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.1",
+        "phpstan/phpstan-symfony": "^2.1",
+        "symfony/browser-kit": "8.2.*",
+        "symfony/css-selector": "8.2.*",
+        "symfony/phpunit-bridge": "8.2.*",
+        "symfony/stopwatch": "8.2.*",
+        "symfony/ux-toolkit": "^3.7",
+        "symfony/web-profiler-bundle": "8.2.*"
     }
 }
