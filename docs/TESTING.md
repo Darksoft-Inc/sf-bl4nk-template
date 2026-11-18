@@ -41,7 +41,7 @@ vendor/bin/phpstan analyse --no-progress
 symfony console doctrine:schema:validate
 ```
 
-At review time, lint commands passed and PHPStan failed with 5 errors. See `TODO.md` for the list. Do not add PHPStan suppressions or a baseline to hide those errors.
+Lint commands and PHPStan pass with the full configuration. The `lint_php` alias uses all paths from `phpstan.dist.neon`. Do not add PHPStan suppressions or a baseline to hide future errors.
 
 ## Current tests
 

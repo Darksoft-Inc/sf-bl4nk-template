@@ -69,6 +69,7 @@ final class RegistrationControllerTest extends WebTestCase
         self::assertIsString($messageBody);
 
         preg_match('#(http://localhost/verify/email.+)">#', $messageBody, $resetLink);
+        self::assertArrayHasKey(1, $resetLink);
 
         // "Click" the link and see if the user is verified
         $this->client->request('GET', $resetLink[1]);

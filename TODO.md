@@ -40,7 +40,7 @@ Baseline at review time:
 
 ## P1: Fix functional and configuration gaps
 
-- [ ] Fix the 5 PHPStan errors without suppressions or baselines.
+- [x] Fix the 5 PHPStan errors without suppressions or baselines.
   - `public/index.php:8`
   - `tests/Controller/RegistrationControllerTest.php:74`
   - `tests/Controller/ResetPasswordControllerTest.php:84`
@@ -72,9 +72,9 @@ Baseline at review time:
   - Add shared navigation and flash rendering in `templates/base.html.twig`.
 
 - [ ] Clean generated leftovers.
-  - Remove TODOs and commented code from `src/Controller/RegistrationController.php:55,89`, `src/Controller/ResetPasswordController.php:148-156`, and `src/Repository/UserRepository.php:36-59`.
-  - Remove the unused scaffold in `tests/Pest.php:25-37`.
-  - Replace the commented redirect assertion in `tests/Controller/RegistrationControllerTest.php:47`.
+  - [ ] Remove TODOs and commented code from `src/Controller/RegistrationController.php:55,89`, `src/Controller/ResetPasswordController.php:148-156`, and `src/Repository/UserRepository.php:36-59`.
+  - [x] Remove the unused scaffold in `tests/Pest.php:25-37`.
+  - [ ] Replace the commented redirect assertion in `tests/Controller/RegistrationControllerTest.php:47`.
 
 - [ ] Move off Symfony 8.2 beta before production use.
   - `composer.json:4-5` allows dev packages.
@@ -92,7 +92,7 @@ Baseline at review time:
 - [ ] Email content and signed URLs with the configured `DEFAULT_URI`.
 - [ ] Form and entity validation tests.
 - [ ] A setup smoke test that fails clearly when Sass output or the test schema is missing.
-- [ ] Add assertions after `preg_match()` in both controller tests.
+- [x] Add assertions after `preg_match()` in both controller tests.
   - `tests/Controller/RegistrationControllerTest.php:71-74`
   - `tests/Controller/ResetPasswordControllerTest.php:82-84`
 
@@ -101,8 +101,8 @@ Baseline at review time:
 - [ ] Add fixtures or a database reset helper instead of deleting all users in `setUp()`.
 - [ ] Clear dependent `reset_password_request` rows when cleaning user data.
 - [ ] Align `aliases.sh` with the project commands.
-  - `aliases.sh:43` runs PHPStan only on `src/`, while `phpstan.dist.neon` covers more paths.
-  - `aliases.sh:45` uses Pest. `AGENTS.md` names `php bin/phpunit` as the test command.
+  - [x] PHPStan now uses the full configured path list.
+  - [ ] `aliases.sh:45` uses Pest. `AGENTS.md` names `php bin/phpunit` as the test command.
 - [ ] Add CI checks for Sass build, test schema creation, lint commands, PHPStan, and PHPUnit.
 
 ## P2: Dependency and architecture review

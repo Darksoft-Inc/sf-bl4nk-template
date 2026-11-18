@@ -40,7 +40,7 @@ alias lint_config="symfony console lint:yaml config/"
 alias lint_autowiring="symfony console lint:container && symfony console lint:expressions"
 alias lint_translations="symfony console lint:translations"
 alias lint_templates="symfony console lint:twig templates/"
-alias lint_php="vendor/bin/phpstan --memory-limit=256M analyze src/"
+alias lint_php="vendor/bin/phpstan --memory-limit=256M analyze"
 alias lint_doctrine="symfony console doctrine:schema:validate"
 alias run_tests="vendor/bin/pest -v"
 

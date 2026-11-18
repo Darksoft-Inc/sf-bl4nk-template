@@ -15,24 +15,3 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 pest()->extend(WebTestCase::class)->in('Functional', 'Controller');
 pest()->extend(KernelTestCase::class)->in('Integration');
-
-/*
-|--------------------------------------------------------------------------
-| Expectations
-|--------------------------------------------------------------------------
-*/
-
-expect()->extend('toBeOne', function () {
-    return $this->toBe(1);
-});
-
-/*
-|--------------------------------------------------------------------------
-| Functions
-|--------------------------------------------------------------------------
-*/
-
-function something()
-{
-    // ..
-}

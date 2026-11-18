@@ -40,7 +40,7 @@ Run `symfony console sass:build` after changing SCSS files.
 
 - Do not modify `AGENTS.md` as part of project tasks unless the user asks.
 - Do not commit generated files from `var/`, `public/assets/`, or `assets/vendor/`.
-- Do not add PHPStan suppressions or a baseline for the current errors.
+- Do not add PHPStan suppressions or a baseline to hide errors.
 - Do not use `json_decode()` for request data. Use `MapRequestPayload` or `MapQueryString`.
 - Do not assume package configuration from older Symfony versions. Check `config/reference.php` and `config/schema.json`.
 - Do not use real secrets in committed files.
