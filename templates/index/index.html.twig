@@ -8,6 +8,7 @@
 
     <ul>
         {% if app.user %}
+            <li><a href="{{ path('app_profile') }}">Profile</a></li>
             <li><a href="{{ path('app_logout') }}">Log out</a></li>
         {% else %}
             <li><a href="{{ path('app_login') }}">Log in</a></li>

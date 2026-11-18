@@ -39,7 +39,7 @@ final class RegistrationControllerTest extends WebTestCase
 
         $this->client->submitForm('Register', [
             'registration_form[email]' => 'me@example.com',
-            'registration_form[plainPassword]' => 'password',
+            'registration_form[plainPassword]' => 'CorrectHorseBatteryStaple42!',
             'registration_form[agreeTerms]' => true,
         ]);
 
@@ -54,7 +54,7 @@ final class RegistrationControllerTest extends WebTestCase
         self::assertEmailCount(1);
 
         self::assertCount(1, $messages = $this->getMailerMessages());
-        self::assertEmailAddressContains($messages[0], 'from', 'admin@website.com');
+        self::assertEmailAddressContains($messages[0], 'from', 'admin@example.com');
         self::assertEmailAddressContains($messages[0], 'to', 'me@example.com');
         self::assertEmailTextBodyContains($messages[0], 'This link will expire in 1 hour.');
 
@@ -77,5 +77,21 @@ final class RegistrationControllerTest extends WebTestCase
         $this->client->followRedirect();
 
         self::assertTrue(static::getContainer()->get(UserRepository::class)->findAll()[0]->isVerified());
+    }
+
+    public function testRegisterRejectsWeakPassword(): void
+    {
+        $this->client->request('GET', '/register');
+
+        $this->client->submitForm('Register', [
+            'registration_form[email]' => 'weak@example.com',
+            'registration_form[plainPassword]' => 'password',
+            'registration_form[agreeTerms]' => true,
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.invalid-feedback', 'Your password should be at least 12 characters');
+        self::assertCount(0, $this->userRepository->findAll());
+        self::assertEmailCount(0);
     }
 }

@@ -14,6 +14,6 @@ These files hold project-specific notes for developers and agents. `AGENTS.md` r
 
 ## Current status
 
-The app has registration, email verification, login, logout, and password reset pages. It does not have a user profile page or the other target features from `PURPOSE.md` yet. The landing page is a neutral start page.
+The app has registration, email verification, login, logout, password reset, and profile pages. The profile page shows account details and changes the password. The other target features from `PURPOSE.md` are not built yet. The landing page is a neutral start page.
 
 `TODO.md` at the repository root lists the work found during the state review. Pick items from that file.

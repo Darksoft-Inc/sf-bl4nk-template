@@ -49,6 +49,7 @@ Lint commands and PHPStan pass with the full configuration. The `lint_php` alias
 - `tests/Controller/RegistrationControllerTest.php`: registers a user, checks the verification email, clicks the verification link, and checks the redirect and user state.
 - `tests/Controller/ResetPasswordControllerTest.php`: requests a reset email, follows the link, changes the password, and checks the redirect and stored hash.
 - `tests/Controller/SecurityControllerTest.php`: checks the login page, rejects unverified users, logs in a verified user, and logs out.
+- `tests/Controller/ProfileControllerTest.php`: checks that anonymous visitors are redirected to login, that the page shows account details, and that the password change form updates the hash.
 
 The tests delete all users in `setUp()`. This is local cleanup, not a fixture system. Dependent `reset_password_request` rows are not cleaned there.
 

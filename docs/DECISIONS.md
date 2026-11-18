@@ -34,9 +34,9 @@ Current choice: form login at `/login`, logout at `/logout`, and a verified emai
 
 Evidence: `config/packages/security.yaml` configures `form_login` with CSRF protection and `App\Security\VerifiedUserChecker`. `SecurityController` declares both routes. Login, logout, registration, verification, and password change redirect to `app_index`.
 
-Consequence: unverified users cannot sign in. `access_control` is still empty because the app has no protected pages.
+Consequence: unverified users cannot sign in. The profile route requires `ROLE_USER` through `#[IsGranted('ROLE_USER')]`. `access_control` is still empty.
 
-Open question: which routes need access rules when the app grows.
+Open question: which other routes need access rules when the app grows.
 
 ## Installed UX and infrastructure packages
 

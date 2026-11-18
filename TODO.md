@@ -51,7 +51,7 @@ Baseline at review time:
   - [x] Add login and logout routes.
   - [x] Require a verified email address for login.
   - [x] Redirect login, registration, verification, and password change to `app_index`.
-  - [ ] Add access rules when protected pages exist, starting with the profile page.
+  - [x] Add access rules when protected pages exist, starting with the profile page. `ProfileController` uses `#[IsGranted('ROLE_USER')]`.
 
 ## P1: Fix functional and configuration gaps
 
@@ -69,18 +69,17 @@ Baseline at review time:
   - Configure trusted hosts and proxies if the app runs behind a reverse proxy.
   - [x] Remove the notifier package and its placeholder `admin@example.com` recipient.
 
-- [ ] Remove hardcoded mail values from controllers.
-  - Files: `src/Controller/RegistrationController.php:22-23,49` and `src/Controller/ResetPasswordController.php:28-29,162`.
-  - Use parameters or environment variables for sender address and sender name.
+- [x] Remove hardcoded mail values from controllers.
+  - Sender values now come from `ADMIN_EMAIL` and `ADMIN_NAME` through `app.admin_email` and `app.admin_name` in `config/services.yaml`.
 
 - [ ] Handle the Symfony 8.2 signed URL deprecation.
   - `vendor/bin/pest -v` reports that `UriSigner::sign()` needs an explicit expiration.
   - Check the verify-email bundle behavior first.
   - The available option is `framework.uri_signer.expiration` in `config/reference.php:637-640`.
 
-- [ ] Align password rules.
-  - `src/Form/RegistrationFormType.php:41-46` requires 6 characters.
-  - `src/Form/ChangePasswordFormType.php:35-43` requires 12 characters plus strength and compromised checks.
+- [x] Align password rules.
+  - Both forms now use `PasswordConstraints::forNewPassword()`: 12 characters, password strength, and compromised password check.
+  - The `dev` environment uses 6 characters and skips the strength and compromise checks. `test` and `prod` keep the strict rules.
 
 - [x] Replace the placeholder landing page.
   - The page now has a neutral heading and links to login, registration, and password reset.
@@ -99,7 +98,7 @@ Baseline at review time:
 
 ## P1: Add a user profile page
 
-- [ ] Add a profile page for signed-in users.
+- [x] Add a profile page for signed-in users.
   - Show personal details from `App\Entity\User`, such as the email address and verification state.
   - Offer a password change option. Reuse `ChangePasswordFormType` and align its rules with registration (see the password rules item above).
   - Add an access rule for the route, and tests for anonymous access and a successful password change.
@@ -120,7 +119,7 @@ Baseline at review time:
 - [ ] Password reset: unknown email, invalid token, expired token, reused token, mismatched passwords, weak password, and compromised password.
 - [ ] Account enumeration check for the reset request route.
 - [x] Login, logout, and verified email requirement.
-- [ ] Protected pages when routes that need a user exist, starting with the profile page.
+- [x] Protected pages when routes that need a user exist, starting with the profile page.
 - [ ] Flash messages on the pages that display them.
 - [ ] Email content and signed URLs with the configured `DEFAULT_URI`.
 - [ ] Form and entity validation tests.

@@ -14,6 +14,7 @@ This page describes the current application, not a target design. `TODO.md` list
 | `app_reset_password` | `/reset-password/reset/{token}` | Validates the token and changes the password. |
 | `app_login` | `/login` | Displays the login form. The firewall handles POST requests. |
 | `app_logout` | `/logout` | Intercepted by the firewall to end the session. |
+| `app_profile` | `/profile` | Shows account details and a password change form. |
 
 Profiler and UX routes exist in development. They are not part of the product surface.
 
@@ -23,6 +24,7 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `RegistrationController` creates users, sends verification email, and verifies email links.
 - `ResetPasswordController` handles reset requests, reset confirmation, token validation, and password changes.
 - `SecurityController` displays the login form and declares the logout route.
+- `ProfileController` shows account details and changes the signed-in user's password.
 
 ## Entities
 
@@ -33,9 +35,10 @@ Profiler and UX routes exist in development. They are not part of the product su
 
 - `RegistrationFormType` collects email, password, and terms acceptance. It maps the password to a non-mapped `plainPassword` field.
 - `ResetPasswordRequestFormType` collects the email address.
-- `ChangePasswordFormType` collects a repeated new password.
+- `ChangePasswordFormType` collects a repeated new password. The profile page and password reset flow both use it.
+- `PasswordConstraints` supplies the shared password rules for both forms.
 
-Password rules differ between registration and password reset. See `TODO.md`.
+Registration and password reset use the same password rules. In the `dev` environment, the minimum is 6 characters and the strength and compromise checks are skipped. The `test` and `prod` environments keep the strict rules.
 
 ## Repositories and services
 
@@ -47,7 +50,7 @@ Password rules differ between registration and password reset. See `TODO.md`.
 ## Templates
 
 - `templates/base.html.twig` loads the importmap, the JavaScript entrypoint, and success flash messages.
-- `templates/index/`, `templates/registration/`, `templates/reset_password/`, and `templates/security/` contain the page and email templates.
+- `templates/index/`, `templates/profile/`, `templates/registration/`, `templates/reset_password/`, and `templates/security/` contain the page and email templates.
 
 ## Data storage
 
@@ -57,4 +60,6 @@ Development uses PostgreSQL through `DATABASE_URL`. Tests use SQLite through `.e
 
 `config/packages/security.yaml` uses `form_login` on the `main` firewall. The login form posts to `app_login` with CSRF protection. `VerifiedUserChecker` requires `User::isVerified()` to be true, so unverified accounts cannot log in.
 
-Successful registration, email verification, login, and password change redirect to `app_index`. Logout also redirects to `app_index`. The `access_control` list is still empty because the app has no protected pages yet.
+Successful registration, email verification, login, and password change redirect to `app_index`. Logout also redirects to `app_index`. Password changes on the profile page redirect to `app_profile`.
+
+`ProfileController` uses `#[IsGranted('ROLE_USER')]`, so anonymous visitors are sent to the login page. The `access_control` list is still empty.

@@ -13,22 +13,21 @@
 | `APP_SHARE_DIR` | `var/share` | Shared storage path. |
 | `DEFAULT_URI` | `http://localhost` | Used to generate absolute URLs outside HTTP requests, including email links. |
 | `MAILER_DSN` | `null://null` | No email is delivered with this value. Set a real DSN for deployed environments. |
+| `ADMIN_EMAIL` | `admin@example.com` | Sender address for account emails. |
+| `ADMIN_NAME` | `Website Admin` | Sender name for account emails. |
 | `MESSENGER_TRANSPORT_DSN` | `doctrine://default?auto_setup=0` | `config/packages/messenger.yaml` currently defines only the `sync` transport. |
 | `DATABASE_URL` | PostgreSQL in `.env`, SQLite in `.env.test` | Change credentials before deployment. |
 | `UX_MAP_DSN` | `leaflet://default` | Used by the installed map package. |
 
 ## Mail sender
 
-Sender values are hardcoded in controllers:
+Sender values come from `ADMIN_EMAIL` and `ADMIN_NAME`. `config/services.yaml` exposes them as `app.admin_email` and `app.admin_name`. `RegistrationController` and `ResetPasswordController` receive the values through `#[Autowire(param: ...)]`.
 
-- `src/Controller/RegistrationController.php:22-23`
-- `src/Controller/ResetPasswordController.php:28-29`
-
-Move these values to parameters or environment variables before deployment. The current value `admin@website.com` is a placeholder.
+Replace both defaults before deployment. The current values are placeholders.
 
 ## Security and signed URLs
 
-`config/packages/security.yaml` defines a user provider and a `form_login` authenticator on the `main` firewall. The routes are `app_login` and `app_logout`. `App\Security\VerifiedUserChecker` requires a verified email address before login. Successful login and logout redirect to `app_index`. There is no `access_control` rule yet.
+`config/packages/security.yaml` defines a user provider and a `form_login` authenticator on the `main` firewall. The routes are `app_login` and `app_logout`. `App\Security\VerifiedUserChecker` requires a verified email address before login. Successful login and logout redirect to `app_index`. The profile route uses `#[IsGranted('ROLE_USER')]`. The `access_control` list is still empty.
 
 `framework.uri_signer.expiration` is currently unset. Symfony 8.2 deprecates signed URIs without an expiration. Check the verify-email bundle behavior before setting a default. The option is documented in `config/reference.php` near line 637.
 
