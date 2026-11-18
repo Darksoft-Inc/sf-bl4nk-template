@@ -12,5 +12,7 @@ final class IndexControllerTest extends WebTestCase
         $client->request('GET', '/index');
 
         self::assertResponseIsSuccessful();
+        self::assertPageTitleContains('Start');
+        self::assertSelectorTextContains('h1', 'Start');
     }
 }

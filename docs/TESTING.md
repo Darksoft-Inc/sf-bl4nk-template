@@ -45,14 +45,15 @@ Lint commands and PHPStan pass with the full configuration. The `lint_php` alias
 
 ## Current tests
 
-- `tests/Controller/IndexControllerTest.php`: checks that `/index` returns a successful response.
-- `tests/Controller/RegistrationControllerTest.php`: registers a user, checks the verification email, clicks the verification link, and checks the user state.
-- `tests/Controller/ResetPasswordControllerTest.php`: requests a reset email, follows the link, changes the password, and checks the stored hash.
+- `tests/Controller/IndexControllerTest.php`: checks that the start page returns a successful response and shows the expected heading.
+- `tests/Controller/RegistrationControllerTest.php`: registers a user, checks the verification email, clicks the verification link, and checks the redirect and user state.
+- `tests/Controller/ResetPasswordControllerTest.php`: requests a reset email, follows the link, changes the password, and checks the redirect and stored hash.
+- `tests/Controller/SecurityControllerTest.php`: checks the login page, rejects unverified users, logs in a verified user, and logs out.
 
 The tests delete all users in `setUp()`. This is local cleanup, not a fixture system. Dependent `reset_password_request` rows are not cleaned there.
 
 ## Coverage gaps
 
-Add tests for validation failures, CSRF failures, email verification errors, reset token errors, account enumeration behavior, protected pages after login is added, and flash messages. See `TODO.md` for the full list.
+Add tests for validation failures, CSRF failures, email verification errors, reset token errors, account enumeration behavior, protected pages when they exist, and flash messages. See `TODO.md` for the full list.
 
 When fixing a bug, write a test that reproduces it first.

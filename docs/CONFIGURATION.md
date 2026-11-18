@@ -30,7 +30,7 @@ Move these values to parameters or environment variables before deployment. The 
 
 ## Security and signed URLs
 
-`config/packages/security.yaml` defines a user provider and a firewall, but no authenticator. There is no login or logout route and no `access_control` rule.
+`config/packages/security.yaml` defines a user provider and a `form_login` authenticator on the `main` firewall. The routes are `app_login` and `app_logout`. `App\Security\VerifiedUserChecker` requires a verified email address before login. Successful login and logout redirect to `app_index`. There is no `access_control` rule yet.
 
 `framework.uri_signer.expiration` is currently unset. Symfony 8.2 deprecates signed URIs without an expiration. Check the verify-email bundle behavior before setting a default. The option is documented in `config/reference.php` near line 637.
 

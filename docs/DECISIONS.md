@@ -30,13 +30,13 @@ Open question: when to move to a stable Symfony release.
 
 ## Authentication
 
-Current choice: registration and password reset exist, but login, logout, and access control do not.
+Current choice: form login at `/login`, logout at `/logout`, and a verified email address required for login.
 
-Evidence: `config/packages/security.yaml` has no authenticator and no access control. `debug:router` has no login or logout route.
+Evidence: `config/packages/security.yaml` configures `form_login` with CSRF protection and `App\Security\VerifiedUserChecker`. `SecurityController` declares both routes. Login, logout, registration, verification, and password change redirect to `app_index`.
 
-Consequence: registered users cannot sign in through the application. Tests use `loginUser()` and do not cover this gap.
+Consequence: unverified users cannot sign in. `access_control` is still empty because the app has no protected pages.
 
-Open question: use a login form, JSON login, or another authentication method. Decide whether email verification is required before login.
+Open question: which routes need access rules when the app grows.
 
 ## Installed UX and infrastructure packages
 

@@ -31,12 +31,11 @@ Baseline at review time:
   - Decide between a platform independent migration and a PostgreSQL test database.
   - Files: `.env.test`, `config/packages/doctrine.yaml:22-26`, `src/Migrations/Version20261118001505.php`, `aliases.sh:35-36`.
 
-- [ ] Add authentication and access control.
-  - Evidence: `debug:router` has no login or logout route. `config/packages/security.yaml:15-23` has a firewall but no authenticator. `access_control` is empty.
-  - Add a login route, a logout route, and access rules for pages that need a user.
-  - Decide whether email verification is required before login.
-  - Update redirects after login, registration, verification, and password reset.
-  - Tests use `loginUser()`, which hides the missing login flow.
+- [ ] Add access control for pages that need a user.
+  - [x] Add login and logout routes.
+  - [x] Require a verified email address for login.
+  - [x] Redirect login, registration, verification, and password change to `app_index`.
+  - [ ] Add access rules when protected pages exist.
 
 ## P1: Fix functional and configuration gaps
 
@@ -67,14 +66,15 @@ Baseline at review time:
   - `src/Form/RegistrationFormType.php:41-46` requires 6 characters.
   - `src/Form/ChangePasswordFormType.php:35-43` requires 12 characters plus strength and compromised checks.
 
-- [ ] Replace the placeholder landing page.
-  - File: `templates/index/index.html.twig:3-18`.
-  - Add shared navigation and flash rendering in `templates/base.html.twig`.
+- [x] Replace the placeholder landing page.
+  - The page now has a neutral heading and links to login, registration, and password reset.
+  - `templates/base.html.twig` now renders success flash messages.
 
 - [ ] Clean generated leftovers.
-  - [ ] Remove TODOs and commented code from `src/Controller/RegistrationController.php:55,89`, `src/Controller/ResetPasswordController.php:148-156`, and `src/Repository/UserRepository.php:36-59`.
+  - [ ] Remove commented code from `src/Controller/ResetPasswordController.php:148-156` and `src/Repository/UserRepository.php:36-59`.
+  - [x] Remove the TODO from `src/Controller/RegistrationController.php`.
   - [x] Remove the unused scaffold in `tests/Pest.php:25-37`.
-  - [ ] Replace the commented redirect assertion in `tests/Controller/RegistrationControllerTest.php:47`.
+  - [x] Replace the commented redirect assertion in `tests/Controller/RegistrationControllerTest.php:47`.
 
 - [ ] Move off Symfony 8.2 beta before production use.
   - `composer.json:4-5` allows dev packages.
@@ -87,7 +87,8 @@ Baseline at review time:
 - [ ] Email verification: missing `id`, unknown user, invalid signature, expired signature, and repeated click.
 - [ ] Password reset: unknown email, invalid token, expired token, reused token, mismatched passwords, weak password, and compromised password.
 - [ ] Account enumeration check for the reset request route.
-- [ ] Authentication routes and protected pages after login is implemented.
+- [x] Login, logout, and verified email requirement.
+- [ ] Protected pages when routes that need a user exist.
 - [ ] Flash messages on the pages that display them.
 - [ ] Email content and signed URLs with the configured `DEFAULT_URI`.
 - [ ] Form and entity validation tests.
