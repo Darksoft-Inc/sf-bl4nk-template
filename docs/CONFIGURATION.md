@@ -25,6 +25,10 @@ Sender values come from `ADMIN_EMAIL` and `ADMIN_NAME`. `config/services.yaml` e
 
 Replace both defaults before deployment. The current values are placeholders.
 
+## Translations
+
+`framework.enabled_locales` is set to `['en']` in `config/packages/framework.yaml`. `translations/messages.en.yaml` holds general messages for shared pages. Templates still use literal text until the full translation pass.
+
 ## Security and signed URLs
 
 `config/packages/security.yaml` defines a user provider and a `form_login` authenticator on the `main` firewall. The routes are `app_login` and `app_logout`. `App\Security\VerifiedUserChecker` requires a verified email address before login. Successful login and logout redirect to `app_index`. The profile route uses `#[IsGranted('ROLE_USER')]`. The `access_control` list is still empty.

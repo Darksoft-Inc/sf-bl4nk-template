@@ -110,6 +110,8 @@ Baseline at review time:
   - Cover templates, form labels and errors, validation messages, flash messages, and emails.
   - Check the installed `symfony/translation`, `symfony/ux-translator`, and `twig/intl-extra` packages before adding dependencies.
   - Add catalogs under `translations/` and verify them with `symfony console lint:translations`.
+  - A placeholder `translations/messages.en.yaml` now holds general messages for shared pages. Templates are not switched to translation keys yet.
+  - `framework.enabled_locales` is set to `['en']`, so `symfony console lint:translations` now passes.
 
 ## P2: Add tests
 

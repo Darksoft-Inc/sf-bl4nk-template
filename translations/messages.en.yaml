@@ -1,0 +1,20 @@
+# General messages used by shared pages.
+
+app:
+    navigation:
+        login: Log in
+        logout: Log out
+        profile: Profile
+        register: Register
+        reset_password: Reset your password
+    account:
+        email: Email
+        password: Password
+        verified: Verified
+        not_verified: Not verified
+        change_password: Change password
+        forgot_password: Forgot your password?
+        password_changed: Your password has been changed.
+        email_verified: Your email address has been verified.
+    page:
+        start: Start

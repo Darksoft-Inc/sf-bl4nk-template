@@ -51,6 +51,7 @@ Registration and password reset use the same password rules. In the `dev` enviro
 
 - `templates/base.html.twig` loads the importmap, the JavaScript entrypoint, and success flash messages.
 - `templates/index/`, `templates/profile/`, `templates/registration/`, `templates/reset_password/`, and `templates/security/` contain the page and email templates.
+- `translations/messages.en.yaml` holds general messages for shared pages. Templates still use literal English text until the translation pass.
 
 ## Data storage
 
