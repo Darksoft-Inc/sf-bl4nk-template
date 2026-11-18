@@ -193,18 +193,6 @@
             "config/packages/monolog.yaml"
         ]
     },
-    "symfony/notifier": {
-        "version": "8.2",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "8.2",
-            "ref": "59a850f2e18e98b324e6bfcaf84081c0cef39426"
-        },
-        "files": [
-            "config/packages/notifier.yaml"
-        ]
-    },
     "symfony/phpunit-bridge": {
         "version": "8.1",
         "recipe": {
@@ -335,9 +323,6 @@
             "config/routes/ux_autocomplete.yaml"
         ]
     },
-    "symfony/ux-chartjs": {
-        "version": "v3.7.0"
-    },
     "symfony/ux-dropzone": {
         "version": "v3.7.0"
     },
@@ -352,18 +337,6 @@
         "files": [
             "assets/icons/symfony.svg",
             "config/packages/ux_icons.yaml"
-        ]
-    },
-    "symfony/ux-inspector": {
-        "version": "3.7",
-        "recipe": {
-            "repo": "github.com/symfony/recipes",
-            "branch": "main",
-            "version": "3.7",
-            "ref": "e05b4dea1f8d05cee2cdab98b4346c849f12227e"
-        },
-        "files": [
-            "config/routes/ux_inspector.yaml"
         ]
     },
     "symfony/ux-leaflet-map": {

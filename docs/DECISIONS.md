@@ -40,7 +40,7 @@ Open question: which routes need access rules when the app grows.
 
 ## Installed UX and infrastructure packages
 
-Current choice: the project installs several UX packages, notifier, scheduler, and messenger packages.
+Current choice: the project installs several UX packages, scheduler, and messenger packages. Notifier, TUI, Inspector, and Chart.js were removed after the purpose review.
 
 Evidence: `composer.json`, `symfony.lock`, `importmap.php`, and the generated package configuration files.
 

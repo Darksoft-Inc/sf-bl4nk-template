@@ -4,6 +4,7 @@ These files hold project-specific notes for developers and agents. `AGENTS.md` r
 
 ## Start here
 
+- `PURPOSE.md`: project scope and the reference for package decisions.
 - `SETUP.md`: install the app from a fresh checkout.
 - `TESTING.md`: run tests and understand the current test setup.
 - `CONFIGURATION.md`: environment variables, secrets, and deployment values.
@@ -13,6 +14,6 @@ These files hold project-specific notes for developers and agents. `AGENTS.md` r
 
 ## Current status
 
-The app has registration, email verification, and password reset pages. It does not have a login or logout flow yet. The landing page is still the Symfony maker placeholder.
+The app has registration, email verification, login, logout, and password reset pages. It does not have a user profile page or the other target features from `PURPOSE.md` yet. The landing page is a neutral start page.
 
 `TODO.md` at the repository root lists the work found during the state review. Pick items from that file.

@@ -26,8 +26,6 @@ Sender values are hardcoded in controllers:
 
 Move these values to parameters or environment variables before deployment. The current value `admin@website.com` is a placeholder.
 
-`config/packages/notifier.yaml` also uses `admin@example.com`. Replace it or remove the notifier package if it is not used.
-
 ## Security and signed URLs
 
 `config/packages/security.yaml` defines a user provider and a `form_login` authenticator on the `main` firewall. The routes are `app_login` and `app_logout`. `App\Security\VerifiedUserChecker` requires a verified email address before login. Successful login and logout redirect to `app_index`. There is no `access_control` rule yet.

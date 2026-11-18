@@ -565,18 +565,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         encrypt_for_sender?: bool|Param, // Also encrypt for the sender, when a public key is available for its address, so that the sender can read the messages it sent. // Default: false
  *     },
  * }
- * @psalm-type NotifierConfig = bool|array{
- *     enabled?: bool|Param, // Resolved at compile time // Default: true
- *     message_bus?: scalar|Param|null, // The message bus to use. Defaults to the default bus if the Messenger component is installed. // Default: null
- *     chatter_transports?: array<string, scalar|Param|null>,
- *     texter_transports?: array<string, scalar|Param|null>,
- *     notification_on_failed_messages?: bool|Param, // Default: false
- *     channel_policy?: array<string, Param|string|list<scalar|Param|null>>,
- *     admin_recipients?: list<array{ // Default: []
- *         email?: scalar|Param|null,
- *         phone?: scalar|Param|null, // Default: ""
- *     }>,
- * }
  * @psalm-type FrameworkConfig = array{
  *     secret?: scalar|Param|null, // A secret that must not change. The options that sign data default to it and take a list of secrets to rotate theirs.
  *     http_method_override?: bool|Param, // Set true to enable support for the '_method' request parameter to determine the intended HTTP method on POST requests. // Default: false
@@ -667,7 +655,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     scheduler?: SchedulerConfig,
  *     http_client?: HttpClientConfig,
  *     mailer?: MailerConfig,
- *     notifier?: NotifierConfig,
+ *     notifier?: mixed,
  *     rate_limiter?: mixed,
  *     uid?: UidConfig,
  *     html_sanitizer?: mixed,
@@ -1916,12 +1904,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     dump_typescript?: bool|Param, // Control whether TypeScript types are dumped alongside routes. Disable this if you do not use TypeScript (e.g. in production when using AssetMapper). // Default: true
  *     routes?: Param|string|list<scalar|Param|null>,
  * }
- * @psalm-type UxInspectorConfig = array{
- *     enabled?: bool|Param, // Enable the inspector. It stays off when kernel.debug is false. // Default: true
- *     pull_tab?: bool|Param, // Display a small pull tab on the right edge of the screen to open the Inspector. // Default: true
- *     exclude_paths?: list<scalar|Param|null>,
- *     ignore_selectors?: list<scalar|Param|null>,
- * }
  * @psalm-type UxMapConfig = array{
  *     renderer?: scalar|Param|null, // Default: null
  *     google_maps?: array{
@@ -1958,7 +1940,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     asset_mapper?: AssetMapperConfig,
  *     http_client?: HttpClientConfig,
  *     mailer?: MailerConfig,
- *     notifier?: NotifierConfig,
  *     framework?: FrameworkConfig,
  *     doctrine?: DoctrineConfig,
  *     doctrine_migrations?: DoctrineMigrationsConfig,
@@ -1996,7 +1977,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         asset_mapper?: AssetMapperConfig,
  *         http_client?: HttpClientConfig,
  *         mailer?: MailerConfig,
- *         notifier?: NotifierConfig,
  *         framework?: FrameworkConfig,
  *         debug?: DebugConfig,
  *         maker?: MakerConfig,
@@ -2016,7 +1996,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         ux_pagination?: UxPaginationConfig,
  *         ux_icons?: UxIconsConfig,
  *         ux_router?: UxRouterConfig,
- *         ux_inspector?: UxInspectorConfig,
  *         ux_map?: UxMapConfig,
  *         ux_translator?: UxTranslatorConfig,
  *     },
@@ -2040,7 +2019,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         asset_mapper?: AssetMapperConfig,
  *         http_client?: HttpClientConfig,
  *         mailer?: MailerConfig,
- *         notifier?: NotifierConfig,
  *         framework?: FrameworkConfig,
  *         doctrine?: DoctrineConfig,
  *         doctrine_migrations?: DoctrineMigrationsConfig,
@@ -2079,7 +2057,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         asset_mapper?: AssetMapperConfig,
  *         http_client?: HttpClientConfig,
  *         mailer?: MailerConfig,
- *         notifier?: NotifierConfig,
  *         framework?: FrameworkConfig,
  *         doctrine?: DoctrineConfig,
  *         doctrine_migrations?: DoctrineMigrationsConfig,

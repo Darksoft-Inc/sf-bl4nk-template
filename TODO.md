@@ -12,10 +12,26 @@ Baseline at review time:
 - `composer audit --locked` found no advisories.
 - Project-specific notes live in `docs/`. `AGENTS.md` is not part of this work.
 
+## Project context
+
+- The app is a starter application with as many features integrated as practical. It will be the common base for several public-facing services, such as an MMORPG and collaborative tools. Record this purpose in a new document, `docs/PURPOSE.md`, and use it as the reference when deciding which packages to keep, remove or change.
+- Symfony 8.2 RC1 is planned for the end of November 2026. Symfony 8.2.0-BETA1 stability is enough to start development, so the current beta does not block feature work. A stable release is still required before production use.
+- Translation support is required.
+- A user profile page with personal details and a password change option is required.
+- Some useful services are missing from the development container. Discuss them at a later stage; no container changes are planned yet.
+
 ## Done in this pass
 
 - [x] Create `TODO.md` from the state review.
 - [x] Create the first version of `docs/`.
+
+## P0: Define the project scope
+
+- [x] Write `docs/PURPOSE.md` and use it as the reference for package decisions.
+  - State that the app is a feature-rich starter app and the common base for public-facing services such as an MMORPG and collaborative tools.
+  - List the features a starter app must provide, then use that list to review `composer.json` and `importmap.php`.
+  - Link the document from `docs/README.md`.
+  - First version completed from the baseline, feature list, and example applications supplied on 2026-11-18.
 
 ## P0: Make a fresh checkout work
 
@@ -35,7 +51,7 @@ Baseline at review time:
   - [x] Add login and logout routes.
   - [x] Require a verified email address for login.
   - [x] Redirect login, registration, verification, and password change to `app_index`.
-  - [ ] Add access rules when protected pages exist.
+  - [ ] Add access rules when protected pages exist, starting with the profile page.
 
 ## P1: Fix functional and configuration gaps
 
@@ -51,7 +67,7 @@ Baseline at review time:
   - Configure a real `MAILER_DSN`. `.env:30` uses `null://null`.
   - Replace the default database password in `.env:47`.
   - Configure trusted hosts and proxies if the app runs behind a reverse proxy.
-  - Replace `admin@example.com` in `config/packages/notifier.yaml:12` or remove the notifier package.
+  - [x] Remove the notifier package and its placeholder `admin@example.com` recipient.
 
 - [ ] Remove hardcoded mail values from controllers.
   - Files: `src/Controller/RegistrationController.php:22-23,49` and `src/Controller/ResetPasswordController.php:28-29,162`.
@@ -77,8 +93,24 @@ Baseline at review time:
   - [x] Replace the commented redirect assertion in `tests/Controller/RegistrationControllerTest.php:47`.
 
 - [ ] Move off Symfony 8.2 beta before production use.
+  - Symfony 8.2 RC1 is planned for the end of November 2026. A beta is acceptable for development, so this item does not block feature work.
   - `composer.json:4-5` allows dev packages.
   - The runtime reports Symfony 8.2.0-BETA2.
+
+## P1: Add a user profile page
+
+- [ ] Add a profile page for signed-in users.
+  - Show personal details from `App\Entity\User`, such as the email address and verification state.
+  - Offer a password change option. Reuse `ChangePasswordFormType` and align its rules with registration (see the password rules item above).
+  - Add an access rule for the route, and tests for anonymous access and a successful password change.
+
+## P1: Add translation support
+
+- [ ] Add translation support across the app.
+  - Decide the default locale and the supported locales before coding.
+  - Cover templates, form labels and errors, validation messages, flash messages, and emails.
+  - Check the installed `symfony/translation`, `symfony/ux-translator`, and `twig/intl-extra` packages before adding dependencies.
+  - Add catalogs under `translations/` and verify them with `symfony console lint:translations`.
 
 ## P2: Add tests
 
@@ -88,7 +120,7 @@ Baseline at review time:
 - [ ] Password reset: unknown email, invalid token, expired token, reused token, mismatched passwords, weak password, and compromised password.
 - [ ] Account enumeration check for the reset request route.
 - [x] Login, logout, and verified email requirement.
-- [ ] Protected pages when routes that need a user exist.
+- [ ] Protected pages when routes that need a user exist, starting with the profile page.
 - [ ] Flash messages on the pages that display them.
 - [ ] Email content and signed URLs with the configured `DEFAULT_URI`.
 - [ ] Form and entity validation tests.
@@ -108,10 +140,17 @@ Baseline at review time:
 
 ## P2: Dependency and architecture review
 
-- [ ] Decide whether notifier, scheduler, messenger transports, and the installed UX packages are intentional.
+- [ ] Decide whether scheduler, messenger transports, and the remaining installed UX packages are intentional. Use `docs/PURPOSE.md` as the reference.
+  - Notifier, TUI, Inspector, and Chart.js were removed on 2026-11-18.
 - [ ] Remove unused packages from `composer.json` and `importmap.php` if they have no planned use.
 - [ ] Add a real admin or fixture user if role-based access is planned.
 - [ ] Review rate limiting for registration, login, verification, and password reset routes.
+
+## Later: development container services
+
+- [ ] Discuss and add useful services missing from the development container.
+  - `compose.yaml` currently provides PostgreSQL. `compose.override.yaml` publishes Mailpit ports without fixed host values.
+  - Collect the list of missing services before changing the container setup.
 
 ## Documentation follow-up
 

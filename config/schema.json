@@ -3079,7 +3079,7 @@
                         "$ref": "#/$defs/nodes/mailer"
                     },
                     "notifier": {
-                        "$ref": "#/$defs/nodes/notifier"
+                        "$ref": "#/$defs/types/variable"
                     },
                     "rate_limiter": {
                         "$ref": "#/$defs/types/variable"
@@ -6250,130 +6250,6 @@
                     }
                 },
                 "additionalProperties": false
-            },
-            "notifier": {
-                "anyOf": [
-                    {
-                        "$ref": "#/$defs/types/object_null",
-                        "properties": {
-                            "enabled": {
-                                "$ref": "#/$defs/types/boolean",
-                                "default": true
-                            },
-                            "message_bus": {
-                                "$ref": "#/$defs/types/scalar",
-                                "default": null,
-                                "description": "The message bus to use. Defaults to the default bus if the Messenger component is installed."
-                            },
-                            "chatter_transports": {
-                                "$ref": "#/$defs/types/object_null",
-                                "additionalProperties": {
-                                    "$ref": "#/$defs/types/scalar"
-                                }
-                            },
-                            "texter_transports": {
-                                "$ref": "#/$defs/types/object_null",
-                                "additionalProperties": {
-                                    "$ref": "#/$defs/types/scalar"
-                                }
-                            },
-                            "notification_on_failed_messages": {
-                                "$ref": "#/$defs/types/boolean",
-                                "default": false
-                            },
-                            "channel_policy": {
-                                "$ref": "#/$defs/types/object_null",
-                                "additionalProperties": {
-                                    "anyOf": [
-                                        {
-                                            "$ref": "#/$defs/types/array_null",
-                                            "items": {
-                                                "$ref": "#/$defs/types/scalar"
-                                            }
-                                        },
-                                        {
-                                            "type": [
-                                                "string"
-                                            ]
-                                        }
-                                    ]
-                                }
-                            },
-                            "admin_recipients": {
-                                "$ref": "#/$defs/types/array_null",
-                                "items": {
-                                    "$ref": "#/$defs/types/object_null",
-                                    "properties": {
-                                        "email": {
-                                            "$ref": "#/$defs/types/scalar"
-                                        },
-                                        "phone": {
-                                            "$ref": "#/$defs/types/scalar",
-                                            "default": ""
-                                        }
-                                    },
-                                    "additionalProperties": false
-                                }
-                            }
-                        },
-                        "patternProperties": {
-                            "^chatter_transport$": {
-                                "$ref": "#/$defs/types/variable"
-                            },
-                            "^texter_transport$": {
-                                "$ref": "#/$defs/types/variable"
-                            },
-                            "^admin_recipient$": {
-                                "anyOf": [
-                                    {
-                                        "$ref": "#/$defs/types/object_null",
-                                        "properties": {
-                                            "email": {
-                                                "$ref": "#/$defs/types/scalar"
-                                            },
-                                            "phone": {
-                                                "$ref": "#/$defs/types/scalar",
-                                                "default": ""
-                                            }
-                                        },
-                                        "additionalProperties": false
-                                    },
-                                    {
-                                        "$ref": "#/$defs/types/array_null",
-                                        "items": {
-                                            "$ref": "#/$defs/types/object_null",
-                                            "properties": {
-                                                "email": {
-                                                    "$ref": "#/$defs/types/scalar"
-                                                },
-                                                "phone": {
-                                                    "$ref": "#/$defs/types/scalar",
-                                                    "default": ""
-                                                }
-                                            },
-                                            "additionalProperties": false
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        "additionalProperties": false
-                    },
-                    {
-                        "type": [
-                            "boolean"
-                        ]
-                    }
-                ],
-                "default": {
-                    "enabled": true,
-                    "message_bus": null,
-                    "chatter_transports": [],
-                    "texter_transports": [],
-                    "notification_on_failed_messages": false,
-                    "channel_policy": [],
-                    "admin_recipients": []
-                }
             },
             "property_access": {
                 "anyOf": [
@@ -11292,53 +11168,6 @@
                 },
                 "additionalProperties": false
             },
-            "ux_inspector": {
-                "$ref": "#/$defs/types/object_null",
-                "properties": {
-                    "enabled": {
-                        "$ref": "#/$defs/types/boolean",
-                        "default": true,
-                        "description": "Enable the inspector. It stays off when kernel.debug is false."
-                    },
-                    "pull_tab": {
-                        "$ref": "#/$defs/types/boolean",
-                        "default": true,
-                        "description": "Display a small pull tab on the right edge of the screen to open the Inspector."
-                    },
-                    "exclude_paths": {
-                        "$ref": "#/$defs/types/array_null",
-                        "items": {
-                            "$ref": "#/$defs/types/scalar"
-                        },
-                        "default": [
-                            "/_profiler",
-                            "/_wdt",
-                            "/_error",
-                            "/_fragment"
-                        ],
-                        "description": "URL path prefixes where the inspector will not be injected"
-                    },
-                    "ignore_selectors": {
-                        "$ref": "#/$defs/types/array_null",
-                        "items": {
-                            "$ref": "#/$defs/types/scalar"
-                        },
-                        "description": "CSS selectors for DOM elements to skip during component detection"
-                    }
-                },
-                "additionalProperties": false,
-                "default": {
-                    "enabled": true,
-                    "pull_tab": true,
-                    "exclude_paths": [
-                        "/_profiler",
-                        "/_wdt",
-                        "/_error",
-                        "/_fragment"
-                    ],
-                    "ignore_selectors": []
-                }
-            },
             "ux_map": {
                 "$ref": "#/$defs/types/object_null",
                 "properties": {
@@ -11958,9 +11787,6 @@
         "monolog": {
             "$ref": "#/$defs/nodes/monolog"
         },
-        "notifier": {
-            "$ref": "#/$defs/nodes/notifier"
-        },
         "property_access": {
             "$ref": "#/$defs/nodes/property_access"
         },
@@ -12070,9 +11896,6 @@
                 "monolog": {
                     "$ref": "#/$defs/nodes/monolog"
                 },
-                "notifier": {
-                    "$ref": "#/$defs/nodes/notifier"
-                },
                 "parameters": true,
                 "property_access": {
                     "$ref": "#/$defs/nodes/property_access"
@@ -12125,9 +11948,6 @@
                 },
                 "ux_icons": {
                     "$ref": "#/$defs/nodes/ux_icons"
-                },
-                "ux_inspector": {
-                    "$ref": "#/$defs/nodes/ux_inspector"
                 },
                 "ux_map": {
                     "$ref": "#/$defs/nodes/ux_map"
@@ -12189,9 +12009,6 @@
                 },
                 "monolog": {
                     "$ref": "#/$defs/nodes/monolog"
-                },
-                "notifier": {
-                    "$ref": "#/$defs/nodes/notifier"
                 },
                 "parameters": true,
                 "property_access": {
@@ -12307,9 +12124,6 @@
                 },
                 "monolog": {
                     "$ref": "#/$defs/nodes/monolog"
-                },
-                "notifier": {
-                    "$ref": "#/$defs/nodes/notifier"
                 },
                 "property_access": {
                     "$ref": "#/$defs/nodes/property_access"
