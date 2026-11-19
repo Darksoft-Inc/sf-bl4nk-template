@@ -40,6 +40,14 @@ Consequence: unverified users cannot sign in. The profile route requires `ROLE_U
 
 Open question: which other routes need access rules when the app grows.
 
+## Email verification signer
+
+Decision from 2026-11-19: override the verify-email bundle's signer service to set a default expiration.
+
+Evidence: Symfony 8.2 deprecates `UriSigner::sign()` without an expiration. The bundle builds its own signer through `UriSignerFactory` as `symfonycasts.verify_email.uri_signer`, so the `framework.uri_signer.expiration` option does not reach that instance. No released or unreleased bundle version passes an expiration, including the 2.x branch under development on 2026-11-19.
+
+Consequence: `config/services.yaml` defines the service with the arguments the bundle uses, `'%kernel.secret%'` and `signature`, plus a default expiration of 1 day. The value stays above the bundle link lifetime of 1 hour, so the bundle's own expiry check reports an expired link and the signer expiration acts as a safety net. Both runners report no deprecations since the override. The override is removed when the bundle passes an expiration itself.
+
 ## Translations
 
 Current choice: `en` is the default locale and the only enabled locale.
@@ -64,7 +72,7 @@ Evidence: every test class extends `TestCase` or `WebTestCase` and uses no Pest-
 
 Consequence: tests stay in the PHPUnit class style, including future tests. Pest-only features such as `test()` closures and `arch()` would leave `php bin/phpunit` unable to run the whole suite, so they are not used. `run_tests` in `aliases.sh` runs `php bin/phpunit`.
 
-Deprecation reporting: with PHPUnit 10 and newer, the bridge does not register its deprecation handler and `SYMFONY_DEPRECATIONS_HELPER` has no effect. PHPUnit reports deprecations itself, and `phpunit.dist.xml` fails the run on app code deprecations through `failOnSelfDeprecation` and `failOnDirectDeprecation` while reporting vendor triggered indirect deprecations without failing. Both runners show the `UriSigner::sign()` deprecation and exit 0.
+Deprecation reporting: with PHPUnit 10 and newer, the bridge does not register its deprecation handler and `SYMFONY_DEPRECATIONS_HELPER` has no effect. PHPUnit reports deprecations itself, and `phpunit.dist.xml` fails the run on app code deprecations through `failOnSelfDeprecation` and `failOnDirectDeprecation` while reporting vendor triggered indirect deprecations without failing. The `UriSigner::sign()` deprecation that both runners showed was resolved on 2026-11-19 through the signer override; see the Email verification signer section.
 
 ## Content-heavy pages
 

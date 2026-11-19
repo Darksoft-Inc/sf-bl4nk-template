@@ -23,3 +23,16 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    # The verify-email bundle builds its own UriSigner and signs verification
+    # links without an expiration, which Symfony 8.2 deprecates. The
+    # "framework.uri_signer" option cannot reach that private signer, so this
+    # definition replaces it and sets a default expiration. The value must stay
+    # above the bundle link lifetime of 1 hour (symfonycasts_verify_email
+    # lifetime, default 3600), because the bundle then reports an expired link
+    # while the signer reports an invalid signature. "signature" keeps the query
+    # parameter name of the bundle links. Remove this definition when the bundle
+    # passes an expiration itself.
+    symfonycasts.verify_email.uri_signer:
+        class: Symfony\Component\HttpFoundation\UriSigner
+        arguments: ['%kernel.secret%', 'signature', '_expiration', null, 86400]

@@ -18,7 +18,9 @@ Tests stay in the PHPUnit class style, so both commands run the whole suite. Rec
 
 ## Deprecations
 
-Both commands report the `UriSigner::sign()` deprecation from the verify-email bundle and both exit 0.
+Both commands report no deprecations and exit 0.
+
+The `UriSigner::sign()` deprecation from the verify-email bundle was resolved on 2026-11-19. The bundle builds its own signer and signs without an expiration, so `config/services.yaml` overrides the bundle's `symfonycasts.verify_email.uri_signer` service with a default expiration. See `docs/CONFIGURATION.md` and `docs/DECISIONS.md` for the details and the removal condition.
 
 PHPUnit 13 does not use the bridge deprecation handler; PHPUnit itself reports deprecations, and `trigger_deprecation` is registered in the `<deprecationTrigger>` list of `phpunit.dist.xml`. The file fails the run on deprecations triggered by app code through `failOnSelfDeprecation` and `failOnDirectDeprecation`, and reports vendor triggered indirect deprecations without failing. With only indirect deprecations, the summary says `OK, but there were issues!` and the exit code is 0.
 

@@ -12,7 +12,7 @@ Baseline at review time:
 - `composer audit --locked` found no advisories.
 - Project-specific notes live in `docs/`. `AGENTS.md` is not part of this work.
 
-Progress on 2026-11-19: a fresh checkout works with the two documented commands, the generated leftovers are gone, translation support covers templates, forms, validation, flash messages, and emails, the test suite has a reset helper and 96 passing assertions with the deprecation visible in both runners, the dependency review ended with only `symfony/web-link` and `symfony/expression-language` removed, and the dev container gained Adminer. The remaining open items are deferred work: production values and rate limiting, the signed URL deprecation, the move off the 8.2 beta, the P2 test list, and CI.
+Progress on 2026-11-19: a fresh checkout works with the two documented commands, the generated leftovers are gone, translation support covers templates, forms, validation, flash messages, and emails, the test suite has a reset helper and 96 passing assertions with the deprecation visible in both runners, the dependency review ended with only `symfony/web-link` and `symfony/expression-language` removed, and the dev container gained Adminer. The signed URL deprecation was resolved later the same day through the signer service override in `config/services.yaml`. The remaining open items are deferred work: production values and rate limiting, the move off the 8.2 beta, the P2 test list, and CI.
 
 ## Project context
 
@@ -77,11 +77,15 @@ Progress on 2026-11-19: a fresh checkout works with the two documented commands,
 - [x] Remove hardcoded mail values from controllers.
   - Sender values now come from `ADMIN_EMAIL` and `ADMIN_NAME` through `app.admin_email` and `app.admin_name` in `config/services.yaml`.
 
-- [ ] Handle the Symfony 8.2 signed URL deprecation.
+- [x] Handle the Symfony 8.2 signed URL deprecation.
   - `vendor/bin/pest -v` reports that `UriSigner::sign()` needs an explicit expiration.
   - Since 2026-11-19, `php bin/phpunit` reports the same deprecation and exits 0, so both runners show it. See the Deprecations section in `docs/TESTING.md`.
   - Check the verify-email bundle behavior first.
   - The available option is `framework.uri_signer.expiration` in `config/reference.php:637-640`.
+  - Finding on 2026-11-19: the option does not fix this deprecation. The bundle builds its own signer through `UriSignerFactory` as `symfonycasts.verify_email.uri_signer`, and `framework.uri_signer.expiration` configures the framework's separate `uri_signer` service. No released or unreleased bundle version passes an expiration, including the 2.x branch.
+  - Fix: `config/services.yaml` overrides the bundle service with the bundle's arguments, `'%kernel.secret%'` and `signature`, plus a default expiration of 1 day. The value stays above the bundle's 1 hour link lifetime, so the bundle's own expiry check still decides the error message. Recorded in `docs/DECISIONS.md` and `docs/CONFIGURATION.md`.
+  - Verified on 2026-11-19: `php bin/phpunit` and `vendor/bin/pest -v` report 11 tests and 96 assertions with no deprecations, and PHPStan, `lint:yaml`, `lint:container`, and `lint:translations` pass.
+  - No upstream issue existed on 2026-11-19. An issue draft for `SymfonyCasts/verify-email-bundle` is pending a decision on posting.
 
 - [x] Align password rules.
   - Both forms now use `PasswordConstraints::forNewPassword()`: 12 characters, password strength, and compromised password check.
