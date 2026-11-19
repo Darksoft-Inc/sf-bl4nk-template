@@ -1,19 +1,19 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Start{% endblock %}
+{% block title %}{{ 'app.page.start'|trans }}{% endblock %}
 
 {% block body %}
 <main>
-    <h1>Start</h1>
+    <h1>{{ 'app.page.start'|trans }}</h1>
 
     <ul>
         {% if app.user %}
-            <li><a href="{{ path('app_profile') }}">Profile</a></li>
-            <li><a href="{{ path('app_logout') }}">Log out</a></li>
+            <li><a href="{{ path('app_profile') }}">{{ 'app.navigation.profile'|trans }}</a></li>
+            <li><a href="{{ path('app_logout') }}">{{ 'app.navigation.logout'|trans }}</a></li>
         {% else %}
-            <li><a href="{{ path('app_login') }}">Log in</a></li>
-            <li><a href="{{ path('app_register') }}">Register</a></li>
-            <li><a href="{{ path('app_forgot_password_request') }}">Reset your password</a></li>
+            <li><a href="{{ path('app_login') }}">{{ 'app.navigation.login'|trans }}</a></li>
+            <li><a href="{{ path('app_register') }}">{{ 'app.navigation.register'|trans }}</a></li>
+            <li><a href="{{ path('app_forgot_password_request') }}">{{ 'app.navigation.reset_password'|trans }}</a></li>
         {% endif %}
     </ul>
 </main>

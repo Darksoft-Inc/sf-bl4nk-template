@@ -3,6 +3,7 @@ namespace App\Tests\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use App\Tests\ResetDatabase;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -11,6 +12,8 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class ResetPasswordControllerTest extends WebTestCase
 {
+    use ResetDatabase;
+
     private KernelBrowser $client;
     private EntityManagerInterface $em;
     private UserRepository $userRepository;
@@ -19,7 +22,6 @@ final class ResetPasswordControllerTest extends WebTestCase
     {
         $this->client = static::createClient();
 
-        // Ensure we have a clean database
         $container = static::getContainer();
 
         /** @var EntityManagerInterface $em */
@@ -28,11 +30,7 @@ final class ResetPasswordControllerTest extends WebTestCase
 
         $this->userRepository = $container->get(UserRepository::class);
 
-        foreach ($this->userRepository->findAll() as $user) {
-            $this->em->remove($user);
-        }
-
-        $this->em->flush();
+        $this->resetDatabase($this->em);
     }
 
     public function testResetPasswordController(): void
@@ -65,6 +63,7 @@ final class ResetPasswordControllerTest extends WebTestCase
 
         self::assertEmailAddressContains($messages[0], 'from', 'admin@example.com');
         self::assertEmailAddressContains($messages[0], 'to', 'me@example.com');
+        self::assertEmailSubjectContains($messages[0], 'Your password reset request');
         self::assertEmailTextBodyContains($messages[0], 'This link will expire in 1 hour.');
 
         self::assertResponseRedirects('/reset-password/check-email');

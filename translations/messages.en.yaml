@@ -1,20 +1,56 @@
-# General messages used by shared pages.
+# Messages for the shared pages: navigation, forms, flash messages, and emails.
 
 app:
+    page:
+        start: Start
+        login: Log in
+        register: Register
+        reset_password: 'Reset your password'
+        check_email: 'Password Reset Email Sent'
+        profile: Profile
     navigation:
         login: Log in
         logout: Log out
-        profile: Profile
         register: Register
-        reset_password: Reset your password
+        reset_password: 'Reset your password'
+        profile: Profile
     account:
         email: Email
         password: Password
+        email_verification: 'Email verification'
         verified: Verified
-        not_verified: Not verified
-        change_password: Change password
-        forgot_password: Forgot your password?
-        password_changed: Your password has been changed.
-        email_verified: Your email address has been verified.
-    page:
-        start: Start
+        not_verified: 'Not verified'
+        change_password: 'Change password'
+        forgot_password: 'Forgot your password?'
+    login:
+        logged_in_as: 'You are logged in as %identifier%.'
+    flash:
+        email_verified: 'Your email address has been verified.'
+        password_changed: 'Your password has been changed.'
+    form:
+        agree_terms: 'Agree terms'
+        new_password: 'New password'
+        repeat_password: 'Repeat Password'
+        password_must_match: 'The password fields must match.'
+    reset_password:
+        request_help: 'Enter your email address, and we will send you a link to reset your password.'
+        send_email: 'Send password reset email'
+        reset: 'Reset password'
+        check_email:
+            sent: 'If an account matching your email exists, then an email was just sent that contains a link that you can use to reset your password.'
+            expires: 'This link will expire in %expires%.'
+            not_received: "If you don't receive an email please check your spam folder or"
+            try_again: 'try again'
+    email:
+        greeting: 'Hi!'
+        cheers: 'Cheers!'
+        verification:
+            subject: 'Please Confirm your Email'
+            heading: 'Hi! Please confirm your email!'
+            intro: 'Please confirm your email address by clicking the following link:'
+            link: 'Confirm my Email'
+            expires: 'This link will expire in %expires%.'
+        reset:
+            subject: 'Your password reset request'
+            intro: 'To reset your password, please visit the following link'
+            expires: 'This link will expire in %expires%.'

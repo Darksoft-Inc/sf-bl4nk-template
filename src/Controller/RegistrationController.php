@@ -49,7 +49,6 @@ class RegistrationController extends AbstractController
                 (new TemplatedEmail())
                     ->from(new Address($this->adminEmail, $this->adminName))
                     ->to((string) $user->getEmail())
-                    ->subject('Please Confirm your Email')
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
@@ -85,7 +84,7 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        $this->addFlash('success', 'Your email address has been verified.');
+        $this->addFlash('success', $translator->trans('app.flash.email_verified'));
 
         return $this->redirectToRoute('app_index');
     }

@@ -2,6 +2,7 @@
 namespace App\Tests\Controller;
 
 use App\Repository\UserRepository;
+use App\Tests\ResetDatabase;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
@@ -9,6 +10,8 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 final class RegistrationControllerTest extends WebTestCase
 {
+    use ResetDatabase;
+
     private KernelBrowser $client;
     private UserRepository $userRepository;
 
@@ -16,18 +19,13 @@ final class RegistrationControllerTest extends WebTestCase
     {
         $this->client = static::createClient();
 
-        // Ensure we have a clean database
         $container = static::getContainer();
 
         /** @var EntityManager $em */
         $em = $container->get('doctrine')->getManager();
         $this->userRepository = $container->get(UserRepository::class);
 
-        foreach ($this->userRepository->findAll() as $user) {
-            $em->remove($user);
-        }
-
-        $em->flush();
+        $this->resetDatabase($em);
     }
 
     public function testRegister(): void
@@ -56,6 +54,7 @@ final class RegistrationControllerTest extends WebTestCase
         self::assertCount(1, $messages = $this->getMailerMessages());
         self::assertEmailAddressContains($messages[0], 'from', 'admin@example.com');
         self::assertEmailAddressContains($messages[0], 'to', 'me@example.com');
+        self::assertEmailSubjectContains($messages[0], 'Please Confirm your Email');
         self::assertEmailTextBodyContains($messages[0], 'This link will expire in 1 hour.');
 
         // Login the new user

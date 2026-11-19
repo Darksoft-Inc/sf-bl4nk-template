@@ -1,0 +1,5 @@
+# Messages shown on the security pages. The domain name matches the security
+# bundle catalog, so the login template translates error keys in one domain.
+
+app:
+    verified_email_required: 'Please verify your email address before logging in.'

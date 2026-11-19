@@ -1,0 +1,12 @@
+# Validation messages for the app entities and forms.
+
+app:
+    user:
+        email_taken: 'There is already an account with this email'
+    registration:
+        agree_terms: 'You should agree to our terms.'
+    email:
+        not_blank: 'Please enter your email'
+    password:
+        not_blank: 'Please enter a password'
+        min_length: 'Your password should be at least {{ limit }} characters'

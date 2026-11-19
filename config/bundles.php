@@ -21,7 +21,7 @@ return [
     Symfony\UX\Dropzone\DropzoneBundle::class => ['all' => true],
     Symfony\UX\Autocomplete\AutocompleteBundle::class => ['all' => true],
     Symfony\UX\Icons\UXIconsBundle::class => ['all' => true],
-    Symfony\UX\Router\UXRouterBundle::class => ['all' => true],
     Symfony\UX\Map\UXMapBundle::class => ['all' => true],
     Symfony\UX\Translator\UxTranslatorBundle::class => ['all' => true],
+    Symfony\UX\Router\UXRouterBundle::class => ['all' => true],
 ];

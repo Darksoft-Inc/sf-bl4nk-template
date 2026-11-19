@@ -47,9 +47,12 @@ Keep a package when it supports the baseline or a target feature. Remove a packa
 | Area | Current support | Decision |
 |---|---|---|
 | Pages and layout | `symfony/twig-bundle`, `symfony/asset-mapper`, `symfonycasts/sass-bundle`, `twbs/bootstrap` | Keep. Bootstrap 5.3 and Stimulus are the baseline. Do not add Turbo without changing the baseline. |
-| Account management | `symfony/security-bundle`, `symfony/form`, `symfony/validator`, `symfony/mailer`, `symfonycasts/reset-password-bundle`, `symfonycasts/verify-email-bundle` | Keep. The profile page still needs to be built. |
-| Translations | `symfony/translation`, `symfony/ux-translator`, `symfony/intl`, `twig/intl-extra` | Keep. Translation catalogs still need to be added. |
+| Routes in JavaScript | `symfony/ux-router`, the `@symfony/ux-router` entry in `importmap.php` | Keep. JavaScript reads routes from the router instead of data attributes rendered by controllers. |
+| Entity identifiers | `symfony/uid` | Keep. Entities can hold a UUID or ULID value, so code can create relations before the database assigns the auto-generated key. |
+| Account management | `symfony/security-bundle`, `symfony/form`, `symfony/validator`, `symfony/mailer`, `symfony/http-client`, `symfonycasts/reset-password-bundle`, `symfonycasts/verify-email-bundle` | Keep. `symfony/http-client` runs the compromised password check. |
+| Translations | `symfony/translation`, `symfony/ux-translator`, `symfony/intl`, `twig/intl-extra` | Keep. The catalogs live in `translations/`. |
 | Annotated map | `symfony/ux-map`, `symfony/ux-leaflet-map`, Leaflet entries in `importmap.php` | Keep. |
+| JSON for the frontend | `symfony/serializer` | Keep. Dynamic frontend data, such as map annotations and autocomplete results, arrives as JSON. |
 | Scheduled maintenance | `symfony/scheduler`, `symfony/messenger`, `symfony/doctrine-messenger` | Keep. Choose and document a transport before using background jobs. |
 | User uploads | `symfony/ux-dropzone`, `symfony/validator` | Keep the upload control. Decide storage and image processing when the feature is built. |
 | Blog and documentation pages | Doctrine ORM and Twig | No extra package is needed at this stage. |
@@ -64,5 +67,7 @@ The following packages were removed because no target feature needs them:
 - `symfony/tui`: It builds interactive command line interfaces. The starter app has no command line tools.
 - `symfony/ux-inspector`: It is an experimental development tool for Stimulus, LiveComponent, and Turbo. The baseline uses Stimulus without Turbo.
 - `symfony/ux-chartjs`: Statistics display is too specific for the shared base. A derived application can add chart support with its own data.
+- `symfony/web-link`: The package sends no header by itself; a feature must call `preload()` or `link()`. Add it back when a preload or performance feature is designed.
+- `symfony/expression-language`: No route condition, security expression, or configuration expression exists. Complex access rules fit a security voter better. Add the package back if an expression declared in configuration appears.
 
 The same rule applies to JavaScript entries in `importmap.php`. An entry without a feature is a removal candidate.

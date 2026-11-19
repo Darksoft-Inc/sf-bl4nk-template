@@ -29,12 +29,12 @@ class ChangePasswordFormType extends AbstractType
                 ],
                 'first_options' => [
                     'constraints' => $this->passwordConstraints->forNewPassword(),
-                    'label' => 'New password',
+                    'label' => 'app.form.new_password',
                 ],
                 'second_options' => [
-                    'label' => 'Repeat Password',
+                    'label' => 'app.form.repeat_password',
                 ],
-                'invalid_message' => 'The password fields must match.',
+                'invalid_message' => 'app.form.password_must_match',
                 // Instead of being set onto the object directly,
                 // this is read and encoded in the controller
                 'mapped' => false,

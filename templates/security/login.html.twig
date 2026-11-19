@@ -1,6 +1,6 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in{% endblock %}
+{% block title %}{{ 'app.page.login'|trans }}{% endblock %}
 
 {% block body %}
 <main>
@@ -9,21 +9,21 @@
     {% endif %}
 
     {% if app.user %}
-        <p>You are logged in as {{ app.user.userIdentifier }}. <a href="{{ path('app_logout') }}">Log out</a></p>
+        <p>{{ 'app.login.logged_in_as'|trans({'%identifier%': app.user.userIdentifier}) }} <a href="{{ path('app_logout') }}">{{ 'app.navigation.logout'|trans }}</a></p>
     {% endif %}
 
-    <h1>Log in</h1>
+    <h1>{{ 'app.page.login'|trans }}</h1>
 
     <form method="post">
-        <label for="username">Email</label>
+        <label for="username">{{ 'app.account.email'|trans }}</label>
         <input type="email" value="{{ last_username }}" name="_username" id="username" autocomplete="email" required autofocus>
-        <label for="password">Password</label>
+        <label for="password">{{ 'app.account.password'|trans }}</label>
         <input type="password" name="_password" id="password" autocomplete="current-password" required>
         <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
 
-        <button type="submit">Log in</button>
+        <button type="submit">{{ 'app.navigation.login'|trans }}</button>
     </form>
 
-    <p><a href="{{ path('app_forgot_password_request') }}">Forgot your password?</a></p>
+    <p><a href="{{ path('app_forgot_password_request') }}">{{ 'app.account.forgot_password'|trans }}</a></p>
 </main>
 {% endblock %}

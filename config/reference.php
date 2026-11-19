@@ -37,7 +37,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  * @psalm-type ArgumentsType = list<mixed>|array<string, mixed>
  * @psalm-type CallType = array<string, ArgumentsType>|array{0:string, 1?:ArgumentsType, 2?:bool}|array{method:string, arguments?:ArgumentsType, returns_clone?:bool}
  * @psalm-type TagsType = list<string|array<string, array<string, mixed>>> // arrays inside the list must have only one element, with the tag name as the key
- * @psalm-type CallbackType = string|array{0:string|ReferenceConfigurator,1:string}|\Closure|ReferenceConfigurator|ExpressionConfigurator
+ * @psalm-type CallbackType = string|array{0:string|ReferenceConfigurator,1:string}|\Closure|ReferenceConfigurator
  * @psalm-type DeprecationType = array{package: string, version: string, message?: string}
  * @psalm-type DefaultsType = array{
  *     public?: bool,
@@ -252,9 +252,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         parameters?: array<string, scalar|Param|null>,
  *         domain?: string|Param,
  *     }>,
- * }
- * @psalm-type WebLinkConfig = bool|array{ // Web links configuration
- *     enabled?: bool|Param, // Resolved at compile time // Default: true
  * }
  * @psalm-type MessengerConfig = bool|array{
  *     enabled?: bool|Param, // Resolved at compile time // Default: true
@@ -648,7 +645,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     type_info?: TypeInfoConfig,
  *     property_info?: PropertyInfoConfig,
  *     cache?: CacheConfig,
- *     web_link?: WebLinkConfig,
+ *     web_link?: mixed,
  *     lock?: mixed,
  *     semaphore?: mixed,
  *     messenger?: MessengerConfig,
@@ -1899,11 +1896,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     ignore_not_found?: bool|Param, // Ignore error when an icon is not found. Set to 'true' to fail silently. // Default: false
  * }
- * @psalm-type UxRouterConfig = array{
- *     dump_directory?: scalar|Param|null, // The directory where routes and TypeScript types are dumped. // Default: "%kernel.project_dir%/var/routes"
- *     dump_typescript?: bool|Param, // Control whether TypeScript types are dumped alongside routes. Disable this if you do not use TypeScript (e.g. in production when using AssetMapper). // Default: true
- *     routes?: Param|string|list<scalar|Param|null>,
- * }
  * @psalm-type UxMapConfig = array{
  *     renderer?: scalar|Param|null, // Default: null
  *     google_maps?: array{
@@ -1920,6 +1912,11 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     },
  *     keys_patterns?: Param|string|list<scalar|Param|null>,
  * }
+ * @psalm-type UxRouterConfig = array{
+ *     dump_directory?: scalar|Param|null, // The directory where routes and TypeScript types are dumped. // Default: "%kernel.project_dir%/var/routes"
+ *     dump_typescript?: bool|Param, // Control whether TypeScript types are dumped alongside routes. Disable this if you do not use TypeScript (e.g. in production when using AssetMapper). // Default: true
+ *     routes?: Param|string|list<scalar|Param|null>,
+ * }
  * @psalm-type ConfigType = array{
  *     imports?: ImportsConfig,
  *     parameters?: ParametersConfig,
@@ -1930,7 +1927,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     serializer?: SerializerConfig,
  *     validation?: ValidationConfig,
  *     translation?: TranslationConfig,
- *     web_link?: WebLinkConfig,
  *     messenger?: MessengerConfig,
  *     type_info?: TypeInfoConfig,
  *     property_access?: PropertyAccessConfig,
@@ -1954,9 +1950,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     twig_component?: TwigComponentConfig,
  *     ux_pagination?: UxPaginationConfig,
  *     ux_icons?: UxIconsConfig,
- *     ux_router?: UxRouterConfig,
  *     ux_map?: UxMapConfig,
  *     ux_translator?: UxTranslatorConfig,
+ *     ux_router?: UxRouterConfig,
  *     "when@dev"?: array{
  *         imports?: ImportsConfig,
  *         parameters?: ParametersConfig,
@@ -1967,7 +1963,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         serializer?: SerializerConfig,
  *         validation?: ValidationConfig,
  *         translation?: TranslationConfig,
- *         web_link?: WebLinkConfig,
  *         messenger?: MessengerConfig,
  *         type_info?: TypeInfoConfig,
  *         property_access?: PropertyAccessConfig,
@@ -1995,9 +1990,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         ux_toolkit?: UxToolkitConfig,
  *         ux_pagination?: UxPaginationConfig,
  *         ux_icons?: UxIconsConfig,
- *         ux_router?: UxRouterConfig,
  *         ux_map?: UxMapConfig,
  *         ux_translator?: UxTranslatorConfig,
+ *         ux_router?: UxRouterConfig,
  *     },
  *     "when@prod"?: array{
  *         imports?: ImportsConfig,
@@ -2009,7 +2004,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         serializer?: SerializerConfig,
  *         validation?: ValidationConfig,
  *         translation?: TranslationConfig,
- *         web_link?: WebLinkConfig,
  *         messenger?: MessengerConfig,
  *         type_info?: TypeInfoConfig,
  *         property_access?: PropertyAccessConfig,
@@ -2033,9 +2027,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         twig_component?: TwigComponentConfig,
  *         ux_pagination?: UxPaginationConfig,
  *         ux_icons?: UxIconsConfig,
- *         ux_router?: UxRouterConfig,
  *         ux_map?: UxMapConfig,
  *         ux_translator?: UxTranslatorConfig,
+ *         ux_router?: UxRouterConfig,
  *     },
  *     "when@test"?: array{
  *         imports?: ImportsConfig,
@@ -2047,7 +2041,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         serializer?: SerializerConfig,
  *         validation?: ValidationConfig,
  *         translation?: TranslationConfig,
- *         web_link?: WebLinkConfig,
  *         messenger?: MessengerConfig,
  *         type_info?: TypeInfoConfig,
  *         property_access?: PropertyAccessConfig,
@@ -2073,9 +2066,9 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         ux_toolkit?: UxToolkitConfig,
  *         ux_pagination?: UxPaginationConfig,
  *         ux_icons?: UxIconsConfig,
- *         ux_router?: UxRouterConfig,
  *         ux_map?: UxMapConfig,
  *         ux_translator?: UxTranslatorConfig,
+ *         ux_router?: UxRouterConfig,
  *     },
  *     ...<string, ExtensionType|array{ // extra keys must follow the when@%env% pattern or match an extension alias
  *         imports?: ImportsConfig,

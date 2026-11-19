@@ -4,7 +4,8 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
          colors="true"
-         failOnDeprecation="true"
+         failOnSelfDeprecation="true"
+         failOnDirectDeprecation="true"
          failOnNotice="true"
          failOnWarning="true"
          bootstrap="tests/bootstrap.php"
@@ -25,7 +26,6 @@
     </testsuites>
 
     <source ignoreSuppressionOfDeprecations="true"
-            ignoreIndirectDeprecations="true"
             restrictNotices="true"
             restrictWarnings="true"
     >

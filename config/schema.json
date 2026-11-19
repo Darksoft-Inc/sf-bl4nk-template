@@ -3058,7 +3058,7 @@
                         "$ref": "#/$defs/nodes/cache"
                     },
                     "web_link": {
-                        "$ref": "#/$defs/nodes/web_link"
+                        "$ref": "#/$defs/types/variable"
                     },
                     "lock": {
                         "$ref": "#/$defs/types/variable"
@@ -11687,29 +11687,6 @@
                     "auto_mapping": []
                 }
             },
-            "web_link": {
-                "anyOf": [
-                    {
-                        "$ref": "#/$defs/types/object_null",
-                        "properties": {
-                            "enabled": {
-                                "$ref": "#/$defs/types/boolean",
-                                "default": true
-                            }
-                        },
-                        "additionalProperties": false
-                    },
-                    {
-                        "type": [
-                            "boolean"
-                        ]
-                    }
-                ],
-                "default": {
-                    "enabled": true
-                },
-                "description": "Web links configuration"
-            },
             "web_profiler": {
                 "$ref": "#/$defs/types/object_null",
                 "properties": {
@@ -11853,9 +11830,6 @@
         "validation": {
             "$ref": "#/$defs/nodes/validation"
         },
-        "web_link": {
-            "$ref": "#/$defs/nodes/web_link"
-        },
         "when@dev": {
             "$ref": "#/$defs/types/object_null",
             "properties": {
@@ -11966,9 +11940,6 @@
                 },
                 "validation": {
                     "$ref": "#/$defs/nodes/validation"
-                },
-                "web_link": {
-                    "$ref": "#/$defs/nodes/web_link"
                 },
                 "web_profiler": {
                     "$ref": "#/$defs/nodes/web_profiler"
@@ -12081,9 +12052,6 @@
                 "validation": {
                     "$ref": "#/$defs/nodes/validation"
                 },
-                "web_link": {
-                    "$ref": "#/$defs/nodes/web_link"
-                },
                 "web_profiler": {
                     "$ref": "#/$defs/nodes/web_profiler"
                 }
@@ -12190,9 +12158,6 @@
                 },
                 "validation": {
                     "$ref": "#/$defs/nodes/validation"
-                },
-                "web_link": {
-                    "$ref": "#/$defs/nodes/web_link"
                 }
             }
         }

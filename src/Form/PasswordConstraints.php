@@ -26,11 +26,11 @@ final class PasswordConstraints
 
         $constraints = [
             new NotBlank(
-                message: 'Please enter a password',
+                message: 'app.password.not_blank',
             ),
             new Length(
                 min: $isDevelopment ? 6 : 12,
-                minMessage: 'Your password should be at least {{ limit }} characters',
+                minMessage: 'app.password.min_length',
                 // Symfony limits the length of hashed passwords for security reasons.
                 max: 4096,
             ),

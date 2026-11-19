@@ -28,7 +28,15 @@ docker compose up -d
 symfony serve -d
 ```
 
-`compose.override.yaml` publishes Mailpit ports without fixed host values. Use `docker compose ps` to see the assigned ports.
+`compose.override.yaml` publishes the PostgreSQL and Mailpit ports without fixed host values. Use `docker compose ps` to see the assigned ports, or `symfony open:local:webmail` to open the mail interface directly.
+
+## Development tools
+
+- **Database**: Adminer runs at `http://localhost:8080` when the containers are up. The login form already proposes the `database` host. Sign in with the `app` user, the password from `POSTGRES_PASSWORD` (`!ChangeMe!` by default), and the `app` database.
+- **Emails**: Mailpit catches the mail sent through `symfony serve`, because the CLI injects `MAILER_DSN` for the running containers. Open the interface with `symfony open:local:webmail`.
+- **Styles**: `symfony serve` starts the Sass watch worker from `.symfony.local.yaml`. Save an `.scss` file and the worker rebuilds `var/sass`; reload the page to see the change. Development serves assets without a build cache.
+- **Scripts**: JavaScript has no build step. Save the file and reload the page.
+- **Automatic page updates**: `templates/base.html.twig` links the FrankenPHP hot reload client, which activates with the `FRANKENPHP_HOT_RELOAD` environment variable. That path needs the app served by FrankenPHP plus the watcher of the frankenphp-hot-reload package. The plain `symfony serve` runtime does not provide it.
 
 ## Create the development database
 

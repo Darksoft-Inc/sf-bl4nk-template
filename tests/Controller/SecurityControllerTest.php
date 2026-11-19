@@ -3,7 +3,7 @@
 namespace App\Tests\Controller;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
+use App\Tests\ResetDatabase;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
@@ -11,9 +11,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class SecurityControllerTest extends WebTestCase
 {
+    use ResetDatabase;
     private KernelBrowser $client;
     private EntityManagerInterface $entityManager;
-    private UserRepository $userRepository;
     private UserPasswordHasherInterface $passwordHasher;
 
     protected function setUp(): void
@@ -22,14 +22,9 @@ final class SecurityControllerTest extends WebTestCase
         $container = static::getContainer();
 
         $this->entityManager = $container->get('doctrine.orm.entity_manager');
-        $this->userRepository = $container->get(UserRepository::class);
         $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
 
-        foreach ($this->userRepository->findAll() as $user) {
-            $this->entityManager->remove($user);
-        }
-
-        $this->entityManager->flush();
+        $this->resetDatabase($this->entityManager);
     }
 
     public function testLoginPage(): void

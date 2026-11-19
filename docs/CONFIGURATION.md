@@ -27,7 +27,13 @@ Replace both defaults before deployment. The current values are placeholders.
 
 ## Translations
 
-`framework.enabled_locales` is set to `['en']` in `config/packages/framework.yaml`. `translations/messages.en.yaml` holds general messages for shared pages. Templates still use literal text until the full translation pass.
+`framework.enabled_locales` is set to `['en']` in `config/packages/framework.yaml`, and `en` is the default locale. Three catalogs live in `translations/`:
+
+- `messages.en.yaml` covers page titles, navigation, form labels, flash messages, and email texts. Templates render these keys through the `trans` filter, and the form theme translates label keys through the `messages` domain.
+- `validators.en.yaml` covers the entity and form constraint messages. The validator translates them through the `validators` domain.
+- `security.en.yaml` covers `app.verified_email_required`, the key `VerifiedUserChecker` throws. The login template translates it through the `security` domain.
+
+Email subjects are set inside the email templates through `email.setSubject()`. Adding a locale means copying the three catalogs and enabling the locale in `framework.enabled_locales`. For pages with long prose, follow the content-heavy pages policy in `docs/DECISIONS.md`: prose comes from per-locale templates or from a dataset, not from the catalogs.
 
 ## Security and signed URLs
 

@@ -16,3 +16,12 @@ services:
     ports:
       - "5432"
 ###< doctrine/doctrine-bundle ###
+
+# Database inspection UI for development. The CLI has no open:local:db
+# command, so the host port is fixed for a predictable URL.
+  adminer:
+    image: adminer:4
+    environment:
+      ADMINER_DEFAULT_SERVER: database
+    ports:
+      - "127.0.0.1:8080:8080"

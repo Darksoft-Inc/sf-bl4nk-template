@@ -1,24 +1,24 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Profile{% endblock %}
+{% block title %}{{ 'app.page.profile'|trans }}{% endblock %}
 
 {% block body %}
 <main>
-    <h1>Profile</h1>
+    <h1>{{ 'app.page.profile'|trans }}</h1>
 
     <dl>
-        <dt>Email</dt>
+        <dt>{{ 'app.account.email'|trans }}</dt>
         <dd>{{ user.email }}</dd>
 
-        <dt>Email verification</dt>
-        <dd>{{ user.verified ? 'Verified' : 'Not verified' }}</dd>
+        <dt>{{ 'app.account.email_verification'|trans }}</dt>
+        <dd>{{ user.verified ? 'app.account.verified'|trans : 'app.account.not_verified'|trans }}</dd>
     </dl>
 
-    <h2>Change password</h2>
+    <h2>{{ 'app.account.change_password'|trans }}</h2>
 
     {{ form_start(changePasswordForm) }}
         {{ form_row(changePasswordForm.plainPassword) }}
-        <button type="submit" class="btn btn-primary">Change password</button>
+        <button type="submit" class="btn btn-primary">{{ 'app.account.change_password'|trans }}</button>
     {{ form_end(changePasswordForm) }}
 </main>
 {% endblock %}

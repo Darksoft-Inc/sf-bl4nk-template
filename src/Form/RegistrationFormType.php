@@ -22,12 +22,13 @@ class RegistrationFormType extends AbstractType
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('email')
+            ->add('email', options: ['label' => 'app.account.email'])
             ->add('agreeTerms', CheckboxType::class, [
                 'mapped' => false,
+                'label' => 'app.form.agree_terms',
                 'constraints' => [
                     new IsTrue(
-                        message: 'You should agree to our terms.',
+                        message: 'app.registration.agree_terms',
                     ),
                 ],
             ])

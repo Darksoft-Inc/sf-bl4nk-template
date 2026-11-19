@@ -11,13 +11,14 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 #[Route('/profile')]
 #[IsGranted('ROLE_USER')]
 class ProfileController extends AbstractController
 {
     #[Route('', name: 'app_profile')]
-    public function index(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager): Response
+    public function index(Request $request, UserPasswordHasherInterface $passwordHasher, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {
         $user = $this->getUser();
         assert($user instanceof User);
@@ -32,7 +33,7 @@ class ProfileController extends AbstractController
             $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
             $entityManager->flush();
 
-            $this->addFlash('success', 'Your password has been changed.');
+            $this->addFlash('success', $translator->trans('app.flash.password_changed'));
 
             return $this->redirectToRoute('app_profile');
         }
