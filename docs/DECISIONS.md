@@ -48,6 +48,8 @@ Evidence: Symfony 8.2 deprecates `UriSigner::sign()` without an expiration. The 
 
 Consequence: `config/services.yaml` defines the service with the arguments the bundle uses, `'%kernel.secret%'` and `signature`, plus a default expiration of 1 day. The value stays above the bundle link lifetime of 1 hour, so the bundle's own expiry check reports an expired link and the signer expiration acts as a safety net. Both runners report no deprecations since the override. The override is removed when the bundle passes an expiration itself.
 
+The deprecation was reported to `SymfonyCasts/verify-email-bundle` on 2026-11-21 and the issue is being processed upstream.
+
 ## Translations
 
 Current choice: `en` is the default locale and the only enabled locale.
