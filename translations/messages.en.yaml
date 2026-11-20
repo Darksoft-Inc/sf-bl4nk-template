@@ -26,12 +26,12 @@ app:
         logged_in_as: 'You are logged in as %identifier%.'
     flash:
         email_verified: 'Your email address has been verified.'
+        email_already_verified: 'Your email address has already been verified.'
         password_changed: 'Your password has been changed.'
     form:
         agree_terms: 'Agree terms'
         new_password: 'New password'
         repeat_password: 'Repeat Password'
-        password_must_match: 'The password fields must match.'
     reset_password:
         request_help: 'Enter your email address, and we will send you a link to reset your password.'
         send_email: 'Send password reset email'

@@ -75,14 +75,26 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        // validate email confirmation link, sets User::isVerified=true and persists
+        // The signature is validated before any verified-state check, so
+        // requests without a valid signature answer the same way whether the
+        // account exists, is verified, or is not.
         try {
-            $this->emailVerifier->handleEmailConfirmation($request, $user);
+            $this->emailVerifier->validateEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
-            $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
+            if (!$user->isVerified()) {
+                $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
 
-            return $this->redirectToRoute('app_register');
+                return $this->redirectToRoute('app_register');
+            }
         }
+
+        if ($user->isVerified()) {
+            $this->addFlash('success', $translator->trans('app.flash.email_already_verified'));
+
+            return $this->redirectToRoute('app_index');
+        }
+
+        $this->emailVerifier->markEmailVerified($user);
 
         $this->addFlash('success', $translator->trans('app.flash.email_verified'));
 

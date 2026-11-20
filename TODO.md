@@ -14,6 +14,8 @@ Baseline at review time:
 
 Progress on 2026-11-19: a fresh checkout works with the two documented commands, the generated leftovers are gone, translation support covers templates, forms, validation, flash messages, and emails, the test suite has a reset helper and 96 passing assertions with the deprecation visible in both runners, the dependency review ended with only `symfony/web-link` and `symfony/expression-language` removed, and the dev container gained Adminer. The signed URL deprecation was resolved later the same day through the signer service override in `config/services.yaml`. The remaining open items are deferred work: production values and rate limiting, the move off the 8.2 beta, the P2 test list, and CI.
 
+Progress on 2026-11-20: the simple P2 tests are in, and the reused reset token and repeated verification click fixes followed the same day. The suite reports 33 tests and 252 assertions in both runners. Four problems surfaced and were fixed: the registration form accepted syntactically invalid email addresses because `EmailType` sets no server-side constraint, the repeated password mismatch rendered its translation key because the key sat in the `messages` domain while form `invalid_message` values translate through the `validators` domain, a rejected reset token stayed in the session and replayed its validation error on every later visit to the reset route, and a repeated click on a verification link re-ran the verification instead of reporting the verified state.
+
 ## Project context
 
 - The app is a starter application with as many features integrated as practical. It will be the common base for several public-facing services, such as an MMORPG and collaborative tools. Record this purpose in a new document, `docs/PURPOSE.md`, and use it as the reference when deciding which packages to keep, remove or change.
@@ -128,20 +130,41 @@ Progress on 2026-11-19: a fresh checkout works with the two documented commands,
 
 ## P2: Add tests
 
-- [ ] Registration validation: duplicate email, invalid email, empty password, short password, and unchecked terms.
-- [ ] CSRF failure on all forms.
+- [x] Registration validation: duplicate email, invalid email, empty password, short password, and unchecked terms.
+  - The invalid email case found a bug: `EmailType` sets the HTML5 input type only, so an invalid address passed validation and the verification email then crashed with an RFC 5322 exception in `Mime\Address`. `RegistrationFormType` now adds the `Email` constraint, found by the test on 2026-11-20.
+  - Verified on 2026-11-20: `php bin/phpunit` passes with 30 tests and 200 assertions, PHPStan reports no errors, and the lint commands pass.
+- [x] CSRF failure on all forms.
+  - `tests/Controller/CsrfProtectionControllerTest.php` submits a bad token to the registration, reset request, reset change, profile change, and login forms. The form failures assert 422 and that no data changed, because the CSRF error renders on a hidden field and is not visible in the response. The login failure asserts the security "Invalid CSRF token." message.
 - [ ] Email verification: missing `id`, unknown user, invalid signature, expired signature, and repeated click.
+  - [x] Missing `id`, unknown user, and invalid signature: `tests/Controller/EmailVerificationControllerTest.php`.
+  - [ ] Expired signature: the bundle compares `expires` against `time()`, so clock mocking does not reach it. The test must re-sign an expired URL through the `symfonycasts.verify_email.uri_signer` service. The same test can cover an expired link for a verified user, which reports the verified state through the catch branch.
+  - [x] Repeated click.
+    - Repeated clicks on a still-valid link now flash "Your email address has already been verified." and redirect to the index, without re-running the verification. The first click keeps its own flash.
+    - `EmailVerifier::handleEmailConfirmation()` was split into `validateEmailConfirmation()` and `markEmailVerified()`, because the controller needs the verified state between validating the link and marking the user. The controller validates the signature first, so requests without a valid signature answer the same way whether the account exists, is verified, or is not. An expired link clicked by a verified user also reports the verified state through the catch branch.
+    - Verified on 2026-11-20: `php bin/phpunit` and `vendor/bin/pest` pass with 33 tests and 252 assertions, and PHPStan and the lint commands pass.
 - [ ] Password reset: unknown email, invalid token, expired token, reused token, mismatched passwords, weak password, and compromised password.
-- [ ] Account enumeration check for the reset request route.
+  - [x] Unknown email, invalid token, mismatched passwords, and weak password: `tests/Controller/ResetPasswordControllerTest.php`. The mismatch case found the key `app.form.password_must_match` in the wrong translation domain: form `invalid_message` values translate through the `validators` domain, so the key moved from `messages.en.yaml` to `validators.en.yaml`.
+  - [ ] Expired token: the bundle builds expiry dates from `Clock::get()`, so `ClockSensitiveTrait::mockTime()` can move the token past its lifetime.
+  - [x] Reused token.
+    - The tests open the reset link again after a completed reset: the reuse is rejected with the invalid link flash, and the password stays the first new password.
+    - The test found a gap in `ResetPasswordController::reset()`: a rejected token stayed in the session under `ResetPasswordPublicToken`, so every later visit to `/reset-password/reset` replayed the validation of a token already known to be invalid. The catch path now removes the token, and a later visit gets the missing token 404 instead of the stale flash.
+    - Verified on 2026-11-20: `php bin/phpunit` passes with 32 tests and 235 assertions, and PHPStan and the lint commands pass.
+  - [ ] Compromised password: `NotCompromisedPassword` queries `api.pwnedpasswords.com` in the test environment, so the test needs a known leaked password of at least 12 characters and a network connection.
+- [x] Account enumeration check for the reset request route.
+  - The test compares the full page text of the check-email page for a known and an unknown address, and only the email count differs.
 - [x] Login, logout, and verified email requirement.
 - [x] Protected pages when routes that need a user exist, starting with the profile page.
-- [ ] Flash messages on the pages that display them.
-- [ ] Email content and signed URLs with the configured `DEFAULT_URI`.
-- [ ] Form and entity validation tests.
-- [ ] A setup smoke test that fails clearly when Sass output or the test schema is missing.
+- [x] Flash messages on the pages that display them.
+  - The base template success flash is asserted after email verification, the register page error flash by the invalid signature test, and the request page error flash by the invalid token test. The profile success flash was already asserted by `ProfileControllerTest`.
+- [x] Email content and signed URLs with the configured `DEFAULT_URI`.
+  - The verification link extraction reads `router.request_context.base_url`, which resolves the `DEFAULT_URI` from `config/packages/routing.yaml`, instead of a hardcoded `http://localhost`. The reset link extraction matches the path only and stays host independent.
+- [x] Form and entity validation tests.
+  - The forms are validated through HTTP in the controller tests, `PasswordConstraints` has its own test, and the entity's only constraint is the unique email check, which the duplicate registration test covers. A validator level test would repeat that coverage without adding behavior.
+- [x] A setup smoke test that fails clearly when Sass output or the test schema is missing.
+  - `tests/SetupSmokeTest.php` checks for generated CSS under `var/sass/` and for the `user` and `reset_password_request` tables in the test database. The failure messages name the command to run, and both failures were checked by removing each artifact once.
 - [x] Add assertions after `preg_match()` in both controller tests.
-  - `tests/Controller/RegistrationControllerTest.php:71-74`
-  - `tests/Controller/ResetPasswordControllerTest.php:82-84`
+  - `tests/Controller/RegistrationControllerTest.php`, `extractVerificationLink()`
+  - `tests/Controller/ResetPasswordControllerTest.php`, `extractResetLink()`
 
 ## P2: Test infrastructure and tooling
 

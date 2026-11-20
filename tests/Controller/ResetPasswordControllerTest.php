@@ -8,6 +8,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 final class ResetPasswordControllerTest extends WebTestCase
@@ -17,6 +18,7 @@ final class ResetPasswordControllerTest extends WebTestCase
     private KernelBrowser $client;
     private EntityManagerInterface $em;
     private UserRepository $userRepository;
+    private UserPasswordHasherInterface $passwordHasher;
 
     protected function setUp(): void
     {
@@ -29,6 +31,7 @@ final class ResetPasswordControllerTest extends WebTestCase
         $this->em = $em;
 
         $this->userRepository = $container->get(UserRepository::class);
+        $this->passwordHasher = $container->get(UserPasswordHasherInterface::class);
 
         $this->resetDatabase($this->em);
     }
@@ -102,5 +105,174 @@ final class ResetPasswordControllerTest extends WebTestCase
         /** @var UserPasswordHasherInterface $passwordHasher */
         $passwordHasher = static::getContainer()->get(UserPasswordHasherInterface::class);
         self::assertTrue($passwordHasher->isPasswordValid($user, 'newStrongPassword'));
+    }
+
+    public function testResetRequestDoesNotRevealWhetherTheAccountExists(): void
+    {
+        $this->client->request('GET', '/reset-password');
+        $this->client->submitForm('Send password reset email', [
+            'reset_password_request_form[email]' => 'unknown@example.com',
+        ]);
+
+        self::assertResponseRedirects('/reset-password/check-email');
+        self::assertEmailCount(0);
+        $unknownPage = $this->client->followRedirect()->filter('body')->text();
+
+        $this->createUser('enumeration@example.com', 'CorrectHorseBatteryStaple42!');
+
+        $this->client->request('GET', '/reset-password');
+        $this->client->submitForm('Send password reset email', [
+            'reset_password_request_form[email]' => 'enumeration@example.com',
+        ]);
+
+        self::assertResponseRedirects('/reset-password/check-email');
+        self::assertEmailCount(1);
+        $knownPage = $this->client->followRedirect()->filter('body')->text();
+
+        self::assertSame($unknownPage, $knownPage);
+    }
+
+    public function testResetWithInvalidTokenShowsErrorOnRequestPage(): void
+    {
+        $this->client->request('GET', '/reset-password/reset/invalid-reset-token');
+        self::assertResponseRedirects('/reset-password/reset');
+        $this->client->followRedirect();
+
+        self::assertResponseRedirects('/reset-password');
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-danger', 'There was a problem validating your password reset request - The reset password link is invalid. Please try to reset your password again.');
+        self::assertEmailCount(0);
+    }
+
+    public function testResetRejectsMismatchedPasswords(): void
+    {
+        $user = $this->createUser('mismatch@example.com', 'CorrectHorseBatteryStaple42!');
+        $this->openResetFormFor('mismatch@example.com');
+
+        $this->client->submitForm('Reset password', [
+            'change_password_form[plainPassword][first]' => 'NewStrongPassword42!',
+            'change_password_form[plainPassword][second]' => 'DifferentPassword42!',
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.invalid-feedback', 'The password fields must match.');
+        self::assertTrue($this->passwordHasher->isPasswordValid($user, 'CorrectHorseBatteryStaple42!'));
+    }
+
+    public function testResetRejectsWeakPassword(): void
+    {
+        $user = $this->createUser('weak-reset@example.com', 'CorrectHorseBatteryStaple42!');
+        $this->openResetFormFor('weak-reset@example.com');
+
+        $this->client->submitForm('Reset password', [
+            'change_password_form[plainPassword][first]' => 'password',
+            'change_password_form[plainPassword][second]' => 'password',
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.invalid-feedback', 'Your password should be at least 12 characters');
+        self::assertTrue($this->passwordHasher->isPasswordValid($user, 'CorrectHorseBatteryStaple42!'));
+    }
+
+    public function testConsumedResetTokenCannotBeUsedAgain(): void
+    {
+        $user = $this->createUser('reuse@example.com', 'CorrectHorseBatteryStaple42!');
+        $resetLink = $this->openResetFormFor('reuse@example.com');
+
+        $this->client->submitForm('Reset password', [
+            'change_password_form[plainPassword][first]' => 'NewStrongPassword42!',
+            'change_password_form[plainPassword][second]' => 'NewStrongPassword42!',
+        ]);
+
+        self::assertResponseRedirects('/index');
+
+        $this->client->request('GET', $resetLink);
+        self::assertResponseRedirects('/reset-password/reset');
+        $this->client->followRedirect();
+
+        self::assertResponseRedirects('/reset-password');
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-danger', 'There was a problem validating your password reset request - The reset password link is invalid. Please try to reset your password again.');
+
+        $user = $this->userRepository->findOneBy(['email' => 'reuse@example.com']);
+        self::assertInstanceOf(User::class, $user);
+        self::assertTrue($this->passwordHasher->isPasswordValid($user, 'NewStrongPassword42!'));
+    }
+
+    public function testRejectedResetTokenIsRemovedFromSession(): void
+    {
+        $user = $this->createUser('reuse-session@example.com', 'CorrectHorseBatteryStaple42!');
+        $resetLink = $this->openResetFormFor('reuse-session@example.com');
+
+        $this->client->submitForm('Reset password', [
+            'change_password_form[plainPassword][first]' => 'NewStrongPassword42!',
+            'change_password_form[plainPassword][second]' => 'NewStrongPassword42!',
+        ]);
+
+        self::assertResponseRedirects('/index');
+
+        $this->client->request('GET', $resetLink);
+        self::assertResponseRedirects('/reset-password/reset');
+        $this->client->followRedirect();
+
+        self::assertResponseRedirects('/reset-password');
+        $this->client->followRedirect();
+
+        // The rejected token must not stay in the session: without a token in
+        // the URL or the session, the route reports a missing token instead of
+        // replaying the validation error.
+        $this->client->request('GET', '/reset-password/reset');
+        self::assertResponseStatusCodeSame(404);
+
+        $user = $this->userRepository->findOneBy(['email' => 'reuse-session@example.com']);
+        self::assertInstanceOf(User::class, $user);
+        self::assertTrue($this->passwordHasher->isPasswordValid($user, "NewStrongPassword42!"), "actual hash: " . $user->getPassword());
+    }
+
+    private function createUser(string $email, string $password): User
+    {
+        $user = (new User())->setEmail($email);
+        $user->setPassword($this->passwordHasher->hashPassword($user, $password));
+
+        $this->em->persist($user);
+        $this->em->flush();
+
+        return $user;
+    }
+
+    private function openResetFormFor(string $email): string
+    {
+        $this->client->request('GET', '/reset-password');
+        $this->client->submitForm('Send password reset email', [
+            'reset_password_request_form[email]' => $email,
+        ]);
+
+        self::assertResponseRedirects('/reset-password/check-email');
+
+        $resetLink = $this->extractResetLink();
+
+        $this->client->request('GET', $resetLink);
+        self::assertResponseRedirects('/reset-password/reset');
+        $this->client->followRedirect();
+
+        self::assertResponseIsSuccessful();
+
+        return $resetLink;
+    }
+
+    private function extractResetLink(): string
+    {
+        $message = $this->getMailerMessage(0);
+        self::assertInstanceOf(Email::class, $message);
+
+        $messageBody = $message->getTextBody();
+        self::assertIsString($messageBody);
+
+        preg_match('#(/reset-password/reset/[a-zA-Z0-9]+)#', $messageBody, $resetLink);
+        self::assertArrayHasKey(1, $resetLink);
+
+        return $resetLink[1];
     }
 }

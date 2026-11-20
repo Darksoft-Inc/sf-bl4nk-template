@@ -61,20 +61,14 @@ final class RegistrationControllerTest extends WebTestCase
         $this->client->followRedirect();
         $this->client->loginUser($user);
 
-        // Get the verification link from the email
-        /** @var TemplatedEmail $templatedEmail */
-        $templatedEmail = $messages[0];
-        $messageBody = $templatedEmail->getHtmlBody();
-        self::assertIsString($messageBody);
-
-        preg_match('#(http://localhost/verify/email.+)">#', $messageBody, $resetLink);
-        self::assertArrayHasKey(1, $resetLink);
+        $resetLink = $this->extractVerificationLink();
 
         // "Click" the link and see if the user is verified
-        $this->client->request('GET', $resetLink[1]);
+        $this->client->request('GET', $resetLink);
         self::assertResponseRedirects('/index');
         $this->client->followRedirect();
 
+        self::assertSelectorTextContains('.alert-success', 'Your email address has been verified.');
         self::assertTrue(static::getContainer()->get(UserRepository::class)->findAll()[0]->isVerified());
     }
 
@@ -92,5 +86,105 @@ final class RegistrationControllerTest extends WebTestCase
         self::assertSelectorTextContains('.invalid-feedback', 'Your password should be at least 12 characters');
         self::assertCount(0, $this->userRepository->findAll());
         self::assertEmailCount(0);
+    }
+
+    public function testRegisterRejectsDuplicateEmail(): void
+    {
+        $this->client->request('GET', '/register');
+        $this->submitRegistrationForm('duplicate@example.com');
+        self::assertResponseRedirects('/index');
+
+        $this->client->request('GET', '/register');
+        $this->submitRegistrationForm('duplicate@example.com');
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.invalid-feedback', 'There is already an account with this email');
+        self::assertCount(1, $this->userRepository->findAll());
+        self::assertEmailCount(1);
+    }
+
+    public function testRegisterRejectsInvalidEmail(): void
+    {
+        $this->client->request('GET', '/register');
+        $this->client->submitForm('Register', [
+            'registration_form[email]' => 'not-an-email',
+            'registration_form[plainPassword]' => 'CorrectHorseBatteryStaple42!',
+            'registration_form[agreeTerms]' => true,
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.invalid-feedback', 'This value is not a valid email address.');
+        self::assertCount(0, $this->userRepository->findAll());
+        self::assertEmailCount(0);
+    }
+
+    public function testRegisterRejectsEmptyPassword(): void
+    {
+        $this->client->request('GET', '/register');
+        $this->client->submitForm('Register', [
+            'registration_form[email]' => 'empty-password@example.com',
+            'registration_form[plainPassword]' => '',
+            'registration_form[agreeTerms]' => true,
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.invalid-feedback', 'Please enter a password');
+        self::assertCount(0, $this->userRepository->findAll());
+        self::assertEmailCount(0);
+    }
+
+    public function testRegisterRejectsShortPassword(): void
+    {
+        $this->client->request('GET', '/register');
+        $this->client->submitForm('Register', [
+            'registration_form[email]' => 'short-password@example.com',
+            'registration_form[plainPassword]' => 'Elephant1',
+            'registration_form[agreeTerms]' => true,
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.invalid-feedback', 'Your password should be at least 12 characters');
+        self::assertCount(0, $this->userRepository->findAll());
+        self::assertEmailCount(0);
+    }
+
+    public function testRegisterRejectsUncheckedTerms(): void
+    {
+        $this->client->request('GET', '/register');
+        $this->client->submitForm('Register', [
+            'registration_form[email]' => 'unchecked-terms@example.com',
+            'registration_form[plainPassword]' => 'CorrectHorseBatteryStaple42!',
+            'registration_form[agreeTerms]' => false,
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.invalid-feedback', 'You should agree to our terms.');
+        self::assertCount(0, $this->userRepository->findAll());
+        self::assertEmailCount(0);
+    }
+
+    private function submitRegistrationForm(string $email): void
+    {
+        $this->client->submitForm('Register', [
+            'registration_form[email]' => $email,
+            'registration_form[plainPassword]' => 'CorrectHorseBatteryStaple42!',
+            'registration_form[agreeTerms]' => true,
+        ]);
+    }
+
+    private function extractVerificationLink(): string
+    {
+        $templatedEmail = $this->getMailerMessage(0);
+        self::assertInstanceOf(TemplatedEmail::class, $templatedEmail);
+
+        $messageBody = $templatedEmail->getHtmlBody();
+        self::assertIsString($messageBody);
+
+        $baseUri = static::getContainer()->getParameter('router.request_context.base_url');
+
+        preg_match(\sprintf('#(%s/verify/email.+)">#', preg_quote($baseUri, '#')), $messageBody, $resetLink);
+        self::assertArrayHasKey(1, $resetLink);
+
+        return $resetLink[1];
     }
 }

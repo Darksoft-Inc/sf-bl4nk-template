@@ -10,3 +10,5 @@ app:
     password:
         not_blank: 'Please enter a password'
         min_length: 'Your password should be at least {{ limit }} characters'
+    form:
+        password_must_match: 'The password fields must match.'

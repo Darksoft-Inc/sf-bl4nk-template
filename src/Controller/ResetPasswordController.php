@@ -101,6 +101,8 @@ class ResetPasswordController extends AbstractController
                 $translator->trans($e->getReason(), [], 'ResetPasswordBundle')
             ));
 
+            $this->removeTokenFromSession();
+
             return $this->redirectToRoute('app_forgot_password_request');
         }
 
@@ -128,6 +130,16 @@ class ResetPasswordController extends AbstractController
         return $this->render('reset_password/reset.html.twig', [
             'resetForm' => $form,
         ]);
+    }
+
+    /**
+     * A rejected token must not stay in the session. Otherwise every later
+     * visit to the reset route replays the validation of a token that is
+     * already known to be invalid.
+     */
+    private function removeTokenFromSession(): void
+    {
+        $this->container->get('request_stack')->getSession()->remove('ResetPasswordPublicToken');
     }
 
     private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer): RedirectResponse
