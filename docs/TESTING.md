@@ -39,6 +39,20 @@ If the SQLite test schema is missing, `tests/SetupSmokeTest.php` fails first and
 
 The test database uses `sqlite:///%kernel.project_dir%/var/test.db` from `.env.test`. The `dbname_suffix` in `config/packages/doctrine.yaml` applies to server databases only. DoctrineBundle ignores it for SQLite, so the test file is always `var/test.db`.
 
+## Recorded HTTP exchanges
+
+The compromised password check runs in the test environment: `config/packages/validator.yaml` opts the test environment into `validation.not_compromised_password`, because the framework disables that validator by default when `framework.test` is on. The strict password rules recorded in `docs/DECISIONS.md` would otherwise not apply in tests.
+
+Every password submitted in a test triggers one request to `api.pwnedpasswords.com`. The tests do not need a network connection: the five test classes that submit password forms carry `#[UseRecord('pwnedpasswords-ranges.har')]`, and the recorded exchanges replay from `tests/recordings/pwnedpasswords-ranges.har`.
+
+When a test submits a new password, the replay reports a miss and names the fix. Run this once with network access to append the exchange, then commit the file:
+
+```bash
+SYMFONY_HTTP_RECORDER=missing php bin/phpunit
+```
+
+`SYMFONY_HTTP_RECORDER=passthrough php bin/phpunit` makes real requests and ignores the recordings. The recording directory comes from the `http-recorder-directory` parameter of the `SymfonyExtension` entry in `phpunit.dist.xml`.
+
 ## Quality checks
 
 ```bash
@@ -55,8 +69,8 @@ Lint commands and PHPStan pass with the full configuration. The `lint_php` alias
 
 - `tests/Controller/IndexControllerTest.php`: checks that the start page returns a successful response and shows the expected heading.
 - `tests/Controller/RegistrationControllerTest.php`: registers a user, checks the verification email including its subject, clicks the verification link, and checks the flash message and user state. Rejections cover the weak, short, and empty password, the duplicate and invalid email, and the unchecked terms.
-- `tests/Controller/EmailVerificationControllerTest.php`: checks that a verification link without `id`, with an unknown user id, or with an invalid signature ends on the register page, and that the invalid signature shows the bundle error there. The repeated-click test verifies once and then opens the same link twice more, and both clicks report the verified state without re-running the verification.
-- `tests/Controller/ResetPasswordControllerTest.php`: requests a reset email, checks it including its subject, follows the link, changes the password, and checks the redirect and stored hash. Rejections cover the unknown email, the invalid token, the mismatched passwords, and the weak password. The enumeration test compares the check-email page for a known and an unknown address. The reused token tests open the consumed link again, check the rejection and the unchanged password, and check that the rejected token is removed from the session.
+- `tests/Controller/EmailVerificationControllerTest.php`: checks that a verification link without `id`, with an unknown user id, or with an invalid signature ends on the register page, and that the invalid signature shows the bundle error there. The repeated-click test verifies once and then opens the same link twice more, and both clicks report the verified state without re-running the verification. The expired-signature test rebuilds the link with a past `expires` and a fresh signature from the `symfonycasts.verify_email.uri_signer` service: an unverified visitor gets the expired-link error on the register page, and a verified visitor gets the verified state through the catch branch.
+- `tests/Controller/ResetPasswordControllerTest.php`: requests a reset email, checks it including its subject, follows the link, changes the password, and checks the redirect and stored hash. Rejections cover the unknown email, the invalid token, the mismatched passwords, the weak password, the expired token, and the compromised password. The enumeration test compares the check-email page for a known and an unknown address. The reused token tests open the consumed link again, check the rejection and the unchanged password, and check that the rejected token is removed from the session. The expired token mocks the clock past the 1 hour lifetime, and the compromised password replays the recorded HIBP exchange that reports the leak.
 - `tests/Controller/SecurityControllerTest.php`: checks the login page, rejects unverified users, logs in a verified user, and logs out.
 - `tests/Controller/ProfileControllerTest.php`: checks that anonymous visitors are redirected to login, that the page shows account details, and that the password change form updates the hash.
 - `tests/Controller/CsrfProtectionControllerTest.php`: submits a bad CSRF token to the registration, reset request, reset change, profile change, and login forms, and checks that no data changes on failure.
@@ -67,6 +81,6 @@ All database tests use the `ResetDatabase` trait from `tests/ResetDatabase.php`.
 
 ## Coverage gaps
 
-The remaining test work from `TODO.md`: the expired verification signature, and the expired and compromised password reset cases. See `TODO.md` for the approach of each.
+The P2 test list from `TODO.md` is complete. The remaining test work is tied to the deferred items there: the rate limiting tests with the production readiness pass, and the CI checks once the hosting platform is chosen.
 
 When fixing a bug, write a test that reproduces it first.

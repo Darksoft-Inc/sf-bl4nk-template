@@ -7,9 +7,11 @@ use App\Repository\UserRepository;
 use App\Tests\ResetDatabase;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
+use Symfony\Bridge\PhpUnit\Attribute\UseRecord;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+#[UseRecord('pwnedpasswords-ranges.har')]
 final class EmailVerificationControllerTest extends WebTestCase
 {
     use ResetDatabase;
@@ -92,6 +94,39 @@ final class EmailVerificationControllerTest extends WebTestCase
         self::assertTrue($user->isVerified());
     }
 
+    public function testVerifyWithExpiredSignatureReportsExpiredOrVerifiedState(): void
+    {
+        $this->client->request('GET', '/register');
+        $this->client->submitForm('Register', [
+            'registration_form[email]' => 'expired-link@example.com',
+            'registration_form[plainPassword]' => 'CorrectHorseBatteryStaple42!',
+            'registration_form[agreeTerms]' => true,
+        ]);
+
+        $expiredLink = $this->expiredVerificationLink();
+
+        $this->client->request('GET', $expiredLink);
+        self::assertResponseRedirects('/register');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-danger', 'The link to verify your email has expired. Please request a new link.');
+
+        // The same expired link clicked by a verified user reports the
+        // verified state through the catch branch.
+        $this->client->request('GET', $this->extractVerificationLink());
+        self::assertResponseRedirects('/index');
+        $this->client->followRedirect();
+
+        $this->client->request('GET', $expiredLink);
+        self::assertResponseRedirects('/index');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-success', 'Your email address has already been verified.');
+
+        $userRepository = static::getContainer()->get(UserRepository::class);
+        $user = $userRepository->findOneBy(['email' => 'expired-link@example.com']);
+        self::assertInstanceOf(User::class, $user);
+        self::assertTrue($user->isVerified());
+    }
+
     private function extractVerificationLink(): string
     {
         $templatedEmail = $this->getMailerMessage(0);
@@ -106,5 +141,27 @@ final class EmailVerificationControllerTest extends WebTestCase
         self::assertArrayHasKey(1, $match);
 
         return $match[1];
+    }
+
+    /**
+     * Rebuilds the verification link with a past "expires" and a fresh
+     * signature. The bundle compares "expires" against time(), so a clock mock
+     * cannot reach that check; the signer service signs the tampered URL the
+     * same way it signs the original.
+     */
+    private function expiredVerificationLink(): string
+    {
+        $verificationLink = $this->extractVerificationLink();
+
+        $queryPosition = strpos($verificationLink, '?');
+        self::assertIsInt($queryPosition);
+
+        parse_str(substr($verificationLink, $queryPosition + 1), $query);
+        $query['expires'] = (string) (time() - 100);
+        unset($query['signature'], $query['_expiration']);
+
+        $signer = static::getContainer()->get('symfonycasts.verify_email.uri_signer');
+
+        return $signer->sign(substr($verificationLink, 0, $queryPosition).'?'.http_build_query($query));
     }
 }

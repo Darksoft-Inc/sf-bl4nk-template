@@ -4,10 +4,12 @@ namespace App\Tests\Controller;
 use App\Repository\UserRepository;
 use App\Tests\ResetDatabase;
 use Doctrine\ORM\EntityManager;
+use Symfony\Bridge\PhpUnit\Attribute\UseRecord;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+#[UseRecord('pwnedpasswords-ranges.har')]
 final class RegistrationControllerTest extends WebTestCase
 {
     use ResetDatabase;

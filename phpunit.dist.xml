@@ -41,5 +41,9 @@
     </source>
 
     <extensions>
+        <bootstrap class="Symfony\Bridge\PhpUnit\SymfonyExtension">
+            <!-- HTTP recordings for tests marked with #[UseRecord] -->
+            <parameter name="http-recorder-directory" value="tests/recordings"/>
+        </bootstrap>
     </extensions>
 </phpunit>

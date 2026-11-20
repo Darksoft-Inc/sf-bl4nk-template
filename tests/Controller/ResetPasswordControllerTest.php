@@ -5,14 +5,18 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\ResetDatabase;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\PhpUnit\Attribute\UseRecord;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\Clock\Test\ClockSensitiveTrait;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+#[UseRecord('pwnedpasswords-ranges.har')]
 final class ResetPasswordControllerTest extends WebTestCase
 {
+    use ClockSensitiveTrait;
     use ResetDatabase;
 
     private KernelBrowser $client;
@@ -229,6 +233,45 @@ final class ResetPasswordControllerTest extends WebTestCase
         $user = $this->userRepository->findOneBy(['email' => 'reuse-session@example.com']);
         self::assertInstanceOf(User::class, $user);
         self::assertTrue($this->passwordHasher->isPasswordValid($user, "NewStrongPassword42!"), "actual hash: " . $user->getPassword());
+    }
+
+    public function testExpiredResetTokenIsRejected(): void
+    {
+        $user = $this->createUser('expired-reset@example.com', 'CorrectHorseBatteryStaple42!');
+        $resetLink = $this->openResetFormFor('expired-reset@example.com');
+
+        // The bundle builds the expiry date and the entity checks it against
+        // the global clock, so a mocked time moves the token past its 1 hour
+        // lifetime.
+        self::mockTime('+2 hours');
+
+        $this->client->request('GET', $resetLink);
+        self::assertResponseRedirects('/reset-password/reset');
+        $this->client->followRedirect();
+
+        self::assertResponseRedirects('/reset-password');
+        $this->client->followRedirect();
+
+        self::assertSelectorTextContains('.alert-danger', 'There was a problem validating your password reset request - The link in your email is expired. Please try to reset your password again.');
+        self::assertTrue($this->passwordHasher->isPasswordValid($user, 'CorrectHorseBatteryStaple42!'));
+    }
+
+    public function testResetRejectsCompromisedPassword(): void
+    {
+        $user = $this->createUser('compromised@example.com', 'CorrectHorseBatteryStaple42!');
+        $this->openResetFormFor('compromised@example.com');
+
+        // "Password123456!" appears thousands of times in breach corpora. The
+        // constraint queries api.pwnedpasswords.com for the SHA-1 range; the
+        // exchange is recorded once and replayed from tests/recordings/.
+        $this->client->submitForm('Reset password', [
+            'change_password_form[plainPassword][first]' => 'Password123456!',
+            'change_password_form[plainPassword][second]' => 'Password123456!',
+        ]);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.invalid-feedback', 'This password has been leaked in a data breach, it must not be used. Please use another password.');
+        self::assertTrue($this->passwordHasher->isPasswordValid($user, 'CorrectHorseBatteryStaple42!'));
     }
 
     private function createUser(string $email, string $password): User

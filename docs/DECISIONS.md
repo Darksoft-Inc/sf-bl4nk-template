@@ -74,6 +74,14 @@ Consequence: tests stay in the PHPUnit class style, including future tests. Pest
 
 Deprecation reporting: with PHPUnit 10 and newer, the bridge does not register its deprecation handler and `SYMFONY_DEPRECATIONS_HELPER` has no effect. PHPUnit reports deprecations itself, and `phpunit.dist.xml` fails the run on app code deprecations through `failOnSelfDeprecation` and `failOnDirectDeprecation` while reporting vendor triggered indirect deprecations without failing. The `UriSigner::sign()` deprecation that both runners showed was resolved on 2026-11-19 through the signer override; see the Email verification signer section.
 
+## Compromised password check in tests
+
+Decision from 2026-11-21: the check runs in the test environment, and its HIBP requests replay from a recording.
+
+Evidence: `PasswordConstraints::forNewPassword()` keeps `NotCompromisedPassword` outside the dev environment, but the framework disables the `validator.not_compromised_password` service when `framework.test` is on, so the constraint had no effect in tests before 2026-11-21 and a leaked password passed the test suite. `config/packages/validator.yaml` opts the test environment back in, matching the strict rules this project records for test and prod.
+
+Consequence: every password submitted in a test performs one request to `api.pwnedpasswords.com`. The five test classes that submit password forms are marked `#[UseRecord('pwnedpasswords-ranges.har')]` and replay the recorded exchanges from `tests/recordings/`. A new password in a test fails the replay until `SYMFONY_HTTP_RECORDER=missing php bin/phpunit` runs once with network access and appends the exchange. See `docs/TESTING.md`.
+
 ## Content-heavy pages
 
 Decision from 2026-11-19: how a page with long prose gets its text.

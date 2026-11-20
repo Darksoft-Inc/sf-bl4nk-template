@@ -1,6 +1,15 @@
 # yaml-language-server: $schema=../schema.json
 #validation:
-    # Enables validator auto-mapping support.
-    # For instance, basic validation constraints will be inferred from Doctrine's metadata.
-    #auto_mapping:
-    #    App\Entity\: []
+#    # Enables validator auto-mapping support.
+#    # For instance, basic validation constraints will be inferred from Doctrine's metadata.
+#    #auto_mapping:
+#    #    App\Entity\: []
+
+# The strict password rules apply in the test environment too. This validator
+# is disabled by default when "framework.test" is on, so the test environment
+# opts back in. The HIBP lookups replay from tests/recordings/; see
+# docs/TESTING.md.
+when@test:
+    validation:
+        not_compromised_password:
+            enabled: true

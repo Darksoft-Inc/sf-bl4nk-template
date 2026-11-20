@@ -5,11 +5,13 @@ namespace App\Tests\Controller;
 use App\Entity\User;
 use App\Tests\ResetDatabase;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\PhpUnit\Attribute\UseRecord;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
+#[UseRecord('pwnedpasswords-ranges.har')]
 final class CsrfProtectionControllerTest extends WebTestCase
 {
     use ResetDatabase;
