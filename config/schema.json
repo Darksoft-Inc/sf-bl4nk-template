@@ -3085,7 +3085,7 @@
                         "$ref": "#/$defs/types/variable"
                     },
                     "uid": {
-                        "$ref": "#/$defs/nodes/uid"
+                        "$ref": "#/$defs/types/variable"
                     },
                     "html_sanitizer": {
                         "$ref": "#/$defs/types/variable"
@@ -10945,88 +10945,6 @@
                     "aliases": []
                 }
             },
-            "uid": {
-                "anyOf": [
-                    {
-                        "$ref": "#/$defs/types/object_null",
-                        "properties": {
-                            "enabled": {
-                                "$ref": "#/$defs/types/boolean",
-                                "default": true
-                            },
-                            "default_uuid_version": {
-                                "anyOf": [
-                                    {
-                                        "enum": [
-                                            7,
-                                            6,
-                                            4,
-                                            1
-                                        ]
-                                    },
-                                    {
-                                        "$ref": "#/$defs/types/param"
-                                    }
-                                ],
-                                "default": 7
-                            },
-                            "name_based_uuid_version": {
-                                "anyOf": [
-                                    {
-                                        "enum": [
-                                            5,
-                                            3
-                                        ]
-                                    },
-                                    {
-                                        "$ref": "#/$defs/types/param"
-                                    }
-                                ],
-                                "default": 5
-                            },
-                            "name_based_uuid_namespace": {
-                                "$ref": "#/$defs/types/scalar"
-                            },
-                            "time_based_uuid_version": {
-                                "anyOf": [
-                                    {
-                                        "enum": [
-                                            7,
-                                            6,
-                                            1
-                                        ]
-                                    },
-                                    {
-                                        "$ref": "#/$defs/types/param"
-                                    }
-                                ],
-                                "default": 7
-                            },
-                            "time_based_uuid_node": {
-                                "$ref": "#/$defs/types/scalar"
-                            },
-                            "uuid47_secret": {
-                                "$ref": "#/$defs/types/scalar",
-                                "default": null,
-                                "description": "A high-entropy secret used by the \"uuid47_transformer\" service. Defaults to the \"kernel.secret\" parameter; the service is not registered when neither is defined."
-                            }
-                        },
-                        "additionalProperties": false
-                    },
-                    {
-                        "type": [
-                            "boolean"
-                        ]
-                    }
-                ],
-                "default": {
-                    "enabled": true,
-                    "default_uuid_version": 7,
-                    "name_based_uuid_version": 5,
-                    "time_based_uuid_version": 7,
-                    "uuid47_secret": null
-                }
-            },
             "ux_icons": {
                 "$ref": "#/$defs/types/object_null",
                 "properties": {
@@ -11809,9 +11727,6 @@
         "type_info": {
             "$ref": "#/$defs/nodes/type_info"
         },
-        "uid": {
-            "$ref": "#/$defs/nodes/uid"
-        },
         "ux_icons": {
             "$ref": "#/$defs/nodes/ux_icons"
         },
@@ -11916,9 +11831,6 @@
                 },
                 "type_info": {
                     "$ref": "#/$defs/nodes/type_info"
-                },
-                "uid": {
-                    "$ref": "#/$defs/nodes/uid"
                 },
                 "ux_icons": {
                     "$ref": "#/$defs/nodes/ux_icons"
@@ -12028,9 +11940,6 @@
                 "type_info": {
                     "$ref": "#/$defs/nodes/type_info"
                 },
-                "uid": {
-                    "$ref": "#/$defs/nodes/uid"
-                },
                 "ux_icons": {
                     "$ref": "#/$defs/nodes/ux_icons"
                 },
@@ -12137,9 +12046,6 @@
                 },
                 "type_info": {
                     "$ref": "#/$defs/nodes/type_info"
-                },
-                "uid": {
-                    "$ref": "#/$defs/nodes/uid"
                 },
                 "ux_icons": {
                     "$ref": "#/$defs/nodes/ux_icons"

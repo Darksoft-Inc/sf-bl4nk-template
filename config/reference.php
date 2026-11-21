@@ -341,15 +341,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     enabled?: bool|Param, // Resolved at compile time // Default: true
  *     with_constructor_extractor?: bool|Param, // Registers the constructor extractor. // Default: true
  * }
- * @psalm-type UidConfig = bool|array{
- *     enabled?: bool|Param, // Resolved at compile time // Default: true
- *     default_uuid_version?: 7|6|4|1|Param, // Default: 7
- *     name_based_uuid_version?: 5|3|Param, // Default: 5
- *     name_based_uuid_namespace?: scalar|Param|null,
- *     time_based_uuid_version?: 7|6|1|Param, // Default: 7
- *     time_based_uuid_node?: scalar|Param|null,
- *     uuid47_secret?: scalar|Param|null, // A high-entropy secret used by the "uuid47_transformer" service. Defaults to the "kernel.secret" parameter; the service is not registered when neither is defined. // Default: null
- * }
  * @psalm-type SchedulerConfig = bool|array{
  *     enabled?: bool|Param, // Resolved at compile time // Default: true
  *     use_messenger_routing?: bool|Param|null, // Whether scheduled messages are routed to the Messenger senders configured for their class, as any other dispatched message is. A class with no sender configured still runs in the scheduler worker, and a "transports" option set on a task still wins. // Default: null
@@ -654,7 +645,7 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     mailer?: MailerConfig,
  *     notifier?: mixed,
  *     rate_limiter?: mixed,
- *     uid?: UidConfig,
+ *     uid?: mixed,
  *     html_sanitizer?: mixed,
  *     webhook?: mixed,
  *     remote_event?: mixed,
@@ -1931,7 +1922,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *     type_info?: TypeInfoConfig,
  *     property_access?: PropertyAccessConfig,
  *     property_info?: PropertyInfoConfig,
- *     uid?: UidConfig,
  *     scheduler?: SchedulerConfig,
  *     asset_mapper?: AssetMapperConfig,
  *     http_client?: HttpClientConfig,
@@ -1967,7 +1957,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         type_info?: TypeInfoConfig,
  *         property_access?: PropertyAccessConfig,
  *         property_info?: PropertyInfoConfig,
- *         uid?: UidConfig,
  *         scheduler?: SchedulerConfig,
  *         asset_mapper?: AssetMapperConfig,
  *         http_client?: HttpClientConfig,
@@ -2008,7 +1997,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         type_info?: TypeInfoConfig,
  *         property_access?: PropertyAccessConfig,
  *         property_info?: PropertyInfoConfig,
- *         uid?: UidConfig,
  *         scheduler?: SchedulerConfig,
  *         asset_mapper?: AssetMapperConfig,
  *         http_client?: HttpClientConfig,
@@ -2045,7 +2033,6 @@ use Symfony\Component\Config\Loader\ParamConfigurator as Param;
  *         type_info?: TypeInfoConfig,
  *         property_access?: PropertyAccessConfig,
  *         property_info?: PropertyInfoConfig,
- *         uid?: UidConfig,
  *         scheduler?: SchedulerConfig,
  *         asset_mapper?: AssetMapperConfig,
  *         http_client?: HttpClientConfig,

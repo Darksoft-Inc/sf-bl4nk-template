@@ -208,6 +208,12 @@ Restored on 2026-11-19 after the planned uses were recorded in `docs/PURPOSE.md`
 
 Kept: `symfony/http-client` runs the compromised password check, `symfony/process` runs the Sass build, and scheduler, messenger, and doctrine-messenger support the scheduled maintenance feature. Messenger defines only the `sync` transport. The `doctrine://` lines in `config/packages/messenger.yaml` and `MESSENGER_TRANSPORT_DSN` in `.env` stay as placeholders until background jobs need a transport.
 
+Removal from 2026-11-21: `symfony/uid` is uninstalled.
+
+Evidence: no code used it since the restore, and the recorded planned uses do not need it. Deferred references can use slug columns, such as a scenario dataset naming records before they exist, and a dataset loader can resolve relations between its own rows at insert time, so the stored rows never depend on a client-generated UUID or ULID.
+
+Consequence: `composer.json` and `composer.lock` no longer contain the package, and the entity identifiers row in `docs/PURPOSE.md` records the slug approach instead. `symfony/ux-router` and `symfony/ux-translator` remain the only restored packages without a consumer; the routes dump stays empty until a JavaScript feature names its first route, and the same review rule applies at the next pass.
+
 The remaining UX packages match the target features: autocomplete for search, dropzone for uploads, icons and twig components for the interface, leaflet maps for the annotated map, pagination for admin lists, and translator for translations.
 
 ## Rate limiting

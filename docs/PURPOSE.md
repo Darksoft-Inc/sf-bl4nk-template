@@ -49,7 +49,7 @@ Keep a package when it supports the baseline or a target feature. Remove a packa
 |---|---|---|
 | Pages and layout | `symfony/twig-bundle`, `symfony/asset-mapper`, `symfonycasts/sass-bundle`, `twbs/bootstrap` | Keep. Bootstrap 5.3 and Stimulus are the baseline. Do not add Turbo without changing the baseline. |
 | Routes in JavaScript | `symfony/ux-router`, the `@symfony/ux-router` entry in `importmap.php` | Keep. JavaScript reads routes from the router instead of data attributes rendered by controllers. |
-| Entity identifiers | `symfony/uid` | Keep. Entities can hold a UUID or ULID value, so code can create relations before the database assigns the auto-generated key. |
+| Entity identifiers | None | Deferred references use slug columns, such as a scenario dataset naming records before they exist, and a dataset loader resolves relations between its own rows at insert time. `symfony/uid` was removed on 2026-11-21 because no feature used it. |
 | Account management | `symfony/security-bundle`, `symfony/form`, `symfony/validator`, `symfony/mailer`, `symfony/http-client`, `symfonycasts/reset-password-bundle`, `symfonycasts/verify-email-bundle` | Keep. `symfony/http-client` runs the compromised password check. |
 | Translations | `symfony/translation`, `symfony/ux-translator`, `symfony/intl`, `twig/intl-extra` | Keep. The catalogs live in `translations/`. |
 | Annotated map | `symfony/ux-map`, `symfony/ux-leaflet-map`, Leaflet entries in `importmap.php` | Keep. |
@@ -70,5 +70,6 @@ The following packages were removed because no target feature needs them:
 - `symfony/ux-chartjs`: Statistics display is too specific for the shared base. A derived application can add chart support with its own data.
 - `symfony/web-link`: The package sends no header by itself; a feature must call `preload()` or `link()`. Add it back when a preload or performance feature is designed.
 - `symfony/expression-language`: No route condition, security expression, or configuration expression exists. Complex access rules fit a security voter better. Add the package back if an expression declared in configuration appears.
+- `symfony/uid` (removed on 2026-11-21): Deferred references can use slug columns instead, and a dataset loader can resolve relations between its own rows when it inserts them. No code used the package.
 
 The same rule applies to JavaScript entries in `importmap.php`. An entry without a feature is a removal candidate.
