@@ -52,3 +52,4 @@ Run `symfony console sass:build` after changing SCSS files. Run `vendor/bin/php-
 - Update `docs/` when commands, configuration, or flows change.
 - Mark the matching item in `TODO.md` as done after verification.
 - State what changed and what command verified it.
+- Generate a migration with `php bin/console make:migration` while the dev database runs under Docker. Hand-write a migration only when the database is unreachable, and run `symfony console doctrine:migrations:migrate -n` to validate it once the services are up.

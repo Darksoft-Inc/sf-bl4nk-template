@@ -98,7 +98,7 @@ Decision from 2026-11-21: the blog ships the read side only, without an author f
 
 Evidence: `docs/PURPOSE.md` requires a public list and a detail page. The write path belongs to the private sections and admin functions item, so no controller creates announcements and no user relation exists yet. The content displays through `nl2br` because `docs/PURPOSE.md` adds no markdown package for this feature.
 
-Consequence: `Announcement` holds title, content, and `publishedAt`, which is set once in the constructor. The author field and the publish form land with the admin functions item. The migration is hand-written PostgreSQL, because the development database is unreachable; the test schema comes from the entity metadata.
+Consequence: `Announcement` holds title, content, and `publishedAt`, which is set once in the constructor. The author field and the publish form land with the admin functions item. The migration was hand-written while the development database was unreachable and ran against the development PostgreSQL database on 2026-11-21; the test schema comes from the entity metadata.
 
 ## Content-heavy pages
 
@@ -107,6 +107,8 @@ Decision from 2026-11-19: how a page with long prose gets its text.
 - A: One template per locale, for example `templates/about/index.fr.html.twig`. The variant holds the prose directly and does not depend on translated blocks or variables. Symfony selects a template by name only, so the controller or a parent template must choose the variant for the current locale. Use this for mostly static prose.
 - B: The prose comes from a dataset and the page renders it. The surrounding blocks and labels come from the catalogs or from per-locale variants. This approach is not implemented and needs a dataset design first. Use this for managed content.
 - C: All text comes from the catalogs. Use this only when the page is merely a form. The current pages, login, registration, password reset, and profile, are forms and use this approach.
+
+The approaches are not exclusive. A feature chooses per page: a documentation feature can keep static prose in per-locale templates while managed content comes from a dataset, and forms keep using the catalogs.
 
 Adding a locale means copying the catalogs and, when prose pages exist, adding their per-locale templates or dataset content too.
 

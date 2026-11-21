@@ -8,9 +8,8 @@ use Doctrine\DBAL\Schema\Schema;
 use Doctrine\Migrations\AbstractMigration;
 
 /**
- * Hand-written because the development database is PostgreSQL and cannot be
- * reached. The test schema comes from the entity metadata
- * through doctrine:schema:create.
+ * Hand-written while the development database was unreachable, and applied
+ * to the development PostgreSQL database on 2026-11-21.
  */
 final class Version20261121013000 extends AbstractMigration
 {
