@@ -18,7 +18,7 @@ final class SecurityController extends AbstractController
         ]);
     }
 
-    #[Route(path: '/logout', name: 'app_logout')]
+    #[Route(path: '/logout', name: 'app_logout', methods: ['POST'])]
     public function logout(): void
     {
         throw new \LogicException('The firewall intercepts the logout route before this action runs.');

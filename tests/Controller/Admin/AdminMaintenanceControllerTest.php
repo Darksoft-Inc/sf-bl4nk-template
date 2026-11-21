@@ -87,7 +87,11 @@ final class AdminMaintenanceControllerTest extends WebTestCase
             $crawler = $this->client->request('GET', '/admin/maintenance/uploads');
             self::assertResponseIsSuccessful();
 
-            $token = $crawler->filter('input[name="_csrf_token"]')->first()->attr('value');
+            // The navbar logout form carries its own CSRF token: scope the
+            // filter to this row's remove form, not the whole page.
+            $token = $crawler
+                ->filter(sprintf('form[action$="/avatar/%s/remove"] input[name="_csrf_token"]', $filename))
+                ->attr('value');
             self::assertIsString($token);
 
             $this->client->request('POST', '/admin/maintenance/uploads/avatar/'.$filename.'/remove', [

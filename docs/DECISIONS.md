@@ -40,6 +40,12 @@ Consequence: unverified users cannot sign in. The profile route requires `ROLE_U
 
 Open question: which other routes need access rules when the app grows.
 
+Decision from 2026-11-21: logout submits as POST behind the `logout` CSRF token, through the `logout-link` recipe of the UX Toolkit.
+
+Evidence: `config/packages/security.yaml` sets `enable_csrf: true` on the firewall logout, the `app_logout` route accepts POST only, and the navbar, the start page, and the login page render `<twig:LogoutLink>`, which wraps the existing `PostLink` component. `config/packages/csrf_protection.yaml` already listed `logout` among the stateless token ids, so the double-submit cookie flow covers the token without a session, and the `csrf-protection` Stimulus controller already runs on the hidden field the recipe renders. A GET request gets a 405, and a bad token gets a 403 and keeps the session.
+
+Consequence: `SecurityControllerTest` submits the rendered logout form, and its new case covers the 405 on GET. `CsrfProtectionControllerTest` covers the bad token. The two maintenance tests pick the token of their own form instead of the first `_csrf_token` input on the page, because the navbar logout form carries one too.
+
 ## Email verification signer
 
 Decision from 2026-11-19: override the verify-email bundle's signer service to set a default expiration.

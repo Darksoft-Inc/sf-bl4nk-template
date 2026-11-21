@@ -106,6 +106,22 @@ final class CsrfProtectionControllerTest extends WebTestCase
         self::assertSelectorTextContains('.alert-danger', 'Invalid CSRF token.');
     }
 
+    public function testLogoutRejectsInvalidCsrfToken(): void
+    {
+        $user = $this->createUser('csrf-logout@example.com', 'CorrectHorseBatteryStaple42!', true);
+        $this->client->loginUser($user);
+
+        // The logout token is stateless CSRF: a page visit first gives the
+        // next request a same-origin Referer, so only the bad token fails.
+        $this->client->request('GET', '/index');
+        $this->client->request('POST', '/logout', ['_csrf_token' => 'not-a-real-token']);
+
+        self::assertResponseStatusCodeSame(403);
+
+        $this->client->request('GET', '/profile');
+        self::assertResponseIsSuccessful();
+    }
+
     private function createUser(string $email, string $password, bool $verified = false): User
     {
         $user = (new User())

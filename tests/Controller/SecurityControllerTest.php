@@ -66,13 +66,22 @@ final class SecurityControllerTest extends WebTestCase
         $this->client->followRedirect();
         self::assertResponseIsSuccessful();
 
-        $this->client->request('GET', '/logout');
+        // The logout link posts through a CSRF token since the logout-link
+        // recipe, so submitting the rendered form covers the real flow.
+        $this->client->submitForm('Log out');
         self::assertResponseRedirects('/index');
         $this->client->followRedirect();
         self::assertResponseIsSuccessful();
 
         $this->client->request('GET', '/login');
         self::assertSelectorTextNotContains('body', 'You are logged in as');
+    }
+
+    public function testLogoutRejectsGetRequests(): void
+    {
+        $this->client->request('GET', '/logout');
+
+        self::assertResponseStatusCodeSame(405);
     }
 
     private function createUser(string $email, string $password, bool $verified): void

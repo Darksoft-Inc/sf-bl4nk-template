@@ -9,7 +9,7 @@
     {% endif %}
 
     {% if app.user %}
-        <p>{{ 'app.login.logged_in_as'|trans({'%identifier%': app.user.userIdentifier}) }} <a href="{{ path('app_logout') }}">{{ 'app.navigation.logout'|trans }}</a></p>
+        <p>{{ 'app.login.logged_in_as'|trans({'%identifier%': app.user.userIdentifier}) }} <twig:LogoutLink>{{ 'app.navigation.logout'|trans }}</twig:LogoutLink></p>
     {% endif %}
 
     <h1>{{ 'app.page.login'|trans }}</h1>

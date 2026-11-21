@@ -13,7 +13,7 @@ This page describes the current application, not a target design. `TODO.md` list
 | `app_check_email` | `/reset-password/check-email` | Confirmation page after a reset request. |
 | `app_reset_password` | `/reset-password/reset/{token}` | Validates the token and changes the password. |
 | `app_login` | `/login` | Displays the login form. The firewall handles POST requests. |
-| `app_logout` | `/logout` | Intercepted by the firewall to end the session. |
+| `app_logout` | `/logout` | POST only, behind the `logout` CSRF token. Intercepted by the firewall to end the session. |
 | `app_profile` | `/profile` | Shows account details and a password change form. |
 | `app_announcement_index` | `/announcements` | Lists announcements, newest first. |
 | `app_announcement_show` | `/announcements/{id}` | Shows one announcement. Unknown ids return 404. |

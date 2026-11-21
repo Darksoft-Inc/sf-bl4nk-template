@@ -78,7 +78,9 @@ final class AdminMaintenanceCleanupControllerTest extends WebTestCase
         $crawler = $this->client->request('GET', '/admin/maintenance/cleanup');
         self::assertResponseIsSuccessful();
 
-        $token = $crawler->filter('input[name="_csrf_token"]')->first()->attr('value');
+        // The navbar logout form carries its own CSRF token: scope the
+        // filter to the cleanup form, not the whole page.
+        $token = $crawler->filter('form[action$="/cleanup/run"] input[name="_csrf_token"]')->attr('value');
         self::assertIsString($token);
 
         $this->client->request('POST', '/admin/maintenance/cleanup/run', [
