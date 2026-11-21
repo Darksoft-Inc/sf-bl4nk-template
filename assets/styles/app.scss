@@ -2,7 +2,40 @@
 
 // override Bootstrap variables, then import source from the vendor folder
 
+// Roman noir, 1930s: brass, aged paper, smoke, and dried-blood red.
+$primary:   #c9a13b; // brass, the desk lamp over the case file
+$secondary: #6f6a62; // cigarette smoke
+$success:   #58704e; // worn jade
+$info:     #5e7d8a; // a neon sign through the rain
+$warning:   #b98a3e; // aged tobacco
+$danger:   #a93226; // dried-blood red
+$light:    #d8d1bc; // aged paper
+$dark:     #14110c; // ink
+
 @import "../../vendor/twbs/bootstrap/scss/bootstrap";
+
+// The base template sets data-bs-theme="dark" for the noir tone. Keep the
+// dark surfaces warm instead of Bootstrap's default cool grays.
+[data-bs-theme="dark"] {
+    --bs-body-bg: #16130d;
+    --bs-body-color: #d8d1bc;
+    --bs-secondary-color: rgba(216, 209, 188, 0.7);
+    --bs-tertiary-color: rgba(216, 209, 188, 0.5);
+    --bs-secondary-bg: #221e17;
+    --bs-tertiary-bg: #1c1913;
+    --bs-border-color: #3b352a;
+}
+
+// The post-link and logout-link recipes submit forms with class "inline";
+// keep such forms out of the flow like the links they replace.
+form.inline {
+    display: inline;
+}
+
+// TomSelect hard-codes a light dropdown border; follow the theme border.
+.ts-dropdown {
+    border-color: var(--bs-border-color);
+}
 
 // Annotated map display. The leaflet map and its panes live inside the
 // canvas element, so the pins and symbols filters hide layers through

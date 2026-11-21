@@ -38,7 +38,6 @@ return [
     '@symfony/ux-translator' => ['path' => './vendor/symfony/ux-translator/assets/dist/translator_controller.js'],
     'app' => ['path' => './assets/app.js', 'entrypoint' => true],
     'bootstrap' => ['version' => '5.3.9'],
-    'bootstrap/dist/css/bootstrap.min.css' => ['version' => '5.3.9', 'type' => 'css'],
     'intl-messageformat' => ['version' => '10.7.18'],
     'leaflet' => ['version' => '1.9.4'],
     'leaflet/dist/leaflet.min.css' => ['version' => '1.9.4', 'type' => 'css'],

@@ -22,6 +22,12 @@ Evidence: `var/` is ignored by git. `assets/app.js` imports `styles/app.scss`. T
 
 Consequence: a fresh checkout needs `symfony console sass:build` before pages and browser tests work.
 
+Decision from 2026-11-21: the interface carries a "roman noir 1930s" palette as a proof of concept, compiled from the Bootstrap source.
+
+Evidence: `assets/styles/app.scss` overrides the eight theme colors before the vendor import (brass `#c9a13b` as `$primary`, aged paper as `$light`, smoke as `$secondary`, dried-blood red as `$danger`) and sets warm dark-mode surfaces after it, because the base template sets `data-bs-theme="dark"`. TomSelect hard-codes a light dropdown border, so the stylesheet points it at the theme border color.
+
+Consequence: the prebuilt `bootstrap.min.css` is never loaded. Color customization needs the Sass path, and the SCSS source arrives through composer as `twbs/bootstrap`, so the unused `bootstrap/dist/css/bootstrap.min.css` entry was removed from `importmap.php` on 2026-11-21. The `bootstrap` JavaScript entry stays: `assets/app.js` imports it for the modal and navbar scripts. The palette is a proof of concept: replace the variables in `assets/styles/app.scss` when the project chooses its final look.
+
 ## Symfony version
 
 Current choice: Symfony `8.2.*`, currently installed as 8.2.0-BETA2.
@@ -97,6 +103,10 @@ Decision from 2026-11-21: the base template renders anonymous Twig components, a
 Evidence: `templates/components/Navbar.html.twig` holds the navigation and `templates/components/FlashMessages.html.twig` renders every flash type as a Bootstrap alert with an icon. `base.html.twig` calls both, so the per-page flash loops in the register and reset request templates are gone. `ux:icons:lock` imported the 11 icons used by the templates into `assets/icons/`.
 
 Consequence: pages render without a network connection, and a new icon in a template needs one `php bin/console ux:icons:lock` run before it renders offline. See `docs/ARCHITECTURE.md`.
+
+Decision from 2026-11-21: the root element declares its language and the dark theme, and the account logout renders through the `logout-link` recipe.
+
+Evidence: `templates/base.html.twig` opens with `<html lang="{{ app.request.locale }}" data-bs-theme="dark">`. The language attribute lets screen readers pick the pronunciation and gives the dormant `symfony/ux-translator` runtime its page locale if it is ever wired; the theme attribute belongs to the palette record in the Generated CSS section. `ux:install logout-link --kit=common` wrote `templates/components/LogoutLink.html.twig`, which reuses `PostLink` and `logout_path()`.
 
 ## Admin section
 
