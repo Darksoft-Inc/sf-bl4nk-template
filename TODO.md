@@ -69,5 +69,5 @@ The remaining target features from `docs/PURPOSE.md`, in build order. Each item 
 ## Lower-priority improvements
 
 - [ ] Announcement content: a richer rendering than `nl2br` plain text. The form can gain a better editor together with it.
-- [ ] Dataset loader: collapse the second parse into one pass, now that the dimensioning target is 2,000 to 40,000 rows. Hold the parsed records of the load, order the writes from the cycle check, and drop `DatasetIndexEntry` with the pending-list machinery; measure a 40,000-row load before and after (the recorded single-file upper bound is 173 MB). The batching, the transaction, and the reference resolution stay as they are.
+- [ ] Dataset loader: collapse the second parse into one pass, now that the dimensioning target is 2,000 to 40,000 rows. Hold the parsed records of the load, order the writes from the cycle check, and drop `DatasetIndexEntry` with the pending-list machinery; measure a 40,000-row load before and after (the recorded upper bounds are 173 MB on the test database and 167 MB in prod on PostgreSQL). The batching, the transaction, and the reference resolution stay as they are.
 
