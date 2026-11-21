@@ -18,6 +18,7 @@ app:
         profile: Profile
         announcements: Announcements
         documentation: Documentation
+        admin: Admin
         toggle: 'Toggle navigation'
     account:
         email: Email
@@ -33,6 +34,21 @@ app:
         none: 'No announcements yet.'
         published_on: 'Published on %date%'
         back: 'Back to announcements'
+    admin:
+        navigation:
+            section: 'Admin sections'
+            users: Users
+        page:
+            users: Users
+        user:
+            edit: Edit
+            save: Save
+            close: Close
+            actions: Actions
+            administrator: Administrator
+        flash:
+            user_updated: 'The user has been updated.'
+            user_not_updated: 'The user could not be updated.'
     flash:
         email_verified: 'Your email address has been verified.'
         email_already_verified: 'Your email address has already been verified.'

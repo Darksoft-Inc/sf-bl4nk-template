@@ -1,0 +1,4 @@
+# yaml-language-server: $schema=../schema.json
+ux_pagination:
+    # The app renders Bootstrap 5.3; the bundle ships a matching theme.
+    theme: '@UXPagination/theme/bootstrap.html.twig'

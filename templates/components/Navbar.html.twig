@@ -18,6 +18,14 @@
             </ul>
             <ul class="navbar-nav ms-auto mb-2 mb-md-0">
                 {% if app.user %}
+                    {% if is_granted('ROLE_ADMIN') %}
+                        <li class="nav-item">
+                            <a class="nav-link d-inline-flex align-items-center" href="{{ path('app_admin_user_index') }}">
+                                {{ ux_icon('bi:gear', {'class': 'me-1'}) }}
+                                {{ 'app.navigation.admin'|trans }}
+                            </a>
+                        </li>
+                    {% endif %}
                     <li class="nav-item">
                         <a class="nav-link d-inline-flex align-items-center" href="{{ path('app_profile') }}">
                             {{ ux_icon('bi:person-circle', {'class': 'me-1'}) }}

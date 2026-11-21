@@ -1,0 +1,57 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}{{ 'app.admin.page.users'|trans }}{% endblock %}
+
+{% block admin_body %}
+    <h1>{{ 'app.admin.page.users'|trans }}</h1>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">{{ 'app.account.email'|trans }}</th>
+                <th scope="col">{{ 'app.admin.user.administrator'|trans }}</th>
+                <th scope="col">{{ 'app.account.verified'|trans }}</th>
+                <th scope="col" class="text-end">{{ 'app.admin.user.actions'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in pagination %}
+                <tr class="user-row">
+                    <td>{{ user.id }}</td>
+                    <td class="user-email">{{ user.email }}</td>
+                    <td>{{ 'ROLE_ADMIN' in user.roles ? '✓' : '—' }}</td>
+                    <td>{{ user.isVerified ? '✓' : '—' }}</td>
+                    <td class="text-end">
+                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#user-modal-{{ user.id }}">
+                            {{ ux_icon('bi:pencil-square', {'class': 'me-1'}) }}
+                            {{ 'app.admin.user.edit'|trans }}
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {{ ux_pagination(pagination) }}
+
+    {% for user in pagination %}
+        {% set form = forms[user.id] %}
+        <twig:Modal id="user-modal-{{ user.id }}">
+            <twig:Modal:Header>
+                <twig:Modal:Title tag="h2">{{ user.email }}</twig:Modal:Title>
+            </twig:Modal:Header>
+            <twig:Modal:Body>
+                {{ form_start(form) }}
+                    {{ form_row(form.email) }}
+                    {{ form_row(form.isVerified) }}
+                    {{ form_row(form.isAdmin) }}
+                    <button type="submit" class="btn btn-primary">{{ 'app.admin.user.save'|trans }}</button>
+                {{ form_end(form) }}
+            </twig:Modal:Body>
+            <twig:Modal:Footer>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ 'app.admin.user.close'|trans }}</button>
+            </twig:Modal:Footer>
+        </twig:Modal>
+    {% endfor %}
+{% endblock %}
