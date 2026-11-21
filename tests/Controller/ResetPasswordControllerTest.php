@@ -11,6 +11,8 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\Clock\Test\ClockSensitiveTrait;
+use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
@@ -236,6 +238,28 @@ final class ResetPasswordControllerTest extends WebTestCase
         self::assertTrue($this->passwordHasher->isPasswordValid($user, 'NewStrongPassword42!'), 'actual hash: '.$user->getPassword());
     }
 
+    public function testRejectedResetTokenRemovesEverySessionEntry(): void
+    {
+        $this->createUser('session-cleanup@example.com', 'CorrectHorseBatteryStaple42!');
+        $this->openResetFormFor('session-cleanup@example.com');
+
+        $this->client->request('GET', '/reset-password/reset/invalid-reset-token');
+        self::assertResponseRedirects('/reset-password/reset');
+        $this->client->followRedirect();
+
+        self::assertResponseRedirects('/reset-password');
+        $this->client->followRedirect();
+
+        // A rejected link must clear every reset entry the bundle keeps in
+        // the session, not only the public token: the token object stored by
+        // the request step would otherwise outlive its own link, and the
+        // check-email page would keep rendering the lifetime of a dead
+        // token instead of the generic one.
+        $session = $this->clientSession();
+        self::assertFalse($session->has('ResetPasswordPublicToken'));
+        self::assertFalse($session->has('ResetPasswordToken'));
+    }
+
     public function testExpiredResetTokenIsRejected(): void
     {
         $user = $this->createUser('expired-reset@example.com', 'CorrectHorseBatteryStaple42!');
@@ -318,5 +342,25 @@ final class ResetPasswordControllerTest extends WebTestCase
         self::assertArrayHasKey(1, $resetLink);
 
         return $resetLink[1];
+    }
+
+    /**
+     * The persisted session of the test client. The test environment
+     * stores sessions through the mock file storage, whose files survive
+     * the request that wrote them, so the session can be read back after
+     * a response and its entries asserted.
+     */
+    private function clientSession(): SessionInterface
+    {
+        $cookie = $this->client->getCookieJar()->get('MOCKSESSID');
+        self::assertNotNull($cookie, 'The client carries no session cookie.');
+
+        $factory = static::getContainer()->get('session.storage.factory');
+
+        $session = new Session($factory->createStorage(null));
+        $session->setId($cookie->getValue());
+        $session->start();
+
+        return $session;
     }
 }

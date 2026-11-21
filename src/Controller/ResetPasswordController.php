@@ -11,7 +11,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -30,7 +29,6 @@ class ResetPasswordController extends AbstractController
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private EntityManagerInterface $entityManager,
-        private RequestStack $requestStack,
         #[Autowire(param: 'app.admin_email')] private string $adminEmail,
         #[Autowire(param: 'app.admin_name')] private string $adminName,
     ) {
@@ -103,7 +101,12 @@ class ResetPasswordController extends AbstractController
                 $translator->trans($e->getReason(), [], 'ResetPasswordBundle')
             ));
 
-            $this->removeTokenFromSession();
+            // A rejected link leaves no trace in the session: the trait's
+            // cleaner drops the public token, the check-email marker, and
+            // the token object of the request step, so no later visit
+            // replays the validation of a token already known to be
+            // invalid or renders the lifetime of a dead token.
+            $this->cleanSessionAfterReset();
 
             return $this->redirectToRoute('app_forgot_password_request');
         }
@@ -132,16 +135,6 @@ class ResetPasswordController extends AbstractController
         return $this->render('reset_password/reset.html.twig', [
             'resetForm' => $form,
         ]);
-    }
-
-    /**
-     * A rejected token must not stay in the session. Otherwise every later
-     * visit to the reset route replays the validation of a token that is
-     * already known to be invalid.
-     */
-    private function removeTokenFromSession(): void
-    {
-        $this->requestStack->getSession()->remove('ResetPasswordPublicToken');
     }
 
     private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer): RedirectResponse
