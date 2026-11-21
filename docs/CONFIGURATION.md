@@ -25,6 +25,10 @@ Sender values come from `ADMIN_EMAIL` and `ADMIN_NAME`. `config/services.yaml` e
 
 Replace both defaults before deployment. The current values are placeholders.
 
+## Login audit retention
+
+`app.login_audit_retention_days` in `config/services.yaml` (90 by default) is the age at which a login audit row becomes removable. The scheduled cleanup and the manual trigger on `/admin/maintenance/cleanup` both remove the rows past that age. Lowering the value removes rows sooner; raising it keeps more history.
+
 ## Translations
 
 `framework.enabled_locales` is set to `['en']` in `config/packages/framework.yaml`, and `en` is the default locale. Three catalogs live in `translations/`:
@@ -37,7 +41,9 @@ Email subjects are set inside the email templates through `email.setSubject()`. 
 
 ## Security and signed URLs
 
-`config/packages/security.yaml` defines a user provider and a `form_login` authenticator on the `main` firewall. The routes are `app_login` and `app_logout`. `App\Security\VerifiedUserChecker` requires a verified email address before login. Successful login and logout redirect to `app_index`. The profile route uses `#[IsGranted('ROLE_USER')]`. The `access_control` list is still empty.
+`config/packages/security.yaml` defines a user provider and a `form_login` authenticator on the `main` firewall. The routes are `app_login` and `app_logout`. `App\Security\VerifiedUserChecker` requires a verified email address before login. Successful login and logout redirect to `app_index`. The profile route uses `#[IsGranted('ROLE_USER')]`. The `access_control` list guards `/admin` with `ROLE_ADMIN`.
+
+The firewall enables persistent sessions with `remember_me`: the cookie lives 7 days, is signed with `%kernel.secret%` (`APP_SECRET`, see the production item in `TODO.md`), and is only sent when the login form's `_remember_me` checkbox is checked. `LoginAuditSubscriber` records every login and every persistent-session restore; see `docs/DECISIONS.md`.
 
 `framework.uri_signer.expiration` is unset. Symfony 8.2 deprecates signed URIs without an expiration, but that option configures the framework's own `uri_signer` service and does not reach the private signer the verify-email bundle builds for its links. `config/services.yaml` instead overrides the bundle's `symfonycasts.verify_email.uri_signer` service with the arguments the bundle uses, `'%kernel.secret%'` and `signature`, plus a default expiration of 1 day. The value stays above the bundle link lifetime of 1 hour (`symfonycasts_verify_email.lifetime`, default 3600), because the bundle then reports an expired link while the signer reports an invalid signature. No bundle release passes an expiration, including the 2.x branch under development, so the override stays until the bundle fixes its `sign()` call. The choice is recorded in `docs/DECISIONS.md`.
 

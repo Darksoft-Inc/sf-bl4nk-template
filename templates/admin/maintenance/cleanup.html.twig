@@ -1,0 +1,55 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}{{ 'app.admin.page.cleanup'|trans }}{% endblock %}
+
+{% block admin_body %}
+    <h1>{{ 'app.admin.page.cleanup'|trans }}</h1>
+
+    <twig:MaintenanceNav />
+
+    <h2>{{ 'app.admin.cleanup.login_audit.title'|trans }}</h2>
+
+    <p class="cleanup-help">{{ 'app.admin.cleanup.login_audit.help'|trans({'%days%': retentionDays, '%count%': removable}) }}</p>
+    <p class="text-body-secondary">{{ 'app.admin.cleanup.login_audit.schedule'|trans }}</p>
+
+    <twig:PostLink
+        href="{{ path('app_admin_maintenance_cleanup_run') }}"
+        csrfTokenId="cleanup-login-audit"
+        confirm="{{ 'app.admin.cleanup.login_audit.confirm'|trans }}"
+        class="btn btn-outline-danger"
+    >
+        {{ ux_icon('bi:trash', {'class': 'me-1'}) }}
+        {{ 'app.admin.cleanup.login_audit.run'|trans }}
+    </twig:PostLink>
+
+    <h2 class="mt-4">{{ 'app.admin.cleanup.runs.title'|trans }}</h2>
+
+    {% if runs is empty %}
+        <p class="run-none text-body-secondary">{{ 'app.admin.cleanup.runs.none'|trans }}</p>
+    {% else %}
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th scope="col">{{ 'app.admin.cleanup.runs.ran_at'|trans }}</th>
+                    <th scope="col">{{ 'app.admin.cleanup.runs.trigger'|trans }}</th>
+                    <th scope="col">{{ 'app.admin.cleanup.runs.result'|trans }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for run in runs %}
+                    <tr class="run-row">
+                        <td>{{ run.ranAt|format_datetime('medium', 'short') }}</td>
+                        <td>
+                            {% if run.trigger == 'schedule' %}
+                                <span class="badge text-bg-secondary">{{ 'app.admin.cleanup.runs.trigger.schedule'|trans }}</span>
+                            {% else %}
+                                <span class="badge text-bg-info">{{ 'app.admin.cleanup.runs.trigger.manual'|trans }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ run.result }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

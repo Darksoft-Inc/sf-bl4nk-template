@@ -128,6 +128,28 @@ Consequence: another searchable entity repeats the pattern: one autocompleter fi
 
 The admin searches from 2026-11-21 follow the same pattern with two differences. The lists stay in place: selecting a user or an announcement filters the list to that record instead of navigating away. The endpoints live under the bundle's one flat namespace, `/autocomplete/{alias}`, not under `/admin` or `/announcements`: the alias carries the scope by name and the field carries the access rule. `AdminUserAutocompleteField` sets `security: 'ROLE_ADMIN'`, so anonymous callers are sent to the login page by the firewall and non-admins get 403. The admin announcement search reuses the public field, because announcement titles are public data.
 
+## Login audit and user metadata
+
+Decision from 2026-11-21: one audit row per authentication, recorded from `LoginSuccessEvent`, and user metadata updated in the same event.
+
+Evidence: the `AuthenticatorManager` dispatches `LoginSuccessEvent` when an authenticator ran, which means the form login, or the remember-me authenticator when a visitor returns and their session is gone. Requests served from a live session restore the token in the `ContextListener` without dispatching any login event, so they write nothing: the table gains a row on a new login or on the restore of a persistent session, never per request. The security component points at this hook itself: the docblock of `RememberMeAuthenticator::isInteractive()` names "listeners reacting to a user coming back, such as one updating a 'last login' date" as the users of the interactive-login events, and `LoginSuccessEvent` is the event that covers both the form login and the remember-me restore. `App\Security\LoginAuditSubscriber` therefore reads `LoginSuccessEvent`, tells a resume from a login through `getAuthenticator() instanceof RememberMeAuthenticator`, writes the `login_audit` row, and sets `lastConnectedAt` and `lastIp` on the user.
+
+The resume path needs persistent sessions, so the firewall enables `remember_me` with a 7 day lifetime, shorter than the 1 year default to bound the replay window of a stolen cookie. The login form gained the `_remember_me` checkbox, unchecked by default. The cookie secret defaults to `%kernel.secret%`, and `APP_SECRET` is empty in the committed dev `.env`; setting it is already the production task in `TODO.md`, and the remember-me cookie then signs with the production secret.
+
+The `login_audit` table stores the user relation with `ON DELETE SET NULL` plus an `identifier` snapshot: an account deletion keeps its audit rows readable for their retention period. The admin list at `/admin/login-audit` searches by IP with a SQL LIKE pattern: an input without `%` or `_` matches as a substring, an input with wildcards is used as typed, so both `192.168` and `192.168.%` work.
+
+Consequence: "last connected" is the time of the last sign-in or persistent-session restore, not the last page view. The profile page and the admin user list display it with the recorded IP.
+
+## Maintenance cleanup task
+
+Decision from 2026-11-21: the login audit cleanup is the proof of concept for recurring maintenance: a scheduled task that can also be triggered by hand, with every run recorded.
+
+Evidence: `App\Task\LoginAuditCleanupTask` carries `#[AsPeriodicTask(frequency: '1 day')]`. The scheduler turns each due task into a `ServiceCallMessage` and exposes the schedule as the `scheduler_default` messenger transport; a worker running `symfony console messenger:consume scheduler_default` calls the task, which dispatches the `App\Message\LoginAuditCleanup` message. With `scheduler.use_messenger_routing: true` and no transport routed for that class, the message runs inline in the worker. The handler removes the rows older than `app.login_audit_retention_days` (90) and records a `maintenance_run` row with the task, the trigger, the result, and the time. `#[AsCronTask]` would need the `dragonmantank/cron-expression` package, which is not installed; `AsPeriodicTask` ships with the scheduler and covers the daily cadence, and cron syntax can be added with the package when a schedule needs one.
+
+The manual trigger dispatches the same message from the maintenance page at `/admin/maintenance/cleanup` with the trigger set to "manual", behind the `cleanup-login-audit` CSRF token id. Because the bus is synchronous, the controller reads the removed count from the `HandledStamp` and reports it in the flash; the code already handles an asynchronous transport, which would answer "queued" instead.
+
+Consequence: the messenger transport decision stays deferred as before. Routing `App\Message\LoginAuditCleanup` to a real transport later changes where the work runs and nothing else, and the scheduled trigger then runs outside the web request that pressed the button. A next recurring task repeats the pattern: an invokable task service with the attribute, a message, a handler, a recorded run.
+
 ## Announcement blog
 
 Decision from 2026-11-21: the blog ships the read side only, without an author field.

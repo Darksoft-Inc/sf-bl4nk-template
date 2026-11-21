@@ -5,6 +5,8 @@
 {% block admin_body %}
     <h1>{{ 'app.admin.page.uploads'|trans }}</h1>
 
+    <twig:MaintenanceNav />
+
     {% for kind, files in uploads %}
         <h2>{{ ('app.admin.uploads.kind.' ~ kind)|trans }}</h2>
 

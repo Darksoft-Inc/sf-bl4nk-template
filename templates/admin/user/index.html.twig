@@ -28,6 +28,7 @@
                 <th scope="col">{{ 'app.account.email'|trans }}</th>
                 <th scope="col">{{ 'app.admin.user.administrator'|trans }}</th>
                 <th scope="col">{{ 'app.account.verified'|trans }}</th>
+                <th scope="col">{{ 'app.account.last_connection'|trans }}</th>
                 <th scope="col" class="text-end">{{ 'app.admin.user.actions'|trans }}</th>
             </tr>
         </thead>
@@ -38,6 +39,16 @@
                     <td class="user-email">{{ user.email }}</td>
                     <td>{{ 'ROLE_ADMIN' in user.roles ? '✓' : '—' }}</td>
                     <td>{{ user.isVerified ? '✓' : '—' }}</td>
+                    <td class="user-last-connection">
+                        {% if user.lastConnectedAt %}
+                            {{ user.lastConnectedAt|format_datetime('medium', 'short') }}
+                            {% if user.lastIp %}
+                                <span class="d-block small text-body-secondary">{{ user.lastIp }}</span>
+                            {% endif %}
+                        {% else %}
+                            {{ 'app.account.never_connected'|trans }}
+                        {% endif %}
+                    </td>
                     <td class="text-end">
                         <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#user-modal-{{ user.id }}">
                             {{ ux_icon('bi:pencil-square', {'class': 'me-1'}) }}

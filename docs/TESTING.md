@@ -18,7 +18,7 @@ Tests stay in the PHPUnit class style, so both commands run the whole suite. Rec
 
 ## Test organization
 
-`tests/Controller/` holds the HTTP-facing tests: each one submits a request and asserts the routing, the response, and the database state. They stay the only kind of test while the logic lives in the controllers. Functional and unit tests become useful when logic moves out of the controllers into services, and integration tests when components interact across layers. The empty directories `tests/Functional/`, `tests/Integration/`, and `tests/Unit/` are reserved for that stage.
+`tests/Controller/` holds the HTTP-facing tests: each one submits a request and asserts the routing, the response, and the database state. Functional and unit tests become useful when logic moves out of the controllers into services, and integration tests when components interact across layers. The empty directories `tests/Functional/` and `tests/Unit/` are reserved for that stage. `tests/Integration/` opened with the cleanup task test, which crosses the scheduler task, the message bus, and the database in one call.
 
 ## Deprecations
 
@@ -88,10 +88,14 @@ Lint commands and PHPStan pass with the full configuration. The `lint_php` alias
 - `tests/Controller/Admin/AdminUserControllerTest.php`: checks the login redirect, the 403 for users without the admin role, the paginated list, the modal form updating the email, the verified state, and the roles, the self-demotion rejection, and the user search: the endpoint answers only to admins and the form filters the list.
 - `tests/Controller/Admin/AdminAnnouncementControllerTest.php`: checks the login redirect, the 403, the creation flow with the author, the edit flow, the paginated list, and the announcement search filtering the list.
 - `tests/Controller/Admin/AdminMaintenanceControllerTest.php`: checks the login redirect, the 403, the uploads list with the owner, and the removal that deletes the file and clears the avatar field.
+- `tests/Controller/LoginAuditTest.php`: checks that a form login writes one audit row with the user metadata, that further requests from the same session write nothing, that the profile page shows the metadata, that the `_remember_me` checkbox sets the cookie only when checked, and that a returning visitor with the remember-me cookie alone gets a "resume" row.
+- `tests/Controller/Admin/AdminLoginAuditControllerTest.php`: checks the login redirect, the 403, the list newest first, and the IP search matching as a substring or as a typed LIKE pattern.
+- `tests/Controller/Admin/AdminMaintenanceCleanupControllerTest.php`: checks the login redirect, the 403, the expiring-row count on the page, the manual run that removes only the expired rows and records the run, and the bad CSRF token that changes nothing.
+- `tests/Integration/LoginAuditCleanupTaskTest.php`: calls the scheduled task service the way the scheduler worker would and checks that the dispatch removes the expired rows and records a run with the "schedule" trigger.
 - `tests/Form/PasswordConstraintsTest.php`: checks the password rules per environment.
 - `tests/SetupSmokeTest.php`: fails with the setup command in the message when the Sass output or the test schema is missing.
 
-All database tests use the `ResetDatabase` trait from `tests/ResetDatabase.php`. Its `resetDatabase()` method runs in `setUp()`. It deletes every `announcement` and `reset_password_request` row before every `user` row, so dependent rows cannot block the user cleanup on databases that enforce the foreign key.
+All database tests use the `ResetDatabase` trait from `tests/ResetDatabase.php`. Its `resetDatabase()` method runs in `setUp()`. It deletes every `announcement`, `reset_password_request`, and `login_audit` row before every `user` row, and every `maintenance_run` row too, so dependent rows cannot block the user cleanup on databases that enforce the foreign key and each test starts with clean tables.
 
 ## Coverage gaps
 

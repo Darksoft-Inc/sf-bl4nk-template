@@ -28,6 +28,12 @@ security:
                 enable_csrf: true
                 always_use_default_target_path: true
                 default_target_path: app_index
+            # Persistent sessions: the login form offers a "remember me"
+            # checkbox, and a returning visitor is re-authenticated from the
+            # cookie when the session is gone. LoginAuditSubscriber records
+            # those restores as "resume" events.
+            remember_me:
+                lifetime: 604800
             logout:
                 path: app_logout
                 target: app_index

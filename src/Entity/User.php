@@ -40,6 +40,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(nullable: true)]
     private ?string $avatarFilename = null;
 
+    /**
+     * The time of the last login or persistent-session restore.
+     */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $lastConnectedAt = null;
+
+    /**
+     * The client IP of the last login or persistent-session restore.
+     */
+    #[ORM\Column(length: 45, nullable: true)]
+    private ?string $lastIp = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -137,6 +149,30 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+
+        return $this;
+    }
+
+    public function getLastConnectedAt(): ?\DateTimeImmutable
+    {
+        return $this->lastConnectedAt;
+    }
+
+    public function setLastConnectedAt(?\DateTimeImmutable $lastConnectedAt): static
+    {
+        $this->lastConnectedAt = $lastConnectedAt;
+
+        return $this;
+    }
+
+    public function getLastIp(): ?string
+    {
+        return $this->lastIp;
+    }
+
+    public function setLastIp(?string $lastIp): static
+    {
+        $this->lastIp = $lastIp;
 
         return $this;
     }

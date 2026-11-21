@@ -12,6 +12,18 @@
 
         <dt>{{ 'app.account.email_verification'|trans }}</dt>
         <dd>{{ user.verified ? 'app.account.verified'|trans : 'app.account.not_verified'|trans }}</dd>
+
+        <dt>{{ 'app.account.last_connection'|trans }}</dt>
+        <dd class="user-last-connection">
+            {% if user.lastConnectedAt %}
+                {{ 'app.account.last_connection_at'|trans({'%date%': user.lastConnectedAt|format_datetime('medium', 'short')}) }}
+                {% if user.lastIp %}
+                    {{ 'app.account.last_connection_from'|trans({'%ip%': user.lastIp}) }}
+                {% endif %}
+            {% else %}
+                {{ 'app.account.never_connected'|trans }}
+            {% endif %}
+        </dd>
     </dl>
 
     <h2>{{ 'app.account.avatar'|trans }}</h2>

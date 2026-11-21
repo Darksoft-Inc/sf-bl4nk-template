@@ -1,0 +1,65 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}{{ 'app.admin.page.login_audit'|trans }}{% endblock %}
+
+{% block admin_body %}
+    <h1>{{ 'app.admin.page.login_audit'|trans }}</h1>
+
+    <div class="mb-4">
+        {{ form_start(searchForm) }}
+            <div class="row g-2 align-items-end">
+                <div class="col-md-8">
+                    {{ form_row(searchForm.ip) }}
+                    <p class="form-text">{{ 'app.admin.audit.search.help'|trans }}</p>
+                </div>
+                <div class="col-md-4 d-grid d-md-block">
+                    <button type="submit" class="btn btn-primary">
+                        {{ ux_icon('bi:search', {'class': 'me-1'}) }}
+                        {{ 'app.admin.search.filter'|trans }}
+                    </button>
+                </div>
+            </div>
+        {{ form_end(searchForm) }}
+    </div>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th scope="col">{{ 'app.account.email'|trans }}</th>
+                <th scope="col">IP</th>
+                <th scope="col">{{ 'app.admin.audit.type'|trans }}</th>
+                <th scope="col">{{ 'app.admin.audit.user_agent'|trans }}</th>
+                <th scope="col">{{ 'app.admin.audit.created_at'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for audit in pagination %}
+                <tr class="audit-row">
+                    <td>{{ audit.user ? audit.user.email : audit.identifier }}</td>
+                    <td class="audit-ip">{{ audit.ip ?? '—' }}</td>
+                    <td>
+                        {% if audit.type.value == 'resume' %}
+                            <span class="badge text-bg-warning">{{ 'app.admin.audit.resume'|trans }}</span>
+                        {% else %}
+                            <span class="badge text-bg-primary">{{ 'app.admin.audit.login'|trans }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-body-secondary">
+                        {% if audit.userAgent %}
+                            <span title="{{ audit.userAgent }}">{{ audit.userAgent|slice(0, 40) }}{% if audit.userAgent|length > 40 %}…{% endif %}</span>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td>{{ audit.createdAt|format_datetime('medium', 'short') }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5">{{ 'app.admin.audit.none'|trans }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {{ ux_pagination(pagination) }}
+{% endblock %}

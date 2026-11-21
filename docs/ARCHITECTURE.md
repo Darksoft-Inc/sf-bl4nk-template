@@ -25,6 +25,9 @@ This page describes the current application, not a target design. `TODO.md` list
 | `app_admin_announcement_edit` | `/admin/announcements/{id}/edit` | Edits an announcement. |
 | `app_admin_maintenance_uploads` | `/admin/maintenance/uploads` | Lists the uploads of every kind, only for admins. |
 | `app_admin_maintenance_upload_remove` | `/admin/maintenance/uploads/{kind}/{filename}/remove` | Removes an upload and clears the field that references it. |
+| `app_admin_login_audit_index` | `/admin/login-audit` | Paginated login audit list with an IP pattern search, only for admins. |
+| `app_admin_maintenance_cleanup` | `/admin/maintenance/cleanup` | Shows the login audit retention state and the recorded runs, only for admins. |
+| `app_admin_maintenance_cleanup_run` | `/admin/maintenance/cleanup/run` | Runs the login audit cleanup by hand. |
 
 Profiler and UX routes exist in development. They are not part of the product surface.
 
@@ -36,6 +39,8 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `App\Controller\Admin\AdminUserController` lists the users page by page and saves the modal edit form that changes the email, the verified state, and the admin role.
 - `App\Controller\Admin\AdminAnnouncementController` lists, creates, and edits announcements. The author of a new announcement is the signed-in admin.
 - `App\Controller\Admin\AdminMaintenanceController` lists the uploads of every registered kind and removes them on request.
+- `App\Controller\Admin\AdminLoginAuditController` lists the login audit rows page by page and filters them by an IP pattern.
+- `App\Controller\Admin\AdminMaintenanceCleanupController` shows the login audit cleanup state and dispatches the cleanup message by hand.
 - `RegistrationController` creates users, sends verification email, and verifies email links.
 - `ResetPasswordController` handles reset requests, reset confirmation, token validation, and password changes.
 - `SecurityController` displays the login form and declares the logout route.
@@ -43,9 +48,11 @@ Profiler and UX routes exist in development. They are not part of the product su
 
 ## Entities
 
-- `App\Entity\User` stores email, roles, password hash, verification state, and the avatar filename. It implements `UserInterface` and `PasswordAuthenticatedUserInterface`.
+- `App\Entity\User` stores email, roles, password hash, verification state, the avatar filename, and the last connection metadata: `lastConnectedAt` and `lastIp`, set by `LoginAuditSubscriber`. It implements `UserInterface` and `PasswordAuthenticatedUserInterface`.
 - `App\Entity\ResetPasswordRequest` stores the selector, hashed token, expiration, and the related user.
 - `App\Entity\Announcement` stores the title, content, publication date, and the author. The constructor takes the four fields, and the admin form can change the publication date through `setPublishedAt()`.
+- `App\Entity\LoginAudit` stores one authentication event: the user (nullable, cleared when the account is deleted), the identifier snapshot, the client IP, the start of the User-Agent header, the type (`LoginAuditType::Login` for a form login, `LoginAuditType::Resume` for the restore of a persistent session), and the time. The constructor takes the five values; the rows are never updated.
+- `App\Entity\MaintenanceRun` stores one run of a maintenance task: the task name, the trigger ("schedule" or "manual"), a result summary, and the time.
 
 ## Forms
 
@@ -58,6 +65,7 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `AnnouncementAutocompleteField` marks an entity autocomplete over `Announcement`, searching the title and the content, served by the bundle at `/autocomplete/announcement_autocomplete_field`. `AnnouncementSearchType` wraps it in a GET form without CSRF, because a search changes nothing.
 - `AdminUserAutocompleteField` is the admin counterpart over `User`, searching the email, with the `ROLE_ADMIN` guard set on the field itself. `AdminUserSearchType` and `AdminAnnouncementSearchType` wrap the fields in GET forms; the announcement form reuses the public autocompleter, whose results are public data.
 - `AvatarFormType` collects the avatar upload through the `ux-dropzone` control, with content-sniffed image validation.
+- `LoginAuditSearchType` wraps one IP text field in a GET form without CSRF, because a search changes nothing.
 
 `templates/form/fields.html.twig` is a form theme registered after the Bootstrap layout. It wraps every Symfony-rendered password field with the visibility toggle from the `password-visibility` recipe. The login form is raw HTML and keeps its plain field.
 
@@ -70,8 +78,12 @@ Registration and password reset use the same password rules. In the `dev` enviro
 - `UserRepository` extends Doctrine's `ServiceEntityRepository` and implements password upgrading.
 - `AnnouncementRepository` extends Doctrine's `ServiceEntityRepository` and returns the announcements newest first.
 - `ResetPasswordRequestRepository` uses the SymfonyCasts reset password repository trait.
+- `LoginAuditRepository` lists the audit rows newest first with the optional IP pattern filter, and counts or removes the rows older than a threshold.
+- `MaintenanceRunRepository` returns the latest recorded runs of a task.
 - `EmailVerifier` generates signed verification URLs and marks users as verified after validation.
 - `VerifiedUserChecker` rejects unverified users during authentication and session refresh.
+- `App\Security\LoginAuditSubscriber` listens to `LoginSuccessEvent`, records the audit row, and updates the last connection metadata. See `docs/DECISIONS.md` for why this event keeps the table from filling up per request.
+- `App\Message\LoginAuditCleanup` is the cleanup message; `App\MessageHandler\LoginAuditCleanupHandler` removes the expired rows and records the run; `App\Task\LoginAuditCleanupTask` is the scheduler entry that dispatches the message once a day.
 - `App\Uploads` holds the upload kinds: `UploadKindInterface` defines the contract, and `AvatarUploadKind` manages the avatars with its own location and file-name rule. Kinds register through the `app.upload_kind` tag.
 
 ## Templates
@@ -80,6 +92,7 @@ Registration and password reset use the same password rules. In the `dev` enviro
 - `templates/components/` holds the anonymous Twig components: `Navbar` renders the navigation with the account links, and `FlashMessages` renders every flash type as a Bootstrap alert with an icon.
 - `templates/announcement/` holds the announcement list and detail pages. `templates/documentation/` holds the documentation pages, named `{page}.{locale}.html.twig`: the route `/docs/{page}` tries the current locale first, then the default locale, and a page or a locale variant is added by dropping the template file. `templates/index/`, `templates/profile/`, `templates/registration/`, `templates/reset_password/`, and `templates/security/` contain the page and email templates.
 - `templates/layouts/admin.html.twig` extends the base template with the admin section navigation. The pages under `templates/admin/` extend it and fill the `admin_body` block.
+- `templates/admin/login_audit/` holds the audit list. `templates/admin/maintenance/` holds the maintenance pages, which share the `MaintenanceNav` sub-navigation from `templates/components/`.
 - `templates/form/fields.html.twig` holds the password field form theme.
 - `config/packages/ux_pagination.yaml` selects the Bootstrap theme of `symfony/ux-pagination`; both admin lists paginate through it.
 - `translations/` holds the app catalogs: `messages.en.yaml` for pages, form labels, flash messages, and emails, `validators.en.yaml` for constraint messages, and `security.en.yaml` for the login error from `VerifiedUserChecker`. Templates and controllers render translation keys, not literal text.
@@ -94,7 +107,9 @@ Development uses PostgreSQL through `DATABASE_URL`. Tests use SQLite through `.e
 
 ## Authentication and redirects
 
-`config/packages/security.yaml` uses `form_login` on the `main` firewall. The login form posts to `app_login` with CSRF protection. `VerifiedUserChecker` requires `User::isVerified()` to be true, so unverified accounts cannot log in.
+`config/packages/security.yaml` uses `form_login` on the `main` firewall. The login form posts to `app_login` with CSRF protection. `VerifiedUserChecker` requires `User::isVerified()` to be true, so unverified accounts cannot log in. The firewall offers persistent sessions: `remember_me` with a 7 day cookie lifetime, signed with `%kernel.secret%`, activated by the `_remember_me` checkbox on the login form. When a visitor returns with the cookie and no session, the firewall re-authenticates them from it.
+
+`LoginAuditSubscriber` runs on every successful authentication and records what happened: see the Entities section and `docs/DECISIONS.md`.
 
 Successful registration, email verification, login, and password change redirect to `app_index`. Logout also redirects to `app_index`. Password changes on the profile page redirect to `app_profile`.
 

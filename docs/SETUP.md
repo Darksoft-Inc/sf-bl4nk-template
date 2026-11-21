@@ -47,6 +47,16 @@ symfony console doctrine:migrations:migrate
 
 The development database uses PostgreSQL through `DATABASE_URL` in `.env`.
 
+## Run the scheduled tasks
+
+The scheduler ships its tasks as the `scheduler_default` messenger transport. One worker runs every scheduled task, including the daily login audit cleanup:
+
+```bash
+symfony console messenger:consume scheduler_default
+```
+
+The worker stays in the foreground and checks the schedule every few seconds. In production it belongs in a supervised process list, like any messenger worker. The maintenance page `/admin/maintenance/cleanup` runs the cleanup by hand and lists the recorded runs, so the schedule stays verifiable without a worker.
+
 ## Create the test database
 
 ```bash

@@ -29,8 +29,13 @@ app:
         change_password: 'Change password'
         forgot_password: 'Forgot your password?'
         avatar: Avatar
+        last_connection: 'Last connection'
+        last_connection_at: 'on %date%'
+        last_connection_from: 'from %ip%'
+        never_connected: 'Never connected'
     login:
         logged_in_as: 'You are logged in as %identifier%.'
+        remember_me: 'Keep me signed in'
     announcement:
         none: 'No announcements yet.'
         published_on: 'Published on %date%'
@@ -48,11 +53,19 @@ app:
             section: 'Admin sections'
             users: Users
             announcements: Announcements
+            login_audit: 'Login audit'
             maintenance: Maintenance
         page:
             users: Users
             announcements: Announcements
             uploads: Uploads
+            login_audit: 'Login audit'
+            cleanup: 'Login audit cleanup'
+        maintenance:
+            navigation:
+                section: 'Maintenance pages'
+                uploads: Uploads
+                cleanup: 'Login audit cleanup'
         user:
             edit: Edit
             save: Save
@@ -76,6 +89,35 @@ app:
             flash:
                 removed: 'The file has been removed.'
                 not_removed: 'The file could not be removed.'
+        audit:
+            type: Type
+            login: 'Sign-in'
+            resume: 'Session restored'
+            user_agent: 'User agent'
+            created_at: 'Signed in at'
+            none: 'No sign-in recorded yet.'
+            search:
+                label: 'Search by IP address'
+                help: 'Without wildcards, the pattern matches any IP containing it. With "%" or "_" it is used as a LIKE pattern, for example "192.168.%" matches every IP starting with 192.168.'
+        cleanup:
+            login_audit:
+                title: 'Login audit records'
+                help: '{0}No login audit row is older than the %days% day retention period.|{1}One login audit row is older than the %days% day retention period and will be removed.|[2,Inf[%count% login audit rows are older than the %days% day retention period and will be removed.'
+                schedule: 'The scheduler runs this cleanup once a day when a worker consumes the scheduler_default transport.'
+                run: 'Clean up now'
+                confirm: 'Remove the expired login audit rows?'
+            runs:
+                title: 'Recorded runs'
+                none: 'The cleanup task has not run yet.'
+                ran_at: 'Ran at'
+                trigger: Trigger
+                trigger_schedule: Scheduled
+                trigger_manual: Manual
+                result: Result
+            flash:
+                removed: '{0}No login audit row was old enough to remove.|{1}Removed one login audit row.|[2,Inf[Removed %count% login audit rows.'
+                queued: 'The cleanup task has been queued.'
+                not_run: 'The cleanup task did not run.'
         announcement:
             new: 'New announcement'
             edit_page: 'Edit announcement'

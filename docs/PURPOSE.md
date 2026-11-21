@@ -16,6 +16,7 @@ The current code provides the base and part of account management. The features 
 | Feature | What the starter app must provide |
 |---|---|
 | Account management | Registration, email verification, login, logout, password reset, and a profile page with personal details and password change. |
+| Login audit | Record every login and every restore of a persistent session with the IP, for later review; keep the records bounded by a scheduled cleanup with a manual trigger. The last connection metadata shows on the profile page and in the admin user list. |
 | Announcement blog | Publish short announcements and show them in a list and on a detail page. |
 | Simple documentation pages | Serve edited documentation pages with stable links. |
 | Generated documentation pages | Build pages from metadata declared on business services. The metadata format must not depend on one application's domain. |
