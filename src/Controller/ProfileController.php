@@ -6,7 +6,7 @@ use App\Entity\User;
 use App\Form\AvatarFormType;
 use App\Form\ChangePasswordFormType;
 use App\Security\PasswordChanger;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Uploads\AvatarStorage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -24,9 +24,8 @@ class ProfileController extends AbstractController
     public function index(
         Request $request,
         PasswordChanger $passwordChanger,
-        EntityManagerInterface $entityManager,
+        AvatarStorage $avatars,
         TranslatorInterface $translator,
-        #[Autowire(param: 'app.avatar_dir')] string $avatarDir,
         #[Autowire(param: 'app.avatar_display_max')] int $avatarDisplayMax,
     ): Response {
         $user = $this->getUser();
@@ -53,19 +52,7 @@ class ProfileController extends AbstractController
             $file = $avatarForm->get('avatar')->getData();
 
             if ($file instanceof UploadedFile) {
-                $extension = $file->guessExtension();
-                assert(null !== $extension);
-
-                $filename = bin2hex(random_bytes(16)).'.'.$extension;
-                $file->move($avatarDir, $filename);
-
-                $previous = $user->getAvatarFilename();
-                if (null !== $previous && is_file($avatarDir.'/'.$previous)) {
-                    unlink($avatarDir.'/'.$previous);
-                }
-
-                $user->setAvatarFilename($filename);
-                $entityManager->flush();
+                $avatars->replace($user, $file);
 
                 $this->addFlash('success', $translator->trans('app.flash.avatar_updated'));
             }

@@ -2,21 +2,17 @@
 
 namespace App\Uploads;
 
-use App\Entity\User;
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 #[AutoconfigureTag('app.upload_kind')]
 final class AvatarUploadKind extends AbstractDirectoryUploadKind
 {
-    private const FILENAME_PATTERN = '/^[a-f0-9]{32}\.(png|jpe?g|webp|gif)$/';
-
     public function __construct(
         #[Autowire(param: 'app.avatar_dir')] private readonly string $avatarDir,
         private readonly UserRepository $users,
-        private readonly EntityManagerInterface $entityManager,
+        private readonly AvatarStorage $avatars,
     ) {
     }
 
@@ -27,16 +23,9 @@ final class AvatarUploadKind extends AbstractDirectoryUploadKind
 
     public function remove(string $filename): void
     {
-        $path = $this->existingFile($filename);
+        $this->existingFile($filename);
 
-        $owner = $this->users->findOneBy(['avatarFilename' => $filename]);
-        if ($owner instanceof User) {
-            $owner->setAvatarFilename(null);
-        }
-
-        unlink($path);
-
-        $this->entityManager->flush();
+        $this->avatars->clear($filename);
     }
 
     protected function directory(): string
@@ -46,7 +35,7 @@ final class AvatarUploadKind extends AbstractDirectoryUploadKind
 
     protected function filenamePattern(): string
     {
-        return self::FILENAME_PATTERN;
+        return AvatarStorage::FILENAME_PATTERN;
     }
 
     protected function label(): string
