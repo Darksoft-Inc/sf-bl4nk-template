@@ -82,11 +82,11 @@ final class MapPointFormType extends AbstractType
      */
     private function validateSymbols(mixed $value, ExecutionContextInterface $context): void
     {
-        if (!\is_string($value) || '' === trim($value)) {
+        if (!\is_string($value)) {
             return;
         }
 
-        foreach (preg_split('/\s+/', trim($value)) ?: [] as $name) {
+        foreach (Symbols::parse($value) as $name) {
             try {
                 $this->iconRenderer->renderIcon($name);
             } catch (IconNotFoundException) {

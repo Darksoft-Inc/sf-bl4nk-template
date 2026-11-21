@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\MapPoint;
 use App\Form\MapPointFormType;
+use App\Form\Symbols;
 use App\Repository\MapPointRepository;
 use App\Repository\MapRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -128,16 +129,10 @@ final class AdminMapPointController extends AbstractController
         return $this->createForm(MapPointFormType::class, $point, [
             'space_width' => $map->getSpaceWidth(),
             'space_height' => $map->getSpaceHeight(),
-            'symbols_text' => implode(' ', $point->getSymbols()),
+            'symbols_text' => Symbols::format($point->getSymbols()),
         ]);
     }
 
-    /**
-     * The form validates every name as a renderable icon, so the split
-     * only normalizes whitespace.
-     *
-     * @return list<string>
-     */
     /**
      * @param FormInterface<MapPoint> $form
      *
@@ -148,9 +143,6 @@ final class AdminMapPointController extends AbstractController
         $symbols = $form->get('symbols')->getData();
         \assert(null === $symbols || \is_string($symbols));
 
-        return array_values(array_filter(
-            preg_split('/\s+/', trim($symbols ?? '')) ?: [],
-            static fn (string $name): bool => '' !== $name,
-        ));
+        return Symbols::parse($symbols ?? '');
     }
 }

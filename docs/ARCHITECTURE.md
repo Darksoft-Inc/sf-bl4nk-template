@@ -94,7 +94,7 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `LoginAuditSearchType` wraps one IP text field in a GET form without CSRF, because a search changes nothing.
 - `MapFormType` edits the map name, the zoom caps, and the background image chosen from the pool; the image field is unmapped because saving it also records the pixel size read from the file. A callback constraint on `maxZoom` rejects a maximum below the minimum.
 - `MapImageFormType` collects the pool upload through the `ux-dropzone` control, with the same content-sniffed validation as the avatar.
-- `MapPointFormType` edits a pin: title, description, x and y bounded to the map space, and the symbols as icon names validated by rendering them, so an unknown icon cannot reach the public display.
+- `MapPointFormType` edits a pin: title, description, x and y bounded to the map space, and the symbols as icon names parsed through `Symbols`, whose parse rule is shared with the controller write, and validated by rendering them, so an unknown icon cannot reach the public display.
 - `MapRouteTypeFormType` edits the type name and the color through the native color input.
 - `MapRouteFormType` edits a route: the type among the types of the map, the optional name, the description, the major flag, and the vertices as one "x, y" pair per line through `RoutePoints`, whose parse rule is shared with the controller write.
 - `KeepCurrentData` supplies the `empty_data` closure for the mapped fields with non-nullable setters: a submission that a browser cannot produce (an empty required field) keeps the current value instead of crashing the request. See `docs/DECISIONS.md`.
