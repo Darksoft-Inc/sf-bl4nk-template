@@ -33,6 +33,24 @@ Progress on 2026-11-21: the last three P2 tests are in, and the suite reports 36
 - [ ] Update the docs when authentication, setup commands, or configuration values change.
 - [ ] Link this file from a future README if the project gets one.
 
+## Baseline features
+
+The remaining target features from `docs/PURPOSE.md`, in build order. Each item names the packages that wait for it.
+
+- [x] Reusable interface components: Twig components and icons as the interface baseline for every page (`symfony/ux-twig-component`, `symfony/ux-icons`).
+  - `templates/components/Navbar.html.twig` and `templates/components/FlashMessages.html.twig` are anonymous Twig components called from `base.html.twig`. The flash component renders every flash type as a Bootstrap alert with an icon, so the per-page flash loops in the register and reset request templates are gone. The 11 icons render inline and are locked into `assets/icons/` through `ux:icons:lock`.
+- [x] Announcement blog: short announcements in a public list and on a detail page.
+  - `Announcement` holds title, content, and `publishedAt`; the list orders by publication date and the detail page renders the content through `nl2br`. The write path and the author field land with the admin functions item. The migration is hand-written PostgreSQL because the development database is unreachable; the test schema comes from the entity metadata. `tests/ResetDatabase.php` deletes announcement rows first.
+  - Verified on 2026-11-21: `php bin/phpunit` and `vendor/bin/pest -v` pass with 40 tests and 314 assertions, PHPStan and the lint commands pass, `doctrine:schema:validate --env=test` reports sync, and the suite passes with outbound HTTPS blackholed, which proves the icons render from the locked files.
+- [ ] Simple documentation pages: edited pages with stable links. Needs the content decision recorded in `docs/DECISIONS.md`.
+- [ ] Private sections and admin functions: roles, access rules, separated admin pages, and pagination for large record sets (`symfony/ux-pagination`). The announcement write path and an author field land here.
+- [ ] Search in large data sets: autocomplete on the first searchable data (`symfony/ux-autocomplete`, `tom-select`, `serializer`).
+- [ ] User-provided data: upload validation, storage, and display (`symfony/ux-dropzone`). Storage and image processing are open decisions.
+- [ ] Annotated 2D map: a map page with annotations as JSON (`symfony/ux-map`, `symfony/ux-leaflet-map`, `serializer`, `ux-router`).
+- [ ] Scheduled maintenance: recurring tasks with recorded results and a manual trigger (`symfony/scheduler`, `messenger`). Forces the messenger transport decision recorded in `docs/DECISIONS.md`.
+- [ ] Generated documentation pages: build pages from metadata on business services. The format must stay domain independent.
+- [ ] Flexible dataset import: load structured datasets in development and production.
+
 ## Closed on 2026-11-21
 
 - [x] Email verification: missing `id`, unknown user, invalid signature, expired signature, and repeated click.

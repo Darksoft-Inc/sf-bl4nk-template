@@ -8,12 +8,16 @@ app:
         reset_password: 'Reset your password'
         check_email: 'Password Reset Email Sent'
         profile: Profile
+        announcements: Announcements
     navigation:
+        start: Start
         login: Log in
         logout: Log out
         register: Register
         reset_password: 'Reset your password'
         profile: Profile
+        announcements: Announcements
+        toggle: 'Toggle navigation'
     account:
         email: Email
         password: Password
@@ -24,6 +28,10 @@ app:
         forgot_password: 'Forgot your password?'
     login:
         logged_in_as: 'You are logged in as %identifier%.'
+    announcement:
+        none: 'No announcements yet.'
+        published_on: 'Published on %date%'
+        back: 'Back to announcements'
     flash:
         email_verified: 'Your email address has been verified.'
         email_already_verified: 'Your email address has already been verified.'

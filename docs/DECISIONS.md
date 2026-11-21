@@ -84,6 +84,22 @@ Evidence: `PasswordConstraints::forNewPassword()` keeps `NotCompromisedPassword`
 
 Consequence: every password submitted in a test performs one request to `api.pwnedpasswords.com`. The five test classes that submit password forms are marked `#[UseRecord('pwnedpasswords-ranges.har')]` and replay the recorded exchanges from `tests/recordings/`. A new password in a test fails the replay until `SYMFONY_HTTP_RECORDER=missing php bin/phpunit` runs once with network access and appends the exchange. See `docs/TESTING.md`.
 
+## Interface components
+
+Decision from 2026-11-21: the base template renders anonymous Twig components, and the icons are locked into the repository.
+
+Evidence: `templates/components/Navbar.html.twig` holds the navigation and `templates/components/FlashMessages.html.twig` renders every flash type as a Bootstrap alert with an icon. `base.html.twig` calls both, so the per-page flash loops in the register and reset request templates are gone. `ux:icons:lock` imported the 11 icons used by the templates into `assets/icons/`.
+
+Consequence: pages render without a network connection, and a new icon in a template needs one `php bin/console ux:icons:lock` run before it renders offline. See `docs/ARCHITECTURE.md`.
+
+## Announcement blog
+
+Decision from 2026-11-21: the blog ships the read side only, without an author field.
+
+Evidence: `docs/PURPOSE.md` requires a public list and a detail page. The write path belongs to the private sections and admin functions item, so no controller creates announcements and no user relation exists yet. The content displays through `nl2br` because `docs/PURPOSE.md` adds no markdown package for this feature.
+
+Consequence: `Announcement` holds title, content, and `publishedAt`, which is set once in the constructor. The author field and the publish form land with the admin functions item. The migration is hand-written PostgreSQL, because the development database is unreachable; the test schema comes from the entity metadata.
+
 ## Content-heavy pages
 
 Decision from 2026-11-19: how a page with long prose gets its text.

@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ announcement.title }}{% endblock %}
+
+{% block body %}
+    <main>
+        <article>
+            <h1>{{ announcement.title }}</h1>
+            <p class="text-body-secondary d-inline-flex align-items-center">
+                {{ ux_icon('bi:calendar-event', {'class': 'me-1'}) }}
+                <span>{{ 'app.announcement.published_on'|trans({'%date%': announcement.publishedAt|format_datetime('medium', 'none')}) }}</span>
+            </p>
+            <p class="announcement-content">{{ announcement.content|nl2br }}</p>
+        </article>
+
+        <a class="d-inline-flex align-items-center" href="{{ path('app_announcement_index') }}">
+            {{ ux_icon('bi:arrow-left', {'class': 'me-1'}) }}
+            {{ 'app.announcement.back'|trans }}
+        </a>
+    </main>
+{% endblock %}

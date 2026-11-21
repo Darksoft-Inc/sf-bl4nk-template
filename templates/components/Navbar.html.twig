@@ -1,0 +1,56 @@
+<nav class="navbar navbar-expand-md bg-body-tertiary mb-4">
+    <div class="container">
+        <a class="navbar-brand d-inline-flex align-items-center" href="{{ path('app_index') }}">
+            {{ ux_icon('bi:house-door', {'class': 'me-1'}) }}
+            {{ 'app.navigation.start'|trans }}
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="{{ 'app.navigation.toggle'|trans }}">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <li class="nav-item">
+                    <a class="nav-link d-inline-flex align-items-center" href="{{ path('app_announcement_index') }}">
+                        {{ ux_icon('bi:megaphone', {'class': 'me-1'}) }}
+                        {{ 'app.navigation.announcements'|trans }}
+                    </a>
+                </li>
+            </ul>
+            <ul class="navbar-nav ms-auto mb-2 mb-md-0">
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a class="nav-link d-inline-flex align-items-center" href="{{ path('app_profile') }}">
+                            {{ ux_icon('bi:person-circle', {'class': 'me-1'}) }}
+                            {{ 'app.navigation.profile'|trans }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-inline-flex align-items-center" href="{{ path('app_logout') }}">
+                            {{ ux_icon('bi:box-arrow-right', {'class': 'me-1'}) }}
+                            {{ 'app.navigation.logout'|trans }}
+                        </a>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link d-inline-flex align-items-center" href="{{ path('app_login') }}">
+                            {{ ux_icon('bi:box-arrow-in-right', {'class': 'me-1'}) }}
+                            {{ 'app.navigation.login'|trans }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-inline-flex align-items-center" href="{{ path('app_register') }}">
+                            {{ ux_icon('bi:person-plus', {'class': 'me-1'}) }}
+                            {{ 'app.navigation.register'|trans }}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link d-inline-flex align-items-center" href="{{ path('app_forgot_password_request') }}">
+                            {{ ux_icon('bi:key', {'class': 'me-1'}) }}
+                            {{ 'app.navigation.reset_password'|trans }}
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

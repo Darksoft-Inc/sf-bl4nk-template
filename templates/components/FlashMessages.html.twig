@@ -1,0 +1,9 @@
+{% for type, messages in app.flashes %}
+    {% set alert_type = type in ['success', 'warning', 'info'] ? type : 'danger' %}
+    {% for message in messages %}
+        <div class="alert alert-{{ alert_type }} d-flex align-items-center" role="alert">
+            {{ ux_icon('success' == alert_type ? 'bi:check-circle-fill' : 'bi:exclamation-triangle-fill', {'class': 'me-2 flex-shrink-0'}) }}
+            <div>{{ message }}</div>
+        </div>
+    {% endfor %}
+{% endfor %}

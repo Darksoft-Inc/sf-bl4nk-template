@@ -1,0 +1,25 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.page.announcements'|trans }}{% endblock %}
+
+{% block body %}
+    <main>
+        <h1>{{ 'app.page.announcements'|trans }}</h1>
+
+        {% if announcements is empty %}
+            <p class="announcement-empty text-body-secondary">{{ 'app.announcement.none'|trans }}</p>
+        {% else %}
+            <ul class="list-group">
+                {% for announcement in announcements %}
+                    <li class="list-group-item">
+                        <a class="announcement-link fw-semibold" href="{{ path('app_announcement_show', {id: announcement.id}) }}">{{ announcement.title }}</a>
+                        <div class="text-body-secondary d-inline-flex align-items-center">
+                            {{ ux_icon('bi:calendar-event', {'class': 'me-1'}) }}
+                            <span>{{ announcement.publishedAt|format_datetime('medium', 'none') }}</span>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </main>
+{% endblock %}

@@ -37,5 +37,10 @@ final class SetupSmokeTest extends KernelTestCase
             $tableNames,
             'The table "reset_password_request" is missing from the test database. Run `php bin/console doctrine:schema:create --env=test` once before the test suite. See docs/SETUP.md.',
         );
+        self::assertContains(
+            'announcement',
+            $tableNames,
+            'The table "announcement" is missing from the test database. Run `php bin/console doctrine:schema:create --env=test` once before the test suite. See docs/SETUP.md.',
+        );
     }
 }

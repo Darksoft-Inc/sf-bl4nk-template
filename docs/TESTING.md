@@ -71,6 +71,7 @@ Lint commands and PHPStan pass with the full configuration. The `lint_php` alias
 ## Current tests
 
 - `tests/Controller/IndexControllerTest.php`: checks that the start page returns a successful response and shows the expected heading.
+- `tests/Controller/AnnouncementControllerTest.php`: checks the announcement list order, the empty state, the detail page, and the 404 for an unknown id.
 - `tests/Controller/RegistrationControllerTest.php`: registers a user, checks the verification email including its subject, clicks the verification link, and checks the flash message and user state. Rejections cover the weak, short, and empty password, the duplicate and invalid email, and the unchecked terms.
 - `tests/Controller/EmailVerificationControllerTest.php`: checks that a verification link without `id`, with an unknown user id, or with an invalid signature ends on the register page, and that the invalid signature shows the bundle error there. The repeated-click test verifies once and then opens the same link twice more, and both clicks report the verified state without re-running the verification. The expired-signature test rebuilds the link with a past `expires` and a fresh signature from the `symfonycasts.verify_email.uri_signer` service: an unverified visitor gets the expired-link error on the register page, and a verified visitor gets the verified state through the catch branch.
 - `tests/Controller/ResetPasswordControllerTest.php`: requests a reset email, checks it including its subject, follows the link, changes the password, and checks the redirect and stored hash. Rejections cover the unknown email, the invalid token, the mismatched passwords, the weak password, the expired token, and the compromised password. The enumeration test compares the check-email page for a known and an unknown address. The reused token tests open the consumed link again, check the rejection and the unchanged password, and check that the rejected token is removed from the session. The expired token mocks the clock past the 1 hour lifetime, and the compromised password replays the recorded HIBP exchange that reports the leak.
@@ -80,7 +81,7 @@ Lint commands and PHPStan pass with the full configuration. The `lint_php` alias
 - `tests/Form/PasswordConstraintsTest.php`: checks the password rules per environment.
 - `tests/SetupSmokeTest.php`: fails with the setup command in the message when the Sass output or the test schema is missing.
 
-All database tests use the `ResetDatabase` trait from `tests/ResetDatabase.php`. Its `resetDatabase()` method runs in `setUp()`. It deletes every `reset_password_request` row before every `user` row, so abandoned reset requests cannot block the user cleanup on databases that enforce the foreign key.
+All database tests use the `ResetDatabase` trait from `tests/ResetDatabase.php`. Its `resetDatabase()` method runs in `setUp()`. It deletes every `announcement` and `reset_password_request` row before every `user` row, so dependent rows cannot block the user cleanup on databases that enforce the foreign key.
 
 ## Coverage gaps
 

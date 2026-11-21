@@ -15,12 +15,15 @@ This page describes the current application, not a target design. `TODO.md` list
 | `app_login` | `/login` | Displays the login form. The firewall handles POST requests. |
 | `app_logout` | `/logout` | Intercepted by the firewall to end the session. |
 | `app_profile` | `/profile` | Shows account details and a password change form. |
+| `app_announcement_index` | `/announcements` | Lists announcements, newest first. |
+| `app_announcement_show` | `/announcements/{id}` | Shows one announcement. Unknown ids return 404. |
 
 Profiler and UX routes exist in development. They are not part of the product surface.
 
 ## Controllers
 
 - `IndexController` renders the neutral start page.
+- `AnnouncementController` lists announcements and shows one announcement.
 - `RegistrationController` creates users, sends verification email, and verifies email links.
 - `ResetPasswordController` handles reset requests, reset confirmation, token validation, and password changes.
 - `SecurityController` displays the login form and declares the logout route.
@@ -30,6 +33,7 @@ Profiler and UX routes exist in development. They are not part of the product su
 
 - `App\Entity\User` stores email, roles, password hash, and verification state. It implements `UserInterface` and `PasswordAuthenticatedUserInterface`.
 - `App\Entity\ResetPasswordRequest` stores the selector, hashed token, expiration, and the related user.
+- `App\Entity\Announcement` stores the title, content, and publication date. The constructor takes all three fields, and `publishedAt` has no setter.
 
 ## Forms
 
@@ -43,15 +47,21 @@ Registration and password reset use the same password rules. In the `dev` enviro
 ## Repositories and services
 
 - `UserRepository` extends Doctrine's `ServiceEntityRepository` and implements password upgrading.
+- `AnnouncementRepository` extends Doctrine's `ServiceEntityRepository` and returns the announcements newest first.
 - `ResetPasswordRequestRepository` uses the SymfonyCasts reset password repository trait.
 - `EmailVerifier` generates signed verification URLs and marks users as verified after validation.
 - `VerifiedUserChecker` rejects unverified users during authentication and session refresh.
 
 ## Templates
 
-- `templates/base.html.twig` loads the importmap, the JavaScript entrypoint, and success flash messages.
-- `templates/index/`, `templates/profile/`, `templates/registration/`, `templates/reset_password/`, and `templates/security/` contain the page and email templates.
+- `templates/base.html.twig` loads the importmap, the JavaScript entrypoint, the `Navbar` component, the `FlashMessages` component, and the content container.
+- `templates/components/` holds the anonymous Twig components: `Navbar` renders the navigation with the account links, and `FlashMessages` renders every flash type as a Bootstrap alert with an icon.
+- `templates/announcement/` holds the announcement list and detail pages. `templates/index/`, `templates/profile/`, `templates/registration/`, `templates/reset_password/`, and `templates/security/` contain the page and email templates.
 - `translations/` holds the app catalogs: `messages.en.yaml` for pages, form labels, flash messages, and emails, `validators.en.yaml` for constraint messages, and `security.en.yaml` for the login error from `VerifiedUserChecker`. Templates and controllers render translation keys, not literal text.
+
+## Icons
+
+`ux-icons` renders the icons inline through the `ux_icon()` Twig function. The icons used by the templates are locked into `assets/icons/` with `php bin/console ux:icons:lock`, which scans the templates and imports each icon from iconify. The locked files are committed, so pages and tests render without a network connection. A new icon in a template needs the same command run once.
 
 ## Data storage
 
