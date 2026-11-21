@@ -1,9 +1,18 @@
 {% for type, messages in app.flashes %}
     {% set alert_type = type in ['success', 'warning', 'info'] ? type : 'danger' %}
+    {% set auto_close = alert_type in ['success', 'info'] ? 5000 : null %}
     {% for message in messages %}
-        <div class="alert alert-{{ alert_type }} d-flex align-items-center" role="alert">
+        <div class="alert alert-{{ alert_type }} alert-dismissible d-flex align-items-center"
+             role="{{ 'danger' == alert_type ? 'alert' : 'status' }}"
+             data-controller="closeable"
+             {% if auto_close %}data-closeable-auto-close-value="{{ auto_close }}"{% endif %}
+        >
             {{ ux_icon('success' == alert_type ? 'bi:check-circle-fill' : 'bi:exclamation-triangle-fill', {'class': 'me-2 flex-shrink-0'}) }}
             <div>{{ message }}</div>
+            <button type="button" class="btn-close" data-action="click->closeable#close" aria-label="{{ 'app.flash.dismiss'|trans }}"></button>
+            {% if auto_close %}
+                <div class="app-flash-timerbar bg-{{ alert_type }}" data-closeable-target="timerbar" aria-hidden="true"></div>
+            {% endif %}
         </div>
     {% endfor %}
 {% endfor %}

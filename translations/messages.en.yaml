@@ -232,6 +232,7 @@ app:
         search:
             filter: Filter
     flash:
+        dismiss: 'Dismiss'
         email_verified: 'Your email address has been verified.'
         email_already_verified: 'Your email address has already been verified.'
         password_changed: 'Your password has been changed.'

@@ -108,6 +108,12 @@ Decision from 2026-11-21: the root element declares its language and the dark th
 
 Evidence: `templates/base.html.twig` opens with `<html lang="{{ app.request.locale }}" data-bs-theme="dark">`. The language attribute lets screen readers pick the pronunciation and gives the dormant `symfony/ux-translator` runtime its page locale if it is ever wired; the theme attribute belongs to the palette record in the Generated CSS section. `ux:install logout-link --kit=common` wrote `templates/components/LogoutLink.html.twig`, which reuses `PostLink` and `logout_path()`.
 
+Decision from 2026-11-21: the flash alerts dismiss through the `closeable` recipe, and the successes close on their own.
+
+Evidence: `ux:install closeable --kit=common` wrote `assets/controllers/closeable_controller.js`. `templates/components/FlashMessages.html.twig` adds the close button as Bootstrap's `btn-close` inside an `alert-dismissible` alert and drives it with `closeable#close`; success and info alerts carry `data-closeable-auto-close-value="5000"` and a countdown bar styled in `assets/styles/app.scss`, while every other type stays until dismissed. Successes use `role="status"` and the rest keep `role="alert"`, so an auto-removing message is not announced as urgent.
+
+Consequence: a dismissed or auto-closed flash is gone from the DOM, and a page reload brings it back only through a new redirect, which the session never sends: the flash bag is consumed on render.
+
 ## Admin section
 
 Decision from 2026-11-21: admins are users with `ROLE_ADMIN` stored in the roles field, the `/admin` paths are guarded twice, and both admin lists paginate with `symfony/ux-pagination` in offset mode.
