@@ -99,7 +99,7 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `MapRouteFormType` edits a route: the type among the types of the map, the optional name, the description, the major flag, and the vertices as one "x, y" pair per line through `RoutePoints`, whose parse rule is shared with the controller write.
 - `KeepCurrentData` supplies the `empty_data` closure for the mapped fields with non-nullable setters: a submission that a browser cannot produce (an empty required field) keeps the current value instead of crashing the request. See `docs/DECISIONS.md`.
 
-`templates/form/fields.html.twig` is a form theme registered after the Bootstrap layout. It wraps every Symfony-rendered password field with the visibility toggle from the `password-visibility` recipe. The login form is raw HTML and keeps its plain field.
+`templates/form/fields.html.twig` is a form theme registered after the Bootstrap layout. It wraps every Symfony-rendered password field with the visibility toggle from the `password-visibility` recipe, including the one on the login form, which `LoginFormType` renders with the field names the firewall expects.
 
 The autocomplete uses `assets/controllers.json`: the recipe entry registers the bundle Stimulus controller eagerly and autoimports the Bootstrap 5 TomSelect stylesheet. `importmap.php` maps `@symfony/ux-autocomplete` to the local vendor controller, and `symfony/stimulus-bundle` generates the controllers module from both sources at serve time.
 

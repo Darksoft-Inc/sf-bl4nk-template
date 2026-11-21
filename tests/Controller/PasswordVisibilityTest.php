@@ -41,6 +41,16 @@ final class PasswordVisibilityTest extends WebTestCase
         self::assertCount(1, $crawler->filter('[data-action="password-visibility#toggle"]'));
     }
 
+    public function testLoginPasswordHasAToggle(): void
+    {
+        $crawler = $this->client->request('GET', '/login');
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('[data-action="password-visibility#toggle"]'));
+        self::assertCount(1, $crawler->filter('input[name="_username"][type="email"]'));
+        self::assertCount(1, $crawler->filter('input[name="_remember_me"]'));
+    }
+
     public function testProfilePasswordHasTwoToggles(): void
     {
         $user = $this->createUser('toggle-profile@example.com');

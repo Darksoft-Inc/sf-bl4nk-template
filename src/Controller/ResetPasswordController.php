@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Address;
@@ -29,6 +30,7 @@ class ResetPasswordController extends AbstractController
     public function __construct(
         private ResetPasswordHelperInterface $resetPasswordHelper,
         private EntityManagerInterface $entityManager,
+        private RequestStack $requestStack,
         #[Autowire(param: 'app.admin_email')] private string $adminEmail,
         #[Autowire(param: 'app.admin_name')] private string $adminName,
     ) {
@@ -139,7 +141,7 @@ class ResetPasswordController extends AbstractController
      */
     private function removeTokenFromSession(): void
     {
-        $this->container->get('request_stack')->getSession()->remove('ResetPasswordPublicToken');
+        $this->requestStack->getSession()->remove('ResetPasswordPublicToken');
     }
 
     private function processSendingPasswordResetEmail(string $emailFormData, MailerInterface $mailer): RedirectResponse

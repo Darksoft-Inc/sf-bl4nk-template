@@ -52,6 +52,12 @@ Evidence: `config/packages/security.yaml` sets `enable_csrf: true` on the firewa
 
 Consequence: `SecurityControllerTest` submits the rendered logout form, and its new case covers the 405 on GET. `CsrfProtectionControllerTest` covers the bad token. The two maintenance tests pick the token of their own form instead of the first `_csrf_token` input on the page, because the navbar logout form carries one too.
 
+Decision from 2026-11-21: the login page renders through `App\Form\LoginFormType` like every other form.
+
+Evidence: the type has no block prefix, so its unmapped children submit as `_username`, `_password`, and `_remember_me`, the parameter names the `form_login` firewall reads, and the firewall still validates the `_csrf_token` field itself with the `authenticate` token id, so the form disables its own CSRF layer. The Bootstrap 5 form theme styles the fields, and the shared password form theme adds the visibility toggle.
+
+Consequence: the login page matches the styling and the toggle of the other password pages, and the login tests submit the same field names as before, so no test data changed.
+
 ## Email verification signer
 
 Decision from 2026-11-19: override the verify-email bundle's signer service to set a default expiration.
