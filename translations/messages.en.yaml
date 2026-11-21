@@ -33,22 +33,34 @@ app:
     announcement:
         none: 'No announcements yet.'
         published_on: 'Published on %date%'
+        posted_by: 'Posted by %author%'
         back: 'Back to announcements'
+        title: Title
+        published_at: 'Published at'
+        content: Content
     admin:
         navigation:
             section: 'Admin sections'
             users: Users
+            announcements: Announcements
         page:
             users: Users
+            announcements: Announcements
         user:
             edit: Edit
             save: Save
             close: Close
             actions: Actions
             administrator: Administrator
+        announcement:
+            new: 'New announcement'
+            edit_page: 'Edit announcement'
+            author: Author
         flash:
             user_updated: 'The user has been updated.'
             user_not_updated: 'The user could not be updated.'
+            announcement_created: 'The announcement has been created.'
+            announcement_updated: 'The announcement has been updated.'
     flash:
         email_verified: 'Your email address has been verified.'
         email_already_verified: 'Your email address has already been verified.'

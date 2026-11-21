@@ -1,0 +1,14 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}{{ 'app.admin.announcement.edit_page'|trans }}{% endblock %}
+
+{% block admin_body %}
+    <h1>{{ 'app.admin.announcement.edit_page'|trans }}</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.title) }}
+        {{ form_row(form.publishedAt) }}
+        {{ form_row(form.content) }}
+        <button type="submit" class="btn btn-primary">{{ 'app.admin.user.save'|trans }}</button>
+    {{ form_end(form) }}
+{% endblock %}

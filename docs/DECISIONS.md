@@ -92,6 +92,14 @@ Evidence: `templates/components/Navbar.html.twig` holds the navigation and `temp
 
 Consequence: pages render without a network connection, and a new icon in a template needs one `php bin/console ux:icons:lock` run before it renders offline. See `docs/ARCHITECTURE.md`.
 
+## Admin section
+
+Decision from 2026-11-21: admins are users with `ROLE_ADMIN` stored in the roles field, the `/admin` paths are guarded twice, and both admin lists paginate with `symfony/ux-pagination` in offset mode.
+
+Evidence: `User::getRoles()` guarantees `ROLE_USER` for everyone, so no role hierarchy is needed. `config/packages/security.yaml` guards `^/admin` and the controllers repeat the check with `#[IsGranted('ROLE_ADMIN')]`. `config/packages/ux_pagination.yaml` selects the Bootstrap theme shipped with the bundle, and the lists order on stable keys with a fixed page size of 10. The user edit form lives in a modal per row, built from the UX Toolkit bootstrap kit; the forms are named `user_edit_{id}` so ten rows on a page do not produce duplicate field ids. The password fields on the public forms got the toggle from the `password-visibility` recipe of the common kit.
+
+Consequence: a new admin page follows the same rules: an `/admin` path, the `IsGranted` attribute, and the shared layout in `templates/layouts/admin.html.twig`. The announcement gained its author; the migration was generated with `symfony console make:migration` against the development database. The user edit replaces the roles wholesale and does not block an admin from removing the own admin flag, because user management is expected to improve later.
+
 ## Announcement blog
 
 Decision from 2026-11-21: the blog ships the read side only, without an author field.

@@ -23,11 +23,16 @@ class Announcement
     #[ORM\Column]
     private \DateTimeImmutable $publishedAt;
 
-    public function __construct(string $title, string $content, \DateTimeImmutable $publishedAt)
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private User $author;
+
+    public function __construct(string $title, string $content, \DateTimeImmutable $publishedAt, User $author)
     {
         $this->title = $title;
         $this->content = $content;
         $this->publishedAt = $publishedAt;
+        $this->author = $author;
     }
 
     public function getId(): ?int
@@ -62,5 +67,17 @@ class Announcement
     public function getPublishedAt(): \DateTimeImmutable
     {
         return $this->publishedAt;
+    }
+
+    public function setPublishedAt(\DateTimeImmutable $publishedAt): static
+    {
+        $this->publishedAt = $publishedAt;
+
+        return $this;
+    }
+
+    public function getAuthor(): User
+    {
+        return $this->author;
     }
 }

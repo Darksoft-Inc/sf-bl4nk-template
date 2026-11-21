@@ -80,6 +80,9 @@ Lint commands and PHPStan pass with the full configuration. The `lint_php` alias
 - `tests/Controller/SecurityControllerTest.php`: checks the login page, rejects unverified users, logs in a verified user, and logs out.
 - `tests/Controller/ProfileControllerTest.php`: checks that anonymous visitors are redirected to login, that the page shows account details, and that the password change form updates the hash.
 - `tests/Controller/CsrfProtectionControllerTest.php`: submits a bad CSRF token to the registration, reset request, reset change, profile change, and login forms, and checks that no data changes on failure.
+- `tests/Controller/PasswordVisibilityTest.php`: checks that the registration, profile, and reset change forms render the reveal or hide button.
+- `tests/Controller/Admin/AdminUserControllerTest.php`: checks the login redirect, the 403 for users without the admin role, the paginated list, and the modal form updating the email, the verified state, and the admin role.
+- `tests/Controller/Admin/AdminAnnouncementControllerTest.php`: checks the login redirect, the 403, the creation flow with the author, the edit flow, and the paginated list.
 - `tests/Form/PasswordConstraintsTest.php`: checks the password rules per environment.
 - `tests/SetupSmokeTest.php`: fails with the setup command in the message when the Sass output or the test schema is missing.
 

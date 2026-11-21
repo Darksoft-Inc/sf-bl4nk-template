@@ -1,0 +1,42 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}{{ 'app.admin.page.announcements'|trans }}{% endblock %}
+
+{% block admin_body %}
+    <h1>{{ 'app.admin.page.announcements'|trans }}</h1>
+
+    <p class="mb-3">
+        <a class="btn btn-primary" href="{{ path('app_admin_announcement_new') }}">
+            {{ ux_icon('bi:plus-lg', {'class': 'me-1'}) }}
+            {{ 'app.admin.announcement.new'|trans }}
+        </a>
+    </p>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th scope="col">{{ 'app.announcement.title'|trans }}</th>
+                <th scope="col">{{ 'app.announcement.published_at'|trans }}</th>
+                <th scope="col">{{ 'app.admin.announcement.author'|trans }}</th>
+                <th scope="col" class="text-end">{{ 'app.admin.user.actions'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for announcement in pagination %}
+                <tr class="announcement-row">
+                    <td class="announcement-title">{{ announcement.title }}</td>
+                    <td>{{ announcement.publishedAt|format_datetime('medium', 'none') }}</td>
+                    <td>{{ announcement.author.email }}</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_announcement_edit', {id: announcement.id}) }}">
+                            {{ ux_icon('bi:pencil-square', {'class': 'me-1'}) }}
+                            {{ 'app.admin.user.edit'|trans }}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {{ ux_pagination(pagination) }}
+{% endblock %}

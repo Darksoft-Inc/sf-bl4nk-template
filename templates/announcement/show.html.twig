@@ -9,6 +9,8 @@
             <p class="text-body-secondary d-inline-flex align-items-center">
                 {{ ux_icon('bi:calendar-event', {'class': 'me-1'}) }}
                 <span>{{ 'app.announcement.published_on'|trans({'%date%': announcement.publishedAt|format_datetime('medium', 'none')}) }}</span>
+                <span class="mx-2">·</span>
+                <span>{{ 'app.announcement.posted_by'|trans({'%author%': announcement.author.email}) }}</span>
             </p>
             <p class="announcement-content">{{ announcement.content|nl2br }}</p>
         </article>
