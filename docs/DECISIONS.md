@@ -102,6 +102,14 @@ Consequence: a new admin page follows the same rules: an `/admin` path, the `IsG
 
 Why the reload is needed: a mapped form writes the submitted values into the model during submit, before validation, so an invalid submission leaves them in the managed entity. Under the test client the kernel and its entity manager survive the redirect, and the list query then returns the managed instance instead of the database row. Production processes rebuild the entity manager per request, and the reload also removes the risk of a later flush in the same request writing rejected values.
 
+## Announcement search
+
+Decision from 2026-11-21: the announcements page carries a TomSelect autocomplete field that searches the title and the content and jumps to the selected announcement.
+
+Evidence: `AnnouncementAutocompleteField` is an entity autocomplete field over `Announcement` with `searchable_fields` set to title and content, ten results at most, served by the bundle route `/autocomplete/{alias}`. The results are public data, so the endpoint needs no role. `AnnouncementSearchType` submits as GET without CSRF, and the index controller redirects to the detail page of the selected announcement. `assets/controllers.json` autoimports the Bootstrap 5 TomSelect stylesheet, matching the app layout.
+
+Consequence: another searchable entity repeats the pattern: one autocompleter field class, one small GET form, one redirect on submit. The endpoint alias derives from the field class name, `announcement_autocomplete_field`.
+
 ## Announcement blog
 
 Decision from 2026-11-21: the blog ships the read side only, without an author field.

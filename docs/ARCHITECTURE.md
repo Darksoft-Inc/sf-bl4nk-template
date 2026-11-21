@@ -52,8 +52,11 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `PasswordConstraints` supplies the shared password rules for both forms.
 - `AdminUserFormType` edits the email and the verified state, and offers the assignable roles in a multi select. `ROLE_ADMIN` is the only assignable role today; new roles extend `AdminUserFormType::assignableRoles()`. An admin cannot remove the own admin role: the controller rejects the change, reloads the user, and reports it with a flash.
 - `AnnouncementFormType` edits the title, the publication date, and the content.
+- `AnnouncementAutocompleteField` marks an entity autocomplete over `Announcement`, searching the title and the content, served by the bundle at `/autocomplete/announcement_autocomplete_field`. `AnnouncementSearchType` wraps it in a GET form without CSRF, because a search changes nothing.
 
 `templates/form/fields.html.twig` is a form theme registered after the Bootstrap layout. It wraps every Symfony-rendered password field with the visibility toggle from the `password-visibility` recipe. The login form is raw HTML and keeps its plain field.
+
+The autocomplete uses `assets/controllers.json`: the recipe entry registers the bundle Stimulus controller eagerly and autoimports the Bootstrap 5 TomSelect stylesheet. `importmap.php` maps `@symfony/ux-autocomplete` to the local vendor controller, and `symfony/stimulus-bundle` generates the controllers module from both sources at serve time.
 
 Registration and password reset use the same password rules. In the `dev` environment, the minimum is 6 characters and the strength and compromise checks are skipped. The `test` and `prod` environments keep the strict rules.
 

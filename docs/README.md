@@ -14,6 +14,6 @@ These files hold project-specific notes for developers and agents. `AGENTS.md` r
 
 ## Current status
 
-The app has registration, email verification, login, logout, password reset, and profile pages. The profile page shows account details and changes the password. The announcement blog shows announcements in a list and on a detail page, and the base template renders through Twig components with locked icons. The documentation route serves pages from per-locale templates, with a welcome page in English. An admin section behind `ROLE_ADMIN` manages users and announcements with paginated lists. The other target features from `PURPOSE.md` are not built yet. The landing page is a neutral start page.
+The app has registration, email verification, login, logout, password reset, and profile pages. The profile page shows account details and changes the password. The announcement blog shows announcements in a list and on a detail page with an autocomplete search, and the base template renders through Twig components with locked icons. The documentation route serves pages from per-locale templates, with a welcome page in English. An admin section behind `ROLE_ADMIN` manages users and announcements with paginated lists. The other target features from `PURPOSE.md` are not built yet. The landing page is a neutral start page.
 
 `TODO.md` at the repository root lists the work found during the state review. Pick items from that file.

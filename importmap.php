@@ -32,6 +32,7 @@ return [
     '@orchidjs/unicode-variants' => ['version' => '1.2.2'],
     '@popperjs/core' => ['version' => '2.11.8'],
     '@symfony/stimulus-bundle' => ['path' => './vendor/symfony/stimulus-bundle/assets/dist/loader.js'],
+    '@symfony/ux-autocomplete' => ['path' => './vendor/symfony/ux-autocomplete/assets/dist/controller.js'],
     '@symfony/ux-leaflet-map' => ['path' => './vendor/symfony/ux-leaflet-map/assets/dist/map_controller.js'],
     '@symfony/ux-router' => ['path' => './vendor/symfony/ux-router/assets/dist/router_controller.js'],
     '@symfony/ux-translator' => ['path' => './vendor/symfony/ux-translator/assets/dist/translator_controller.js'],

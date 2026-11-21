@@ -38,6 +38,10 @@ app:
         title: Title
         published_at: 'Published at'
         content: Content
+        search:
+            label: 'Search an announcement'
+            placeholder: 'Type to search announcements'
+            go: Open
     admin:
         navigation:
             section: 'Admin sections'

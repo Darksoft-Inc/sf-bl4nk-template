@@ -80,6 +80,37 @@ final class AnnouncementControllerTest extends WebTestCase
         self::assertResponseStatusCodeSame(404);
     }
 
+    public function testAutocompleteEndpointReturnsMatchingAnnouncements(): void
+    {
+        $author = $this->createUser('author@example.com');
+        $match = $this->createAnnouncement('The galaxy opens', 'Welcome to the galaxy.', new \DateTimeImmutable('-2 days'), $author);
+        $this->createAnnouncement('Maintenance window', 'The servers restart tonight.', new \DateTimeImmutable('-1 day'), $author);
+
+        $this->client->request('GET', '/autocomplete/announcement_autocomplete_field', ['query' => 'galaxy']);
+
+        self::assertResponseIsSuccessful();
+        self::assertResponseFormatSame('json');
+
+        /** @var array{results: list<array{value: string, text: string}>} $data */
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+
+        self::assertCount(1, $data['results']);
+        self::assertSame('The galaxy opens', $data['results'][0]['text']);
+        self::assertSame((string) $match->getId(), $data['results'][0]['value']);
+    }
+
+    public function testSearchFormRedirectsToTheSelectedAnnouncement(): void
+    {
+        $author = $this->createUser('author@example.com');
+        $announcement = $this->createAnnouncement('A title', 'Some content.', new \DateTimeImmutable('-1 day'), $author);
+
+        $this->client->request('GET', '/announcements', [
+            'announcement_search' => ['announcement' => $announcement->getId()],
+        ]);
+
+        self::assertResponseRedirects('/announcements/'.$announcement->getId());
+    }
+
     private function createUser(string $email): User
     {
         $user = (new User())
