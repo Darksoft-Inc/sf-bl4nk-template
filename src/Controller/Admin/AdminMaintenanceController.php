@@ -2,6 +2,7 @@
 
 namespace App\Controller\Admin;
 
+use App\Uploads\UploadInUseException;
 use App\Uploads\UploadKindInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
@@ -66,6 +67,12 @@ final class AdminMaintenanceController extends AbstractController
 
         try {
             $uploadKind->remove($filename);
+        } catch (UploadInUseException) {
+            // A kind that refuses the removal keeps its file: the avatar
+            // clears the reference instead, so this case has no catch there.
+            $this->addFlash('error', $translator->trans('app.admin.uploads.flash.in_use'));
+
+            return $this->redirectToRoute('app_admin_maintenance_uploads');
         } catch (\InvalidArgumentException $exception) {
             throw $this->createNotFoundException($exception->getMessage());
         }

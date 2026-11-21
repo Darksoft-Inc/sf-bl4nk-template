@@ -29,6 +29,12 @@ Replace both defaults before deployment. The current values are placeholders.
 
 `app.login_audit_retention_days` in `config/services.yaml` (90 by default) is the age at which a login audit row becomes removable. The scheduled cleanup and the manual trigger on `/admin/maintenance/cleanup` both remove the rows past that age. Lowering the value removes rows sooner; raising it keeps more history.
 
+## Map image pool
+
+`app.map_image_dir` in `config/services.yaml` points at `public/uploads/maps/`, the pool of map background images. The admin upload at `/admin/maps/images` stores files there under random names, and an operator can place pre-existing images there directly; the map form and the maintenance uploads page list both the same way. The upload accepts 2 MB PNG, JPEG, WebP, or GIF images, matching the php.ini `upload_max_filesize` of the platform; larger images take the pre-existing path. An image used by a map cannot be removed from the maintenance pages.
+
+`UX_MAP_DSN` selects the map renderer; `leaflet://default` renders the public map display through `ux_map` and the `image_map_controller.js` decoration. See `docs/DECISIONS.md` for the image-plane adaptation.
+
 ## Translations
 
 `framework.enabled_locales` is set to `['en']` in `config/packages/framework.yaml`, and `en` is the default locale. Three catalogs live in `translations/`:

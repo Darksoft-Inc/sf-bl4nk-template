@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ map.name }}{% endblock %}
+
+{% block body %}
+    <main>
+        <h1>{{ map.name }}</h1>
+
+        <div class="mb-4" data-controller="image-map">
+            {% if hasFilters %}
+                <div class="mb-3 d-flex flex-wrap align-items-center column-gap-4 row-gap-2">
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" id="app-map-filter-pins" checked
+                               data-action="change->image-map#togglePins">
+                        <label class="form-check-label" for="app-map-filter-pins">
+                            {{ ux_icon('bi:geo-alt-fill', {'class': 'me-1'}) }}
+                            {{ 'app.map.filter.pins'|trans }}
+                        </label>
+                    </div>
+
+                    {% if hasSymbols %}
+                        <div class="form-check form-switch mb-0">
+                            <input class="form-check-input" type="checkbox" id="app-map-filter-symbols" checked
+                                   data-action="change->image-map#toggleSymbols">
+                            <label class="form-check-label" for="app-map-filter-symbols">{{ 'app.map.filter.symbols'|trans }}</label>
+                        </div>
+                    {% endif %}
+
+                    <div class="d-inline-flex align-items-center" role="group" aria-label="{{ 'app.map.filter.lines'|trans }}">
+                        <span class="me-2">{{ 'app.map.filter.lines'|trans }}:</span>
+                        <div class="btn-group">
+                            <input type="radio" class="btn-check" name="app-map-lines" id="app-map-lines-all" value="all" checked
+                                   data-action="change->image-map#setLines">
+                            <label class="btn btn-outline-secondary btn-sm" for="app-map-lines-all">{{ 'app.map.filter.lines_all'|trans }}</label>
+
+                            <input type="radio" class="btn-check" name="app-map-lines" id="app-map-lines-major" value="major"
+                                   data-action="change->image-map#setLines">
+                            <label class="btn btn-outline-secondary btn-sm" for="app-map-lines-major">{{ 'app.map.filter.lines_major'|trans }}</label>
+
+                            <input type="radio" class="btn-check" name="app-map-lines" id="app-map-lines-none" value="none"
+                                   data-action="change->image-map#setLines">
+                            <label class="btn btn-outline-secondary btn-sm" for="app-map-lines-none">{{ 'app.map.filter.lines_none'|trans }}</label>
+                        </div>
+                    </div>
+                </div>
+
+                {% if map.routeTypes is not empty %}
+                    <p class="mb-3">
+                        {% for routeType in map.routeTypes %}
+                            <span class="app-map-legend d-inline-flex align-items-center me-3">
+                                <span class="app-map-legend-swatch" style="background-color: {{ routeType.color }}"></span>
+                                {{ routeType.name }}
+                            </span>
+                        {% endfor %}
+                    </p>
+                {% endif %}
+            {% endif %}
+
+            {{ ux_map(uxMap, {
+                'class': 'app-map-canvas rounded border',
+                'data-image-map-target': 'canvas',
+                'aria-label': map.name,
+                'role': 'region',
+            }) }}
+        </div>
+
+        <a class="d-inline-flex align-items-center" href="{{ path('app_map_index') }}">
+            {{ ux_icon('bi:arrow-left', {'class': 'me-1'}) }}
+            {{ 'app.map.back'|trans }}
+        </a>
+    </main>
+{% endblock %}

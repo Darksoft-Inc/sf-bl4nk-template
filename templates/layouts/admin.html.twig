@@ -4,6 +4,7 @@
     <nav class="nav nav-pills gap-2 mb-4" aria-label="{{ 'app.admin.navigation.section'|trans }}">
         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_admin_user' ? 'active' }}" href="{{ path('app_admin_user_index') }}">{{ 'app.admin.navigation.users'|trans }}</a>
         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_admin_announcement' ? 'active' }}" href="{{ path('app_admin_announcement_index') }}">{{ 'app.admin.navigation.announcements'|trans }}</a>
+        <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_admin_map' ? 'active' }}" href="{{ path('app_admin_map_index') }}">{{ 'app.admin.navigation.maps'|trans }}</a>
         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_admin_login_audit' ? 'active' }}" href="{{ path('app_admin_login_audit_index') }}">{{ 'app.admin.navigation.login_audit'|trans }}</a>
         <a class="nav-link {{ app.request.attributes.get('_route') starts with 'app_admin_maintenance' ? 'active' }}" href="{{ path('app_admin_maintenance_uploads') }}">{{ 'app.admin.navigation.maintenance'|trans }}</a>
     </nav>

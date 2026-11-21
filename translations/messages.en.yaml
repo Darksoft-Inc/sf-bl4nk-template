@@ -9,6 +9,7 @@ app:
         check_email: 'Password Reset Email Sent'
         profile: Profile
         announcements: Announcements
+        maps: Maps
     navigation:
         start: Start
         login: Log in
@@ -18,6 +19,7 @@ app:
         profile: Profile
         announcements: Announcements
         documentation: Documentation
+        maps: Maps
         admin: Admin
         toggle: 'Toggle navigation'
     account:
@@ -48,16 +50,58 @@ app:
             label: 'Search an announcement'
             placeholder: 'Type to search announcements'
             go: Open
+    map:
+        none: 'No maps yet.'
+        name: Name
+        created_at: 'Created at'
+        annotations: Annotations
+        annotations_count: '%points% points, %routes% routes'
+        points_count: '{0}No points|{1}1 point|[2,Inf[%count% points'
+        routes_count: '{0}No routes|{1}1 route|[2,Inf[%count% routes'
+        points: Points
+        routes: Routes
+        back: 'Back to maps'
+        filter:
+            pins: Pins
+            symbols: Symbols
+            lines: Lines
+            lines_all: All
+            lines_major: 'Major only'
+            lines_none: None
+    map_point:
+        title: Title
+        description: Description
+        x: x
+        y: y
+        x_help: 'Pixels from the left edge of the map, 0 to %space%.'
+        y_help: 'Pixels from the top edge of the map, 0 to %space%.'
+        symbols: Symbols
+        symbols_help: 'ux-icons names separated by spaces, for example "bi:bank bi:shield-fill". Leave empty for no symbol.'
+    map_route:
+        type: 'Route type'
+        name: Name
+        name_help: 'Optional. The popup shows the route type when the name is empty.'
+        description: Description
+        is_major: 'Major route'
+        major_badge: Major
+        minor_badge: Minor
+        points: Points
+        points_help: 'One "x, y" pair per line in map pixels, at least two lines, x from 0 to %width% and y from 0 to %height%.'
+    map_route_type:
+        name: Name
+        color: Color
     admin:
         navigation:
             section: 'Admin sections'
             users: Users
             announcements: Announcements
+            maps: Maps
             login_audit: 'Login audit'
             maintenance: Maintenance
         page:
             users: Users
             announcements: Announcements
+            maps: Maps
             uploads: Uploads
             login_audit: 'Login audit'
             cleanup: 'Login audit cleanup'
@@ -79,6 +123,7 @@ app:
         uploads:
             kind:
                 avatar: Avatars
+                map_image: 'Map images'
             file: File
             owner: Owner
             size: Size
@@ -89,6 +134,7 @@ app:
             flash:
                 removed: 'The file has been removed.'
                 not_removed: 'The file could not be removed.'
+                in_use: 'The file is used and cannot be removed.'
         audit:
             type: Type
             login: 'Sign-in'
@@ -125,6 +171,58 @@ app:
             search:
                 label: 'Search an announcement'
                 placeholder: 'Type to search announcements'
+        map:
+            new: 'New map'
+            edit_page: 'Edit map'
+            delete: Delete
+            view_public: 'Open the public page'
+            parameters: 'Map parameters'
+            image: 'Background image'
+            image_none: 'No image'
+            image_help: 'Choose an image from the pool. Upload new images or see the pool on the map images page.'
+            min_zoom: 'Minimum zoom'
+            max_zoom: 'Maximum zoom'
+            confirm_delete: 'Delete this map with all its points, routes, and route types?'
+            flash:
+                created: 'The map has been created.'
+                updated: 'The map has been updated.'
+                deleted: 'The map has been deleted.'
+                delete_not_allowed: 'The deletion was refused.'
+                image_uploaded: 'The image has been uploaded.'
+                image_not_readable: 'The chosen image cannot be read.'
+                no_route_types: 'Create a route type before adding a route.'
+                point_created: 'The point has been created.'
+                point_updated: 'The point has been updated.'
+                point_deleted: 'The point has been deleted.'
+                route_type_created: 'The route type has been created.'
+                route_type_updated: 'The route type has been updated.'
+                route_type_deleted: 'The route type and its routes have been deleted.'
+                route_created: 'The route has been created.'
+                route_updated: 'The route has been updated.'
+                route_deleted: 'The route has been deleted.'
+            point:
+                new: 'New point'
+                edit_page: 'Edit point'
+                none: 'This map has no points yet.'
+                confirm_delete: 'Delete this point?'
+            route_type:
+                new: 'New route type'
+                edit_page: 'Edit route type'
+                none: 'This map has no route types yet.'
+                confirm_delete: '{0}Delete this route type?|{1}Delete this route type and its route?|[2,Inf[Delete this route type and its %count% routes?'
+            route:
+                new: 'New route'
+                edit_page: 'Edit route'
+                none: 'This map has no routes yet.'
+                confirm_delete: 'Delete this route?'
+        map_images:
+            page: 'Map images'
+            file: 'Image file'
+            upload: 'Upload the image'
+            used_by: 'Used by'
+            none: 'The image pool is empty.'
+            help: 'Images serve as map backgrounds. Upload an image here, or place a file directly in public/uploads/maps: both are part of the pool.'
+            remove_hint: 'Images are removed from the maintenance uploads page. An image used by a map cannot be removed.'
         flash:
             user_updated: 'The user has been updated.'
             user_not_updated: 'The user could not be updated.'

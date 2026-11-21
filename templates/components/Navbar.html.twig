@@ -15,6 +15,12 @@
                         {{ 'app.navigation.announcements'|trans }}
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link d-inline-flex align-items-center" href="{{ path('app_map_index') }}">
+                        {{ ux_icon('bi:map', {'class': 'me-1'}) }}
+                        {{ 'app.navigation.maps'|trans }}
+                    </a>
+                </li>
             </ul>
             <ul class="navbar-nav ms-auto mb-2 mb-md-0">
                 {% if app.user %}

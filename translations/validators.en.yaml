@@ -18,3 +18,25 @@ app:
     avatar:
         mime_types: 'The avatar must be a PNG, JPEG, WebP, or GIF image.'
         max_size: 'The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.'
+    map:
+        name_not_blank: 'Please enter a name'
+        name_too_long: 'The name is too long. It should have {{ limit }} characters or less.'
+        zoom_not_negative: 'The zoom cannot be negative.'
+        max_zoom_not_below_min: 'The maximum zoom cannot be lower than the minimum zoom.'
+    map_point:
+        title_not_blank: 'Please enter a title'
+        title_too_long: 'The title is too long. It should have {{ limit }} characters or less.'
+        out_of_space: 'This position lies outside the map space.'
+        symbol_not_found: 'The icon "%name%" does not exist in the icon sets.'
+    map_route_type:
+        name_not_blank: 'Please enter a name'
+        color_not_blank: 'Please pick a color'
+        color_invalid: 'This color is not a valid "#rrggbb" value.'
+    map_route:
+        name_too_long: 'The name is too long. It should have {{ limit }} characters or less.'
+        points_invalid_pair: 'Line %line% is not a valid "x, y" pair.'
+        points_out_of_space: 'Line %line% lies outside the map space.'
+        points_too_few: 'A route needs at least two points, one per line.'
+    map_images:
+        mime_types: 'The image must be a PNG, JPEG, WebP, or GIF image.'
+        max_size: 'The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.'

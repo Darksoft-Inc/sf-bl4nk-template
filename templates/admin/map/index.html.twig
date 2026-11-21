@@ -1,0 +1,70 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}{{ 'app.admin.page.maps'|trans }}{% endblock %}
+
+{% block admin_body %}
+    <h1>{{ 'app.admin.page.maps'|trans }}</h1>
+
+    <p class="mb-3">
+        <a class="btn btn-primary" href="{{ path('app_admin_map_new') }}">
+            {{ ux_icon('bi:plus-lg', {'class': 'me-1'}) }}
+            {{ 'app.admin.map.new'|trans }}
+        </a>
+        <a class="btn btn-outline-secondary" href="{{ path('app_admin_map_images') }}">
+            {{ ux_icon('bi:images', {'class': 'me-1'}) }}
+            {{ 'app.admin.map_images.page'|trans }}
+        </a>
+    </p>
+
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                <th scope="col">{{ 'app.map.name'|trans }}</th>
+                <th scope="col">{{ 'app.admin.map.image'|trans }}</th>
+                <th scope="col">{{ 'app.map.annotations'|trans }}</th>
+                <th scope="col">{{ 'app.map.created_at'|trans }}</th>
+                <th scope="col" class="text-end">{{ 'app.admin.user.actions'|trans }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for map in pagination %}
+                <tr class="map-row">
+                    <td class="map-name">
+                        <a class="fw-semibold" href="{{ path('app_admin_map_edit', {id: map.id}) }}">{{ map.name }}</a>
+                        <a class="ms-2 small" href="{{ path('app_map_show', {id: map.id}) }}">{{ 'app.admin.map.view_public'|trans }}</a>
+                    </td>
+                    <td>
+                        {% if map.imageFilename %}
+                            <img src="{{ asset('uploads/maps/' ~ map.imageFilename) }}" alt="" class="rounded me-2" style="max-width: 48px; max-height: 48px;">
+                            <span class="small text-body-secondary">{{ map.imageWidth }} × {{ map.imageHeight }}</span>
+                        {% else %}
+                            <span class="badge text-bg-secondary">{{ 'app.admin.map.image_none'|trans }}</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge text-bg-light">{{ 'app.map.points_count'|trans({'%count%': map.points|length}) }}</span>
+                        <span class="badge text-bg-light">{{ 'app.map.routes_count'|trans({'%count%': map.routes|length}) }}</span>
+                    </td>
+                    <td>{{ map.createdAt|format_datetime('medium', 'none') }}</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_map_edit', {id: map.id}) }}">
+                            {{ ux_icon('bi:pencil-square', {'class': 'me-1'}) }}
+                            {{ 'app.admin.user.edit'|trans }}
+                        </a>
+                        <twig:PostLink
+                            href="{{ path('app_admin_map_delete', {id: map.id}) }}"
+                            csrfTokenId="delete-map"
+                            confirm="{{ 'app.admin.map.confirm_delete'|trans }}"
+                            class="btn btn-sm btn-outline-danger"
+                        >
+                            {{ ux_icon('bi:trash', {'class': 'me-1'}) }}
+                            {{ 'app.admin.map.delete'|trans }}
+                        </twig:PostLink>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {{ ux_pagination(pagination) }}
+{% endblock %}

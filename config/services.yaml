@@ -11,6 +11,7 @@ parameters:
     app.admin_name: '%env(ADMIN_NAME)%'
     app.avatar_dir: '%kernel.project_dir%/public/uploads/avatars'
     app.avatar_display_max: 96
+    app.map_image_dir: '%kernel.project_dir%/public/uploads/maps'
     app.login_audit_retention_days: 90
 
 services:

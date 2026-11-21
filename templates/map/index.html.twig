@@ -1,0 +1,33 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.page.maps'|trans }}{% endblock %}
+
+{% block body %}
+    <main>
+        <h1>{{ 'app.page.maps'|trans }}</h1>
+
+        {% if maps is empty %}
+            <p class="map-empty text-body-secondary">{{ 'app.map.none'|trans }}</p>
+        {% else %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+                {% for map in maps %}
+                    <div class="col">
+                        <div class="card h-100">
+                            {% if map.imageFilename %}
+                                <img src="{{ asset('uploads/maps/' ~ map.imageFilename) }}" alt="" class="card-img-top object-fit-contain p-2" style="max-height: 160px;">
+                            {% endif %}
+                            <div class="card-body">
+                                <h2 class="card-title h5">
+                                    <a class="map-link" href="{{ path('app_map_show', {id: map.id}) }}">{{ map.name }}</a>
+                                </h2>
+                                <p class="card-text text-body-secondary mb-0">
+                                    {{ 'app.map.annotations_count'|trans({'%points%': map.points|length, '%routes%': map.routes|length}) }}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </main>
+{% endblock %}

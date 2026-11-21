@@ -1,0 +1,15 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}{{ 'app.admin.map.new'|trans }}{% endblock %}
+
+{% block admin_body %}
+    <h1>{{ 'app.admin.map.new'|trans }}</h1>
+
+    {{ form_start(form) }}
+        {{ form_row(form.name) }}
+        {{ form_row(form.image) }}
+        {{ form_row(form.minZoom) }}
+        {{ form_row(form.maxZoom) }}
+        <button type="submit" class="btn btn-primary">{{ 'app.admin.user.save'|trans }}</button>
+    {{ form_end(form) }}
+{% endblock %}

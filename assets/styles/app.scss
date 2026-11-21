@@ -3,3 +3,58 @@
 // override Bootstrap variables, then import source from the vendor folder
 
 @import "../../vendor/twbs/bootstrap/scss/bootstrap";
+
+// Annotated map display. The leaflet map and its panes live inside the
+// canvas element, so the pins and symbols filters hide layers through
+// classes on the canvas instead of map surgery.
+.app-map-canvas {
+    height: 70vh;
+    min-height: 320px;
+}
+
+.app-map-canvas .app-map-pin {
+    position: absolute;
+    bottom: 0;
+    left: 4px;
+    line-height: 0;
+    color: var(--bs-danger);
+}
+
+.app-map-canvas .app-map-pin svg {
+    width: 24px;
+    height: 24px;
+}
+
+.app-map-canvas .app-map-symbols {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-wrap: wrap-reverse;
+    gap: 2px;
+    max-width: 64px;
+    line-height: 0;
+    color: var(--bs-secondary);
+}
+
+.app-map-canvas .app-map-symbols svg {
+    width: 14px;
+    height: 14px;
+}
+
+.app-map-canvas.app-map-pins-off .app-map-pin {
+    display: none;
+}
+
+.app-map-canvas.app-map-symbols-off .app-map-symbols {
+    display: none;
+}
+
+.app-map-legend-swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.25);
+}
+

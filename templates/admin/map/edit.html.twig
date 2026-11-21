@@ -1,0 +1,181 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}{{ 'app.admin.map.edit_page'|trans }}{% endblock %}
+
+{% block admin_body %}
+    <h1>{{ 'app.admin.map.edit_page'|trans }}: {{ map.name }}</h1>
+
+    <section class="mb-4">
+        <h2 class="h5">{{ 'app.admin.map.parameters'|trans }}</h2>
+        {{ form_start(form) }}
+            {{ form_row(form.name) }}
+            {{ form_row(form.image) }}
+            {{ form_row(form.minZoom) }}
+            {{ form_row(form.maxZoom) }}
+            <button type="submit" class="btn btn-primary">{{ 'app.admin.user.save'|trans }}</button>
+        {{ form_end(form) }}
+    </section>
+
+    <section class="mb-4">
+        <div class="d-flex align-items-center mb-2">
+            <h2 class="h5 mb-0">{{ 'app.admin.map.route_types'|trans }}</h2>
+            <a class="btn btn-sm btn-outline-primary ms-3" href="{{ path('app_admin_map_route_type_new', {mapId: map.id}) }}">
+                {{ ux_icon('bi:plus-lg', {'class': 'me-1'}) }}
+                {{ 'app.admin.map.route_type.new'|trans }}
+            </a>
+        </div>
+
+        {% if map.routeTypes is empty %}
+            <p class="text-body-secondary">{{ 'app.admin.map.route_type.none'|trans }}</p>
+        {% else %}
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'app.map_route_type.name'|trans }}</th>
+                        <th scope="col">{{ 'app.map_route_type.color'|trans }}</th>
+                        <th scope="col">{{ 'app.map.routes'|trans }}</th>
+                        <th scope="col" class="text-end">{{ 'app.admin.user.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for routeType in map.routeTypes %}
+                        <tr class="route-type-row">
+                            <td>{{ routeType.name }}</td>
+                            <td>
+                                <span class="app-map-legend-swatch" style="background-color: {{ routeType.color }}"></span>
+                                <code>{{ routeType.color }}</code>
+                            </td>
+                            <td>{{ 'app.map.routes_count'|trans({'%count%': routeType.routes|length}) }}</td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_map_route_type_edit', {id: routeType.id}) }}">
+                                    {{ ux_icon('bi:pencil-square', {'class': 'me-1'}) }}
+                                    {{ 'app.admin.user.edit'|trans }}
+                                </a>
+                                <twig:PostLink
+                                    href="{{ path('app_admin_map_route_type_delete', {id: routeType.id}) }}"
+                                    csrfTokenId="delete-map-route-type"
+                                    confirm="{{ 'app.admin.map.route_type.confirm_delete'|trans({'%count%': routeType.routes|length}) }}"
+                                    class="btn btn-sm btn-outline-danger"
+                                >
+                                    {{ ux_icon('bi:trash', {'class': 'me-1'}) }}
+                                    {{ 'app.admin.map.delete'|trans }}
+                                </twig:PostLink>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </section>
+
+    <section class="mb-4">
+        <div class="d-flex align-items-center mb-2">
+            <h2 class="h5 mb-0">{{ 'app.admin.map.points'|trans }}</h2>
+            <a class="btn btn-sm btn-outline-primary ms-3" href="{{ path('app_admin_map_point_new', {mapId: map.id}) }}">
+                {{ ux_icon('bi:plus-lg', {'class': 'me-1'}) }}
+                {{ 'app.admin.map.point.new'|trans }}
+            </a>
+        </div>
+
+        {% if map.points is empty %}
+            <p class="text-body-secondary">{{ 'app.admin.map.point.none'|trans }}</p>
+        {% else %}
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'app.map_point.title'|trans }}</th>
+                        <th scope="col">x, y</th>
+                        <th scope="col">{{ 'app.map_point.symbols'|trans }}</th>
+                        <th scope="col" class="text-end">{{ 'app.admin.user.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for point in map.points %}
+                        <tr class="point-row">
+                            <td>{{ point.title }}</td>
+                            <td>{{ point.x }}, {{ point.y }}</td>
+                            <td>
+                                {% for symbol in point.symbols %}
+                                    <span title="{{ symbol }}">{{ ux_icon(symbol, {'class': 'me-1'}) }}</span>
+                                {% endfor %}
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_map_point_edit', {id: point.id}) }}">
+                                    {{ ux_icon('bi:pencil-square', {'class': 'me-1'}) }}
+                                    {{ 'app.admin.user.edit'|trans }}
+                                </a>
+                                <twig:PostLink
+                                    href="{{ path('app_admin_map_point_delete', {id: point.id}) }}"
+                                    csrfTokenId="delete-map-point"
+                                    confirm="{{ 'app.admin.map.point.confirm_delete'|trans }}"
+                                    class="btn btn-sm btn-outline-danger"
+                                >
+                                    {{ ux_icon('bi:trash', {'class': 'me-1'}) }}
+                                    {{ 'app.admin.map.delete'|trans }}
+                                </twig:PostLink>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </section>
+
+    <section class="mb-4">
+        <div class="d-flex align-items-center mb-2">
+            <h2 class="h5 mb-0">{{ 'app.admin.map.routes'|trans }}</h2>
+            <a class="btn btn-sm btn-outline-primary ms-3" href="{{ path('app_admin_map_route_new', {mapId: map.id}) }}">
+                {{ ux_icon('bi:plus-lg', {'class': 'me-1'}) }}
+                {{ 'app.admin.map.route.new'|trans }}
+            </a>
+        </div>
+
+        {% if map.routes is empty %}
+            <p class="text-body-secondary">{{ 'app.admin.map.route.none'|trans }}</p>
+        {% else %}
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'app.map_route.name'|trans }}</th>
+                        <th scope="col">{{ 'app.map_route.type'|trans }}</th>
+                        <th scope="col">{{ 'app.map_route.is_major'|trans }}</th>
+                        <th scope="col" class="text-end">{{ 'app.admin.user.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for route in map.routes %}
+                        <tr class="route-row">
+                            <td>{{ route.displayName }}</td>
+                            <td>
+                                <span class="app-map-legend-swatch" style="background-color: {{ route.type.color }}"></span>
+                                {{ route.type.name }}
+                            </td>
+                            <td>
+                                {% if route.isMajor %}
+                                    <span class="badge text-bg-primary">{{ 'app.map_route.major_badge'|trans }}</span>
+                                {% else %}
+                                    <span class="badge text-bg-light text-body-secondary">{{ 'app.map_route.minor_badge'|trans }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_map_route_edit', {id: route.id}) }}">
+                                    {{ ux_icon('bi:pencil-square', {'class': 'me-1'}) }}
+                                    {{ 'app.admin.user.edit'|trans }}
+                                </a>
+                                <twig:PostLink
+                                    href="{{ path('app_admin_map_route_delete', {id: route.id}) }}"
+                                    csrfTokenId="delete-map-route"
+                                    confirm="{{ 'app.admin.map.route.confirm_delete'|trans }}"
+                                    class="btn btn-sm btn-outline-danger"
+                                >
+                                    {{ ux_icon('bi:trash', {'class': 'me-1'}) }}
+                                    {{ 'app.admin.map.delete'|trans }}
+                                </twig:PostLink>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </section>
+{% endblock %}
