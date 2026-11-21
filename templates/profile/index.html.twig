@@ -14,6 +14,17 @@
         <dd>{{ user.verified ? 'app.account.verified'|trans : 'app.account.not_verified'|trans }}</dd>
     </dl>
 
+    <h2>{{ 'app.account.avatar'|trans }}</h2>
+
+    {% if user.avatarFilename %}
+        <img class="avatar mb-3 rounded" src="{{ asset('uploads/avatars/' ~ user.avatarFilename) }}" alt="{{ 'app.account.avatar'|trans }}" width="96" height="96">
+    {% endif %}
+
+    {{ form_start(avatarForm) }}
+        {{ form_row(avatarForm.avatar) }}
+        <button type="submit" class="btn btn-primary">{{ 'app.avatar.save'|trans }}</button>
+    {{ form_end(avatarForm) }}
+
     <h2>{{ 'app.account.change_password'|trans }}</h2>
 
     {{ form_start(changePasswordForm) }}

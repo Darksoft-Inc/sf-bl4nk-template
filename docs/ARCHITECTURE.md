@@ -36,11 +36,11 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `RegistrationController` creates users, sends verification email, and verifies email links.
 - `ResetPasswordController` handles reset requests, reset confirmation, token validation, and password changes.
 - `SecurityController` displays the login form and declares the logout route.
-- `ProfileController` shows account details and changes the signed-in user's password.
+- `ProfileController` shows account details, changes the signed-in user's password, and stores the avatar: a validated upload saved under `public/uploads/avatars/` with a random name, after deleting the previous file.
 
 ## Entities
 
-- `App\Entity\User` stores email, roles, password hash, and verification state. It implements `UserInterface` and `PasswordAuthenticatedUserInterface`.
+- `App\Entity\User` stores email, roles, password hash, verification state, and the avatar filename. It implements `UserInterface` and `PasswordAuthenticatedUserInterface`.
 - `App\Entity\ResetPasswordRequest` stores the selector, hashed token, expiration, and the related user.
 - `App\Entity\Announcement` stores the title, content, publication date, and the author. The constructor takes the four fields, and the admin form can change the publication date through `setPublishedAt()`.
 
@@ -54,6 +54,7 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `AnnouncementFormType` edits the title, the publication date, and the content.
 - `AnnouncementAutocompleteField` marks an entity autocomplete over `Announcement`, searching the title and the content, served by the bundle at `/autocomplete/announcement_autocomplete_field`. `AnnouncementSearchType` wraps it in a GET form without CSRF, because a search changes nothing.
 - `AdminUserAutocompleteField` is the admin counterpart over `User`, searching the email, with the `ROLE_ADMIN` guard set on the field itself. `AdminUserSearchType` and `AdminAnnouncementSearchType` wrap the fields in GET forms; the announcement form reuses the public autocompleter, whose results are public data.
+- `AvatarFormType` collects the avatar upload through the `ux-dropzone` control, with content-sniffed image validation.
 
 `templates/form/fields.html.twig` is a form theme registered after the Bootstrap layout. It wraps every Symfony-rendered password field with the visibility toggle from the `password-visibility` recipe. The login form is raw HTML and keeps its plain field.
 

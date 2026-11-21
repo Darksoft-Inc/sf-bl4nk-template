@@ -24,7 +24,7 @@ The current code provides the base and part of account management. The features 
 | Scheduled maintenance | Run recurring maintenance tasks and record their results. These actions may also be started manually from admin pages. |
 | Translations | Translate interface texts, messages, and emails. |
 | Flexible dataset import | Load structured datasets in development and production. Use the same import code where practical. |
-| User-provided data | Accept, validate, store, and display user uploads such as images. |
+| User-provided data | Accept, validate, store, and display user uploads in three categories: the account avatar, shared images, and shared plain-text files. Archives, word processor documents, and PDF files are out of scope. |
 | Responsive interface | Work on desktop, tablet, and mobile screens. |
 | Search in large data sets | Provide autocomplete where a full list is too large to show at once. |
 | Reusable interface components | Build pages from modular Twig components and icons. |

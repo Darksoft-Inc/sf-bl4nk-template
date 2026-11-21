@@ -102,6 +102,14 @@ Consequence: a new admin page follows the same rules: an `/admin` path, the `IsG
 
 Why the reload is needed: a mapped form writes the submitted values into the model during submit, before validation, so an invalid submission leaves them in the managed entity. Under the test client the kernel and its entity manager survive the redirect, and the list query then returns the managed instance instead of the database row. Production processes rebuild the entity manager per request, and the reload also removes the risk of a later flush in the same request writing rejected values.
 
+## User uploads
+
+Decision from 2026-11-21: uploads fall into three categories, the account avatar, shared images, and shared plain-text files, and only the avatar is built so far.
+
+Evidence: the avatar lands on the profile page as the proof of concept. `AvatarFormType` uses the `ux-dropzone` control and validates with the `File` constraint: 2 MB at most, and PNG, JPEG, WebP, or GIF only, checked by content sniffing rather than the file name. SVG stays excluded because a script-bearing SVG served from the app origin would be stored cross-site scripting. The controller stores the file under `%kernel.project_dir%/public/uploads/avatars` through the `app.avatar_dir` parameter, under a random name with the extension the sniffed type suggests, and deletes the previous avatar after a successful upload. `.gitignore` excludes `public/uploads/`.
+
+Consequence: the shared-image and shared-text categories wait for their features and architecture choices, such as where the file records live and whether storage moves behind an abstraction. Image processing stays undecided. The plain-text category validates the content as text, since archives, word processor documents, and PDFs are out of scope.
+
 ## Announcement search
 
 Decision from 2026-11-21: the announcements page carries a TomSelect autocomplete field that searches the title and the content and jumps to the selected announcement.

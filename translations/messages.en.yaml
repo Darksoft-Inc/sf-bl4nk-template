@@ -28,6 +28,7 @@ app:
         not_verified: 'Not verified'
         change_password: 'Change password'
         forgot_password: 'Forgot your password?'
+        avatar: Avatar
     login:
         logged_in_as: 'You are logged in as %identifier%.'
     announcement:
@@ -79,6 +80,9 @@ app:
         email_verified: 'Your email address has been verified.'
         email_already_verified: 'Your email address has already been verified.'
         password_changed: 'Your password has been changed.'
+        avatar_updated: 'Your avatar has been updated.'
+    avatar:
+        save: 'Save the avatar'
     form:
         agree_terms: 'Agree terms'
         new_password: 'New password'

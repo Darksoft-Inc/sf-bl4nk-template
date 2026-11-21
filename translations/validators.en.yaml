@@ -15,3 +15,6 @@ app:
     announcement:
         title_not_blank: 'Please enter a title'
         content_not_blank: 'Please enter a content'
+    avatar:
+        mime_types: 'The avatar must be a PNG, JPEG, WebP, or GIF image.'
+        max_size: 'The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.'

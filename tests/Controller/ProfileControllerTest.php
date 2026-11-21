@@ -9,6 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\PhpUnit\Attribute\UseRecord;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 #[UseRecord('pwnedpasswords-ranges.har')]
@@ -64,6 +65,81 @@ final class ProfileControllerTest extends WebTestCase
         $updatedUser = $this->userRepository->findOneBy(['email' => 'profile@example.com']);
         self::assertInstanceOf(User::class, $updatedUser);
         self::assertTrue($this->passwordHasher->isPasswordValid($updatedUser, 'AnotherStrongPassword42!'));
+    }
+
+    public function testProfileUploadsAnAvatar(): void
+    {
+        $user = $this->createUser('avatar@example.com', 'CorrectHorseBatteryStaple42!', true);
+        $this->client->loginUser($user);
+
+        $crawler = $this->client->request('GET', '/profile');
+        self::assertResponseIsSuccessful();
+
+        $token = $crawler->filter('#avatar_form__token')->attr('value');
+        self::assertIsString($token);
+
+        $pngPath = tempnam(sys_get_temp_dir(), 'avatar-fixture').'.png';
+        file_put_contents($pngPath, base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=='));
+
+        try {
+            $this->client->request('POST', '/profile', [
+                'avatar_form' => ['_token' => $token],
+            ], [
+                'avatar_form' => ['avatar' => new UploadedFile($pngPath, 'avatar.png', 'image/png', null, true)],
+            ]);
+
+            self::assertResponseRedirects('/profile');
+            $this->client->followRedirect();
+            self::assertSelectorTextContains('.alert-success', 'Your avatar has been updated.');
+            self::assertSelectorExists('img.avatar');
+            self::assertSelectorExists('[data-controller="symfony--ux-dropzone--dropzone"]');
+
+            $updatedUser = $this->userRepository->findOneBy(['email' => 'avatar@example.com']);
+            self::assertInstanceOf(User::class, $updatedUser);
+            self::assertNotNull($updatedUser->getAvatarFilename());
+
+            $avatarPath = \dirname(__DIR__, 2).'/public/uploads/avatars/'.$updatedUser->getAvatarFilename();
+            self::assertFileExists($avatarPath);
+
+            unlink($avatarPath);
+        } finally {
+            // The upload moved the file, so it is already gone here.
+            if (is_file($pngPath)) {
+                unlink($pngPath);
+            }
+        }
+    }
+
+    public function testProfileRejectsATextFileAsAvatar(): void
+    {
+        $user = $this->createUser('avatar-text@example.com', 'CorrectHorseBatteryStaple42!', true);
+        $this->client->loginUser($user);
+
+        $crawler = $this->client->request('GET', '/profile');
+        self::assertResponseIsSuccessful();
+
+        $token = $crawler->filter('#avatar_form__token')->attr('value');
+        self::assertIsString($token);
+
+        $txtPath = tempnam(sys_get_temp_dir(), 'avatar-fixture').'.txt';
+        file_put_contents($txtPath, 'plain text, not an image');
+
+        try {
+            $this->client->request('POST', '/profile', [
+                'avatar_form' => ['_token' => $token],
+            ], [
+                'avatar_form' => ['avatar' => new UploadedFile($txtPath, 'notes.txt', 'text/plain', null, true)],
+            ]);
+
+            self::assertResponseStatusCodeSame(422);
+            self::assertSelectorTextContains('.invalid-feedback', 'The avatar must be a PNG, JPEG, WebP, or GIF image.');
+
+            $updatedUser = $this->userRepository->findOneBy(['email' => 'avatar-text@example.com']);
+            self::assertInstanceOf(User::class, $updatedUser);
+            self::assertNull($updatedUser->getAvatarFilename());
+        } finally {
+            unlink($txtPath);
+        }
     }
 
     private function createUser(string $email, string $password, bool $verified): User
