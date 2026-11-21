@@ -41,6 +41,9 @@ app:
         agree_terms: 'Agree terms'
         new_password: 'New password'
         repeat_password: 'Repeat Password'
+        password:
+            show: 'Show password'
+            hide: 'Hide password'
     reset_password:
         request_help: 'Enter your email address, and we will send you a link to reset your password.'
         send_email: 'Send password reset email'
