@@ -100,6 +100,8 @@ Evidence: `User::getRoles()` guarantees `ROLE_USER` for everyone, so no role hie
 
 Consequence: a new admin page follows the same rules: an `/admin` path, the `IsGranted` attribute, and the shared layout in `templates/layouts/admin.html.twig`. The announcement gained its author; the migration was generated with `symfony console make:migration` against the development database. The user edit replaces the roles wholesale but an admin cannot remove the own admin role: the controller rejects the change with a flash and reloads the user, and rejected or invalid submissions reload the user as well so the list never shows unflushed in-memory values.
 
+Why the reload is needed: a mapped form writes the submitted values into the model during submit, before validation, so an invalid submission leaves them in the managed entity. Under the test client the kernel and its entity manager survive the redirect, and the list query then returns the managed instance instead of the database row. Production processes rebuild the entity manager per request, and the reload also removes the risk of a later flush in the same request writing rejected values.
+
 ## Announcement blog
 
 Decision from 2026-11-21: the blog ships the read side only, without an author field.
