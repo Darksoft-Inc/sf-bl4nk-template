@@ -19,6 +19,8 @@ symfony console sass:build
 php bin/console doctrine:schema:create --env=test
 ```
 
+Run dev-env commands through `symfony console`: the CLI injects the `DATABASE_URL` and `MAILER_DSN` of the running Docker services, including the dynamic ports that `php bin/console` cannot see. Run test-env commands with plain PHP (`php bin/console ... --env=test`, `php bin/phpunit`): the injected `DATABASE_URL` would otherwise win over the SQLite URL in `.env.test` and connect the test environment to the development database.
+
 See `SETUP.md` and `TESTING.md` for details.
 
 ## Verification commands
@@ -52,4 +54,4 @@ Run `symfony console sass:build` after changing SCSS files. Run `vendor/bin/php-
 - Update `docs/` when commands, configuration, or flows change.
 - Mark the matching item in `TODO.md` as done after verification.
 - State what changed and what command verified it.
-- Generate a migration with `php bin/console make:migration` while the dev database runs under Docker. Hand-write a migration only when the database is unreachable, and run `symfony console doctrine:migrations:migrate -n` to validate it once the services are up.
+- Generate a migration with `symfony console make:migration` while the dev database runs under Docker. Hand-write a migration only when the database is unreachable, and run `symfony console doctrine:migrations:migrate -n` to validate it once the services are up.

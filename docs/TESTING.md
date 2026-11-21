@@ -39,6 +39,8 @@ If the SQLite test schema is missing, `tests/SetupSmokeTest.php` fails first and
 
 The test database uses `sqlite:///%kernel.project_dir%/var/test.db` from `.env.test`. The `dbname_suffix` in `config/packages/doctrine.yaml` applies to server databases only. DoctrineBundle ignores it for SQLite, so the test file is always `var/test.db`.
 
+The schema commands run with plain PHP on purpose. With Docker running, `symfony console` injects the dev `DATABASE_URL`, which wins over the SQLite URL in `.env.test`, and the test environment would connect to the development database instead.
+
 ## Recorded HTTP exchanges
 
 The compromised password check runs in the test environment: `config/packages/validator.yaml` opts the test environment into `validation.not_compromised_password`, because the framework disables that validator by default when `framework.test` is on. The strict password rules recorded in `docs/DECISIONS.md` would otherwise not apply in tests.
