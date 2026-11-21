@@ -8,6 +8,7 @@ use App\Form\MapImageFormType;
 use App\Repository\MapRepository;
 use App\Uploads\MapImageUploadKind;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
@@ -49,10 +50,11 @@ final class AdminMapController extends AbstractController
     #[Route('/new', name: 'app_admin_map_new')]
     public function new(
         Request $request,
+        ClockInterface $clock,
         EntityManagerInterface $entityManager,
         TranslatorInterface $translator,
     ): Response {
-        $map = new Map('', new \DateTimeImmutable('now'));
+        $map = new Map('', $clock->now());
 
         $form = $this->createForm(MapFormType::class, $map, [
             'image_files' => $this->imageFiles(),

@@ -2,12 +2,11 @@
 
 namespace App\Controller\Admin;
 
+use App\Maintenance\LoginAuditRetention;
 use App\Message\LoginAuditCleanup;
 use App\Repository\LoginAuditRepository;
 use App\Repository\MaintenanceRunRepository;
-use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -33,14 +32,11 @@ final class AdminMaintenanceCleanupController extends AbstractController
     public function index(
         LoginAuditRepository $audits,
         MaintenanceRunRepository $runs,
-        ClockInterface $clock,
-        #[Autowire(param: 'app.login_audit_retention_days')] int $retentionDays,
+        LoginAuditRetention $retention,
     ): Response {
-        $threshold = $clock->now()->modify(\sprintf('-%d days', $retentionDays));
-
         return $this->render('admin/maintenance/cleanup.html.twig', [
-            'retentionDays' => $retentionDays,
-            'removable' => $audits->countOlderThan($threshold),
+            'retentionDays' => $retention->days(),
+            'removable' => $audits->countOlderThan($retention->threshold()),
             'runs' => $runs->findLatestByTask(LoginAuditCleanup::TASK, 10),
         ]);
     }

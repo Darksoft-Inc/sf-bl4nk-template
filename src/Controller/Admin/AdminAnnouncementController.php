@@ -8,6 +8,7 @@ use App\Form\AdminAnnouncementSearchType;
 use App\Form\AnnouncementFormType;
 use App\Repository\AnnouncementRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Psr\Clock\ClockInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -49,9 +50,9 @@ final class AdminAnnouncementController extends AbstractController
     }
 
     #[Route('/new', name: 'app_admin_announcement_new')]
-    public function new(Request $request, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
+    public function new(Request $request, ClockInterface $clock, EntityManagerInterface $entityManager, TranslatorInterface $translator): Response
     {
-        $announcement = new Announcement('', '', new \DateTimeImmutable('now'), $this->currentUser());
+        $announcement = new Announcement('', '', $clock->now(), $this->currentUser());
 
         $form = $this->createForm(AnnouncementFormType::class, $announcement);
         $form->handleRequest($request);
