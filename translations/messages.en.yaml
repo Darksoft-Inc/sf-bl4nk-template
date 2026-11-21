@@ -51,6 +51,7 @@ app:
             save: Save
             close: Close
             actions: Actions
+            roles: Roles
             administrator: Administrator
         announcement:
             new: 'New announcement'
@@ -59,6 +60,7 @@ app:
         flash:
             user_updated: 'The user has been updated.'
             user_not_updated: 'The user could not be updated.'
+            self_demotion_forbidden: 'You cannot remove your own admin role.'
             announcement_created: 'The announcement has been created.'
             announcement_updated: 'The announcement has been updated.'
     flash:

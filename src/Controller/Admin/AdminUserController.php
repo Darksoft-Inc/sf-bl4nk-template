@@ -60,17 +60,34 @@ final class AdminUserController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            $isAdmin = true === $form->get('isAdmin')->getData();
-            $user->setRoles($isAdmin ? ['ROLE_ADMIN'] : []);
+            $roles = $form->get('roles')->getData();
+            \assert(\is_array($roles));
 
-            $entityManager->flush();
+            if ($this->isCurrentUser($user) && !\in_array('ROLE_ADMIN', $roles, true)) {
+                // The form wrote the submitted roles into the managed user,
+                // so it is reloaded before the list renders it again.
+                $entityManager->refresh($user);
 
-            $this->addFlash('success', $translator->trans('app.admin.flash.user_updated'));
+                $this->addFlash('error', $translator->trans('app.admin.flash.self_demotion_forbidden'));
+            } else {
+                $entityManager->flush();
+
+                $this->addFlash('success', $translator->trans('app.admin.flash.user_updated'));
+            }
         } else {
+            $entityManager->refresh($user);
+
             $this->addFlash('error', $translator->trans('app.admin.flash.user_not_updated'));
         }
 
         return $this->redirectToRoute('app_admin_user_index');
+    }
+
+    private function isCurrentUser(User $user): bool
+    {
+        $current = $this->getUser();
+
+        return $current instanceof User && $current->getId() === $user->getId();
     }
 
     /**
@@ -78,15 +95,11 @@ final class AdminUserController extends AbstractController
      */
     private function userForm(User $user): FormInterface
     {
-        $form = $this->formFactory->createNamed(
+        return $this->formFactory->createNamed(
             'user_edit_'.$user->getId(),
             AdminUserFormType::class,
             $user,
             ['action' => $this->generateUrl('app_admin_user_edit', ['id' => $user->getId()])],
         );
-
-        $form->get('isAdmin')->setData(\in_array('ROLE_ADMIN', $user->getRoles(), true));
-
-        return $form;
     }
 }

@@ -58,6 +58,9 @@ final class AdminUserControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains('Users');
         self::assertSelectorTextContains('body', 'target@example.com');
+
+        self::assertGreaterThan(0, $crawler->filter('select[multiple]')->count());
+        self::assertGreaterThan(0, $crawler->filter('option[value="ROLE_ADMIN"][selected]')->count());
     }
 
     public function testUserListIsPaginated(): void
@@ -86,12 +89,16 @@ final class AdminUserControllerTest extends WebTestCase
         $crawler = $this->client->request('GET', '/admin/users');
         self::assertResponseIsSuccessful();
 
-        $formName = 'user_edit_'.$target->getId();
+        $token = $crawler->filter('#user_edit_'.$target->getId().'__token')->attr('value');
+        self::assertIsString($token);
 
-        $this->client->submitForm('Save', [
-            $formName.'[email]' => 'after@example.com',
-            $formName.'[isVerified]' => true,
-            $formName.'[isAdmin]' => true,
+        $this->client->request('POST', '/admin/users/'.$target->getId().'/edit', [
+            'user_edit_'.$target->getId() => [
+                'email' => 'after@example.com',
+                'isVerified' => '1',
+                'roles' => ['ROLE_ADMIN'],
+                '_token' => $token,
+            ],
         ]);
 
         self::assertResponseRedirects('/admin/users');
@@ -102,6 +109,35 @@ final class AdminUserControllerTest extends WebTestCase
         self::assertInstanceOf(User::class, $updated);
         self::assertSame('after@example.com', $updated->getEmail());
         self::assertTrue($updated->isVerified());
+        self::assertContains('ROLE_ADMIN', $updated->getRoles());
+    }
+
+    public function testAdminCannotRemoveOwnAdminRole(): void
+    {
+        $admin = $this->createUser('admin@example.com', true);
+        $this->client->loginUser($admin);
+
+        $crawler = $this->client->request('GET', '/admin/users');
+        self::assertResponseIsSuccessful();
+
+        $token = $crawler->filter('#user_edit_'.$admin->getId().'__token')->attr('value');
+        self::assertIsString($token);
+
+        $this->client->request('POST', '/admin/users/'.$admin->getId().'/edit', [
+            'user_edit_'.$admin->getId() => [
+                'email' => 'admin@example.com',
+                'isVerified' => '1',
+                'roles' => [],
+                '_token' => $token,
+            ],
+        ]);
+
+        self::assertResponseRedirects('/admin/users');
+        $this->client->followRedirect();
+        self::assertSelectorTextContains('.alert-danger', 'You cannot remove your own admin role.');
+
+        $updated = $this->em->find(User::class, $admin->getId());
+        self::assertInstanceOf(User::class, $updated);
         self::assertContains('ROLE_ADMIN', $updated->getRoles());
     }
 

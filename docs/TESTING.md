@@ -16,6 +16,10 @@ vendor/bin/pest -v
 
 Tests stay in the PHPUnit class style, so both commands run the whole suite. Recorded in `docs/DECISIONS.md`. Run the two serially: both use `var/test.db`, and parallel runs corrupt each other's data.
 
+## Test organization
+
+`tests/Controller/` holds the HTTP-facing tests: each one submits a request and asserts the routing, the response, and the database state. They stay the only kind of test while the logic lives in the controllers. Functional and unit tests become useful when logic moves out of the controllers into services, and integration tests when components interact across layers. The empty directories `tests/Functional/`, `tests/Integration/`, and `tests/Unit/` are reserved for that stage.
+
 ## Deprecations
 
 Both commands report no deprecations and exit 0.

@@ -46,7 +46,7 @@ The remaining target features from `docs/PURPOSE.md`, in build order. Each item 
   - Proof of concept: `DocumentationController` renders `/docs/{page}` from `templates/documentation/{page}.{locale}.html.twig`, trying the current locale then the default locale. A new page or locale variant is a dropped template file; the URL stays stable. `welcome.en.html.twig` is the first page.
 - [x] Private sections and admin functions: roles, access rules, separated admin pages, and pagination for large record sets (`symfony/ux-pagination`). The announcement write path and an author field land here.
   - Admins hold `ROLE_ADMIN` in the roles field; `access_control` guards `^/admin` and the controllers repeat the check with `#[IsGranted]`. The admin pages extend `templates/layouts/admin.html.twig`, and both lists paginate through ux-pagination with its Bootstrap theme, 10 per page.
-  - User management: paginated list and a per-row modal from the UX Toolkit with a form that edits the email, the verified state, and the admin role. Basic by design; the admin self-demotion is not blocked and the roles are replaced wholesale, to improve later.
+  - User management: paginated list and a per-row modal from the UX Toolkit with a form that edits the email, the verified state, and the roles through a multi select. `ROLE_ADMIN` is the only assignable role today; an admin cannot remove the own admin role, and rejected or invalid submissions reload the user before the list renders again. Basic by design; other improvements are expected later.
   - Announcement management: paginated list, a create form, and an edit form with a textarea for the content. The author of a new announcement is the signed-in admin; the migration adding `author_id` was generated with `symfony console make:migration` against the dev database and migrated there. The public detail page shows the author.
   - The password fields on the registration, reset change, and profile forms got the reveal or hide button from the `password-visibility` recipe, installed from the installed `symfony/ux-toolkit` package.
   - Verified on 2026-11-21: `php bin/phpunit` and `vendor/bin/pest -v` pass with 56 tests and 385 assertions, PHPStan, `php-cs-fixer`, and the lint commands pass, and the dev and test schemas validate in sync.
@@ -56,6 +56,10 @@ The remaining target features from `docs/PURPOSE.md`, in build order. Each item 
 - [ ] Scheduled maintenance: recurring tasks with recorded results and a manual trigger (`symfony/scheduler`, `messenger`). Forces the messenger transport decision recorded in `docs/DECISIONS.md`.
 - [ ] Generated documentation pages: build pages from metadata on business services. The format must stay domain independent.
 - [ ] Flexible dataset import: load structured datasets in development and production.
+
+## Lower-priority improvements
+
+- [ ] Announcement content: a richer rendering than `nl2br` plain text. The form can gain a better editor together with it.
 
 ## Closed on 2026-11-21
 

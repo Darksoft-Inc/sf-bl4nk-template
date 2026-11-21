@@ -45,7 +45,7 @@
                 {{ form_start(form) }}
                     {{ form_row(form.email) }}
                     {{ form_row(form.isVerified) }}
-                    {{ form_row(form.isAdmin) }}
+                    {{ form_row(form.roles) }}
                     <button type="submit" class="btn btn-primary">{{ 'app.admin.user.save'|trans }}</button>
                 {{ form_end(form) }}
             </twig:Modal:Body>

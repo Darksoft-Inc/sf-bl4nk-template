@@ -50,7 +50,7 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `ResetPasswordRequestFormType` collects the email address.
 - `ChangePasswordFormType` collects a repeated new password. The profile page and password reset flow both use it.
 - `PasswordConstraints` supplies the shared password rules for both forms.
-- `AdminUserFormType` edits the email and the verified state and holds an unmapped `isAdmin` checkbox for the admin role.
+- `AdminUserFormType` edits the email and the verified state, and offers the assignable roles in a multi select. `ROLE_ADMIN` is the only assignable role today; new roles extend `AdminUserFormType::assignableRoles()`. An admin cannot remove the own admin role: the controller rejects the change, reloads the user, and reports it with a flash.
 - `AnnouncementFormType` edits the title, the publication date, and the content.
 
 `templates/form/fields.html.twig` is a form theme registered after the Bootstrap layout. It wraps every Symfony-rendered password field with the visibility toggle from the `password-visibility` recipe. The login form is raw HTML and keeps its plain field.
