@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\Announcement;
 use App\Entity\User;
+use App\Form\AdminAnnouncementSearchType;
 use App\Form\AnnouncementFormType;
 use App\Repository\AnnouncementRepository;
 use Doctrine\ORM\EntityManagerInterface;
@@ -20,16 +21,30 @@ use Symfony\UX\Pagination\PaginatorInterface;
 final class AdminAnnouncementController extends AbstractController
 {
     #[Route('', name: 'app_admin_announcement_index')]
-    public function index(AnnouncementRepository $announcements, PaginatorInterface $paginator): Response
+    public function index(Request $request, AnnouncementRepository $announcements, PaginatorInterface $paginator): Response
     {
+        $searchForm = $this->createForm(AdminAnnouncementSearchType::class);
+        $searchForm->handleRequest($request);
+
         $query = $announcements->createQueryBuilder('a')
             ->orderBy('a.publishedAt', \SortDirection::Descending)
             ->addOrderBy('a.id', \SortDirection::Descending);
+
+        if ($searchForm->isSubmitted() && $searchForm->isValid()) {
+            $selected = $searchForm->get('announcement')->getData();
+
+            if ($selected instanceof Announcement) {
+                $query
+                    ->andWhere('a.id = :selected_announcement')
+                    ->setParameter('selected_announcement', $selected->getId());
+            }
+        }
 
         $pagination = $paginator->query($query)->perPage(10)->paginate();
 
         return $this->render('admin/announcement/index.html.twig', [
             'pagination' => $pagination,
+            'searchForm' => $searchForm,
         ]);
     }
 

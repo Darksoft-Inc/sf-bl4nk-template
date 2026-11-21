@@ -141,6 +141,56 @@ final class AdminUserControllerTest extends WebTestCase
         self::assertContains('ROLE_ADMIN', $updated->getRoles());
     }
 
+    public function testUserSearchEndpointRequiresTheAdminRole(): void
+    {
+        $this->createUser('member@example.com', false);
+        $admin = $this->createUser('admin@example.com', true);
+
+        $this->client->request('GET', '/autocomplete/admin_user_autocomplete_field', ['query' => 'member']);
+
+        // Anonymous callers are sent to the login page by the firewall.
+        self::assertResponseRedirects('/login');
+
+        $this->client->loginUser($this->findUserByEmail('member@example.com'));
+        $this->client->request('GET', '/autocomplete/admin_user_autocomplete_field', ['query' => 'member']);
+        self::assertResponseStatusCodeSame(403);
+
+        $this->client->loginUser($admin);
+        $this->client->request('GET', '/autocomplete/admin_user_autocomplete_field', ['query' => 'member']);
+        self::assertResponseIsSuccessful();
+
+        /** @var array{results: list<array{value: string, text: string}>} $data */
+        $data = json_decode((string) $this->client->getResponse()->getContent(), true);
+        self::assertCount(1, $data['results']);
+        self::assertSame('member@example.com', $data['results'][0]['text']);
+    }
+
+    public function testUserSearchFiltersTheList(): void
+    {
+        $target = $this->createUser('needle@example.com', false);
+        $this->createUser('other@example.com', false);
+        $this->client->loginUser($this->createUser('admin@example.com', true));
+
+        $crawler = $this->client->request('GET', '/admin/users', [
+            'admin_user_search' => ['user' => $target->getId()],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorExists('[data-controller="symfony--ux-autocomplete--autocomplete"]');
+        self::assertCount(1, $crawler->filter('.user-row'));
+        self::assertSelectorTextContains('.user-email', 'needle@example.com');
+    }
+
+    private function findUserByEmail(string $email): User
+    {
+        $user = $this->em->createQuery('SELECT u FROM App\Entity\User u WHERE u.email = :email')
+            ->setParameter('email', $email)
+            ->getSingleResult();
+        \assert($user instanceof User);
+
+        return $user;
+    }
+
     private function createUser(string $email, bool $admin): User
     {
         $user = (new User())

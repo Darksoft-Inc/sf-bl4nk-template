@@ -119,6 +119,22 @@ final class AdminAnnouncementControllerTest extends WebTestCase
         self::assertCount(2, $crawler->filter('.announcement-row'));
     }
 
+    public function testAnnouncementSearchFiltersTheList(): void
+    {
+        $author = $this->createUser('author@example.com', false);
+        $target = $this->createAnnouncement('The needle', 'Content.', new \DateTimeImmutable('-2 days'), $author);
+        $this->createAnnouncement('Other title', 'Content.', new \DateTimeImmutable('-1 day'), $author);
+        $this->client->loginUser($this->createUser('admin@example.com', true));
+
+        $crawler = $this->client->request('GET', '/admin/announcements', [
+            'admin_announcement_search' => ['announcement' => $target->getId()],
+        ]);
+
+        self::assertResponseIsSuccessful();
+        self::assertCount(1, $crawler->filter('.announcement-row'));
+        self::assertSelectorTextContains('.announcement-title', 'The needle');
+    }
+
     private function createUser(string $email, bool $admin): User
     {
         $user = (new User())

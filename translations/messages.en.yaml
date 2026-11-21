@@ -57,16 +57,24 @@ app:
             actions: Actions
             roles: Roles
             administrator: Administrator
+            search:
+                label: 'Search a user'
+                placeholder: 'Type to search users'
         announcement:
             new: 'New announcement'
             edit_page: 'Edit announcement'
             author: Author
+            search:
+                label: 'Search an announcement'
+                placeholder: 'Type to search announcements'
         flash:
             user_updated: 'The user has been updated.'
             user_not_updated: 'The user could not be updated.'
             self_demotion_forbidden: 'You cannot remove your own admin role.'
             announcement_created: 'The announcement has been created.'
             announcement_updated: 'The announcement has been updated.'
+        search:
+            filter: Filter
     flash:
         email_verified: 'Your email address has been verified.'
         email_already_verified: 'Your email address has already been verified.'

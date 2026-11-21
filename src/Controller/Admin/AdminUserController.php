@@ -4,6 +4,7 @@ namespace App\Controller\Admin;
 
 use App\Entity\User;
 use App\Form\AdminUserFormType;
+use App\Form\AdminUserSearchType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -25,9 +26,22 @@ final class AdminUserController extends AbstractController
     }
 
     #[Route('', name: 'app_admin_user_index')]
-    public function index(UserRepository $users, PaginatorInterface $paginator): Response
+    public function index(Request $request, UserRepository $users, PaginatorInterface $paginator): Response
     {
+        $searchForm = $this->createForm(AdminUserSearchType::class);
+        $searchForm->handleRequest($request);
+
         $query = $users->createQueryBuilder('u')->orderBy('u.id', \SortDirection::Ascending);
+
+        if ($searchForm->isSubmitted() && $searchForm->isValid()) {
+            $selected = $searchForm->get('user')->getData();
+
+            if ($selected instanceof User) {
+                $query
+                    ->andWhere('u.id = :selected_user')
+                    ->setParameter('selected_user', $selected->getId());
+            }
+        }
 
         $pagination = $paginator->query($query)->perPage(10)->paginate();
 
@@ -44,6 +58,7 @@ final class AdminUserController extends AbstractController
         return $this->render('admin/user/index.html.twig', [
             'pagination' => $pagination,
             'forms' => $forms,
+            'searchForm' => $searchForm,
         ]);
     }
 

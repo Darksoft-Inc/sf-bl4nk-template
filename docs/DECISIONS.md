@@ -110,6 +110,8 @@ Evidence: `AnnouncementAutocompleteField` is an entity autocomplete field over `
 
 Consequence: another searchable entity repeats the pattern: one autocompleter field class, one small GET form, one redirect on submit. The endpoint alias derives from the field class name, `announcement_autocomplete_field`.
 
+The admin searches from 2026-11-21 follow the same pattern with two differences. The lists stay in place: selecting a user or an announcement filters the list to that record instead of navigating away. The endpoints live under the bundle's one flat namespace, `/autocomplete/{alias}`, not under `/admin` or `/announcements`: the alias carries the scope by name and the field carries the access rule. `AdminUserAutocompleteField` sets `security: 'ROLE_ADMIN'`, so anonymous callers are sent to the login page by the firewall and non-admins get 403. The admin announcement search reuses the public field, because announcement titles are public data.
+
 ## Announcement blog
 
 Decision from 2026-11-21: the blog ships the read side only, without an author field.

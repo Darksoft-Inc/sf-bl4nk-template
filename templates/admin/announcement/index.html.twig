@@ -5,6 +5,22 @@
 {% block admin_body %}
     <h1>{{ 'app.admin.page.announcements'|trans }}</h1>
 
+    <div class="mb-3">
+        {{ form_start(searchForm) }}
+            <div class="row g-2 align-items-end">
+                <div class="col-md-8">
+                    {{ form_row(searchForm.announcement) }}
+                </div>
+                <div class="col-md-4 d-grid d-md-block">
+                    <button type="submit" class="btn btn-primary">
+                        {{ ux_icon('bi:search', {'class': 'me-1'}) }}
+                        {{ 'app.admin.search.filter'|trans }}
+                    </button>
+                </div>
+            </div>
+        {{ form_end(searchForm) }}
+    </div>
+
     <p class="mb-3">
         <a class="btn btn-primary" href="{{ path('app_admin_announcement_new') }}">
             {{ ux_icon('bi:plus-lg', {'class': 'me-1'}) }}
