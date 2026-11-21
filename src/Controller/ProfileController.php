@@ -5,13 +5,13 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\AvatarFormType;
 use App\Form\ChangePasswordFormType;
+use App\Security\PasswordChanger;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -23,7 +23,7 @@ class ProfileController extends AbstractController
     #[Route('', name: 'app_profile')]
     public function index(
         Request $request,
-        UserPasswordHasherInterface $passwordHasher,
+        PasswordChanger $passwordChanger,
         EntityManagerInterface $entityManager,
         TranslatorInterface $translator,
         #[Autowire(param: 'app.avatar_dir')] string $avatarDir,
@@ -39,8 +39,7 @@ class ProfileController extends AbstractController
             /** @var string $plainPassword */
             $plainPassword = $form->get('plainPassword')->getData();
 
-            $user->setPassword($passwordHasher->hashPassword($user, $plainPassword));
-            $entityManager->flush();
+            $passwordChanger->change($user, $plainPassword);
 
             $this->addFlash('success', $translator->trans('app.flash.password_changed'));
 

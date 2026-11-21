@@ -114,6 +114,7 @@ Registration and password reset use the same password rules. In the `dev` enviro
 - `MaintenanceRunRepository` returns the latest recorded runs of a task.
 - `MapRepository` returns the maps newest first and finds the maps that use one image file name; the kind uses the second method to report pool owners and refuse in-use removals.
 - `EmailVerifier` generates signed verification URLs and marks users as verified after validation.
+- `PasswordChanger` sets a new password on an account and writes it; registration, the password reset, and the profile page share the one write path.
 - `VerifiedUserChecker` rejects unverified users during authentication and session refresh.
 - `App\Security\LoginAuditSubscriber` listens to `LoginSuccessEvent`, records the audit row, and updates the last connection metadata. See `docs/DECISIONS.md` for why this event keeps the table from filling up per request.
 - `App\Message\LoginAuditCleanup` is the cleanup message; `App\MessageHandler\LoginAuditCleanupHandler` removes the expired rows and records the run; `App\Task\LoginAuditCleanupTask` is the scheduler entry that dispatches the message once a day.
