@@ -24,7 +24,7 @@ The current code provides the base and part of account management. The features 
 | Private sections and admin functions | Restrict sections by user role, keep administrative functions separate from public pages, and page through large sets of records such as logs. |
 | Scheduled maintenance | Run recurring maintenance tasks and record their results. These actions may also be started manually from admin pages. |
 | Translations | Translate interface texts, messages, and emails. |
-| Flexible dataset import | Load structured datasets in development and production. Use the same import code where practical. |
+| Flexible dataset import | Load structured datasets in development and production. Use the same import code where practical. A load targets 2,000 to 40,000 rows; the previous hand-built importer reached 30,000. |
 | User-provided data | Accept, validate, store, and display user uploads in three categories: the account avatar, shared images, and shared plain-text files. Archives, word processor documents, and PDF files are out of scope. |
 | Responsive interface | Work on desktop, tablet, and mobile screens. |
 | Search in large data sets | Provide autocomplete where a full list is too large to show at once. |
