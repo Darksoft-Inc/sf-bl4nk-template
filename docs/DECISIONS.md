@@ -108,7 +108,15 @@ Decision from 2026-11-21: uploads fall into three categories, the account avatar
 
 Evidence: the avatar lands on the profile page as the proof of concept. `AvatarFormType` uses the `ux-dropzone` control and validates with the `File` constraint: 2 MB at most, and PNG, JPEG, WebP, or GIF only, checked by content sniffing rather than the file name. SVG stays excluded because a script-bearing SVG served from the app origin would be stored cross-site scripting. The controller stores the file under `%kernel.project_dir%/public/uploads/avatars` through the `app.avatar_dir` parameter, under a random name with the extension the sniffed type suggests, and deletes the previous avatar after a successful upload. `.gitignore` excludes `public/uploads/`.
 
-Consequence: the shared-image and shared-text categories wait for their features and architecture choices, such as where the file records live and whether storage moves behind an abstraction. Image processing stays undecided. The plain-text category validates the content as text, since archives, word processor documents, and PDFs are out of scope.
+Consequence: the shared-image and shared-text categories wait for their features and architecture choices, such as where the file records live and whether storage moves behind an abstraction. Image processing stays undecided. The plain-text category validates the content as text, since archives, word processor documents, and PDFs are out of scope. The profile shows the avatar capped by the `app.avatar_display_max` parameter, 96 pixels per side by default: the browser scales the image down, the upload itself is not rejected for its pixel size.
+
+## Upload management
+
+Decision from 2026-11-21: each upload category is managed separately through one contract, and the admin maintenance section lists and removes files of every kind.
+
+Evidence: `App\Uploads\UploadKindInterface` defines the contract: a kind owns its storage location and its own file-name rules, lists its files with an owner and a public URL when one exists, and removes a file together with the field that references it. Kinds register through the `app.upload_kind` tag; `AdminMaintenanceController` collects them into a map by kind name. The remove action posts through the `post-link` recipe with the `remove-upload` CSRF token id, and `AvatarUploadKind` validates its hex names before any file operation, so path traversal through the kind name or file name cannot reach the disk.
+
+Consequence: a new category is one class implementing the interface plus its own validation and clearing rules; the maintenance pages pick it up without changes. Map images will arrive as such a kind, and pre-existing images can serve as backgrounds; both wait for the map discussion.
 
 ## Announcement search
 

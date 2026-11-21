@@ -1,0 +1,53 @@
+{% extends 'layouts/admin.html.twig' %}
+
+{% block title %}{{ 'app.admin.page.uploads'|trans }}{% endblock %}
+
+{% block admin_body %}
+    <h1>{{ 'app.admin.page.uploads'|trans }}</h1>
+
+    {% for kind, files in uploads %}
+        <h2>{{ ('app.admin.uploads.kind.' ~ kind)|trans }}</h2>
+
+        {% if files is empty %}
+            <p class="text-body-secondary">{{ 'app.admin.uploads.none'|trans }}</p>
+        {% else %}
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'app.admin.uploads.file'|trans }}</th>
+                        <th scope="col">{{ 'app.admin.uploads.owner'|trans }}</th>
+                        <th scope="col">{{ 'app.admin.uploads.size'|trans }}</th>
+                        <th scope="col">{{ 'app.admin.uploads.modified'|trans }}</th>
+                        <th scope="col" class="text-end">{{ 'app.admin.user.actions'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file in files %}
+                        <tr class="upload-row">
+                            <td class="upload-filename">
+                                {% if file.url %}
+                                    <img src="{{ asset(file.url) }}" alt="{{ file.filename }}" class="me-2 rounded" style="max-width: 48px; max-height: 48px;">
+                                {% endif %}
+                                {{ file.filename }}
+                            </td>
+                            <td>{{ file.owner ?? '—' }}</td>
+                            <td>{{ file.size|number_format }} bytes</td>
+                            <td>{{ file.modifiedAt|format_datetime('medium', 'short') }}</td>
+                            <td class="text-end">
+                                <twig:PostLink
+                                    href="{{ path('app_admin_maintenance_upload_remove', {kind: file.kind, filename: file.filename}) }}"
+                                    csrfTokenId="remove-upload"
+                                    confirm="{{ 'app.admin.uploads.confirm_remove'|trans }}"
+                                    class="btn btn-sm btn-outline-danger"
+                                >
+                                    {{ ux_icon('bi:trash', {'class': 'me-1'}) }}
+                                    {{ 'app.admin.uploads.remove'|trans }}
+                                </twig:PostLink>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    {% endfor %}
+{% endblock %}

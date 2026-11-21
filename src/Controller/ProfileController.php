@@ -27,6 +27,7 @@ class ProfileController extends AbstractController
         EntityManagerInterface $entityManager,
         TranslatorInterface $translator,
         #[Autowire(param: 'app.avatar_dir')] string $avatarDir,
+        #[Autowire(param: 'app.avatar_display_max')] int $avatarDisplayMax,
     ): Response {
         $user = $this->getUser();
         assert($user instanceof User);
@@ -77,6 +78,7 @@ class ProfileController extends AbstractController
             'user' => $user,
             'changePasswordForm' => $form,
             'avatarForm' => $avatarForm,
+            'avatarDisplayMax' => $avatarDisplayMax,
         ]);
     }
 }

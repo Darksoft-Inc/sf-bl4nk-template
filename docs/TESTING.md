@@ -87,6 +87,7 @@ Lint commands and PHPStan pass with the full configuration. The `lint_php` alias
 - `tests/Controller/PasswordVisibilityTest.php`: checks that the registration, profile, and reset change forms render the reveal or hide button.
 - `tests/Controller/Admin/AdminUserControllerTest.php`: checks the login redirect, the 403 for users without the admin role, the paginated list, the modal form updating the email, the verified state, and the roles, the self-demotion rejection, and the user search: the endpoint answers only to admins and the form filters the list.
 - `tests/Controller/Admin/AdminAnnouncementControllerTest.php`: checks the login redirect, the 403, the creation flow with the author, the edit flow, the paginated list, and the announcement search filtering the list.
+- `tests/Controller/Admin/AdminMaintenanceControllerTest.php`: checks the login redirect, the 403, the uploads list with the owner, and the removal that deletes the file and clears the avatar field.
 - `tests/Form/PasswordConstraintsTest.php`: checks the password rules per environment.
 - `tests/SetupSmokeTest.php`: fails with the setup command in the message when the Sass output or the test schema is missing.
 

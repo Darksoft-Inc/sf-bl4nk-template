@@ -17,7 +17,7 @@
     <h2>{{ 'app.account.avatar'|trans }}</h2>
 
     {% if user.avatarFilename %}
-        <img class="avatar mb-3 rounded" src="{{ asset('uploads/avatars/' ~ user.avatarFilename) }}" alt="{{ 'app.account.avatar'|trans }}" width="96" height="96">
+        <img class="avatar mb-3 rounded" src="{{ asset('uploads/avatars/' ~ user.avatarFilename) }}" alt="{{ 'app.account.avatar'|trans }}" style="max-width: {{ avatarDisplayMax }}px; max-height: {{ avatarDisplayMax }}px;">
     {% endif %}
 
     {{ form_start(avatarForm) }}

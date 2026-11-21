@@ -48,9 +48,11 @@ app:
             section: 'Admin sections'
             users: Users
             announcements: Announcements
+            maintenance: Maintenance
         page:
             users: Users
             announcements: Announcements
+            uploads: Uploads
         user:
             edit: Edit
             save: Save
@@ -61,6 +63,19 @@ app:
             search:
                 label: 'Search a user'
                 placeholder: 'Type to search users'
+        uploads:
+            kind:
+                avatar: Avatars
+            file: File
+            owner: Owner
+            size: Size
+            modified: Modified
+            remove: Remove
+            none: 'No files for this kind.'
+            confirm_remove: 'Remove this file? The reference in the account is cleared with it.'
+            flash:
+                removed: 'The file has been removed.'
+                not_removed: 'The file could not be removed.'
         announcement:
             new: 'New announcement'
             edit_page: 'Edit announcement'

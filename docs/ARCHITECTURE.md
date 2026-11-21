@@ -23,6 +23,8 @@ This page describes the current application, not a target design. `TODO.md` list
 | `app_admin_announcement_index` | `/admin/announcements` | Paginated announcement list, only for admins. |
 | `app_admin_announcement_new` | `/admin/announcements/new` | Creates an announcement. |
 | `app_admin_announcement_edit` | `/admin/announcements/{id}/edit` | Edits an announcement. |
+| `app_admin_maintenance_uploads` | `/admin/maintenance/uploads` | Lists the uploads of every kind, only for admins. |
+| `app_admin_maintenance_upload_remove` | `/admin/maintenance/uploads/{kind}/{filename}/remove` | Removes an upload and clears the field that references it. |
 
 Profiler and UX routes exist in development. They are not part of the product surface.
 
@@ -33,6 +35,7 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `DocumentationController` renders a documentation page from a per-locale template, falling back to the default locale.
 - `App\Controller\Admin\AdminUserController` lists the users page by page and saves the modal edit form that changes the email, the verified state, and the admin role.
 - `App\Controller\Admin\AdminAnnouncementController` lists, creates, and edits announcements. The author of a new announcement is the signed-in admin.
+- `App\Controller\Admin\AdminMaintenanceController` lists the uploads of every registered kind and removes them on request.
 - `RegistrationController` creates users, sends verification email, and verifies email links.
 - `ResetPasswordController` handles reset requests, reset confirmation, token validation, and password changes.
 - `SecurityController` displays the login form and declares the logout route.
@@ -69,6 +72,7 @@ Registration and password reset use the same password rules. In the `dev` enviro
 - `ResetPasswordRequestRepository` uses the SymfonyCasts reset password repository trait.
 - `EmailVerifier` generates signed verification URLs and marks users as verified after validation.
 - `VerifiedUserChecker` rejects unverified users during authentication and session refresh.
+- `App\Uploads` holds the upload kinds: `UploadKindInterface` defines the contract, and `AvatarUploadKind` manages the avatars with its own location and file-name rule. Kinds register through the `app.upload_kind` tag.
 
 ## Templates
 
