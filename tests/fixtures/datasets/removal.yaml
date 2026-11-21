@@ -1,0 +1,5 @@
+# A removal entry names only the slug. Removing a route type takes its
+# routes with it, the same cascade the admin pages apply.
+map_route_types:
+    main-roads:
+        remove: true

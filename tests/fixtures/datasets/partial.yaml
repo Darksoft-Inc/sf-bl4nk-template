@@ -1,0 +1,15 @@
+# A partial load: every reference points at rows imported by an earlier
+# run, so this file defines no user and no map of its own.
+map_points:
+    harbor:
+        map: '@maps.old-town'
+        title: Harbor
+        x: 30
+        y: 30
+
+announcements:
+    followup:
+        title: Follow up
+        content: Loaded partially, after the full set.
+        publishedAt: 2026-11-02 10:00
+        author: '@users.jane'

@@ -1,0 +1,7 @@
+# A partial record: only the named fields change on the existing row, and
+# the row must exist first, because the required fields of a new record
+# are missing here.
+users:
+    jane:
+        isVerified: false
+        password: 'NewFixturePassword42!'

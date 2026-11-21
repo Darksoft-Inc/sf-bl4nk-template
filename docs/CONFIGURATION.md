@@ -45,6 +45,10 @@ Replace both defaults before deployment. The current values are placeholders.
 
 Email subjects are set inside the email templates through `email.setSubject()`. Adding a locale means copying the three catalogs and enabling the locale in `framework.enabled_locales`. For pages with long prose, follow the content-heavy pages policy in `docs/DECISIONS.md`: prose comes from per-locale templates or from a dataset, not from the catalogs.
 
+## Dataset values
+
+`datasets/` holds the YAML datasets that `app:dataset:load` imports. `datasets/dev/` is committed development data: an admin and a member account, one announcement, and one demo map. `datasets/prod/` is git-ignored, because production records hold real values, starting with the admin account and its password, which the loader hashes at load time. `datasets/shared/` loads in every environment and ships empty. See `docs/DECISIONS.md` for the slug-keyed rules, `docs/SETUP.md` for the commands, and `datasets/prod/README.md` for the production workflow.
+
 ## Security and signed URLs
 
 `config/packages/security.yaml` defines a user provider and a `form_login` authenticator on the `main` firewall. The routes are `app_login` and `app_logout`. `App\Security\VerifiedUserChecker` requires a verified email address before login. Successful login and logout redirect to `app_index`. The profile route uses `#[IsGranted('ROLE_USER')]`. The `access_control` list guards `/admin` with `ROLE_ADMIN`.

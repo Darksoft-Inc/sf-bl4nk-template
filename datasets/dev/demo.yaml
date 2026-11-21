@@ -1,0 +1,47 @@
+# Demo content: one announcement and one annotated map.
+#
+# This file loads before users.yaml (files load in name order), and the
+# announcement references "@users.member" anyway: the loader orders
+# records by their references, not by file order.
+
+announcements:
+    welcome:
+        title: Welcome to the starter
+        content: |
+            This announcement and the map below come from the development
+            dataset, datasets/dev/demo.yaml. Edit the files and run
+            "symfony console app:dataset:load" to apply the change: a
+            known slug updates the row, a new slug inserts one.
+        publishedAt: 2026-11-21 10:00
+        author: '@users.member'
+
+maps:
+    demo-map:
+        name: Demo map
+        createdAt: 2026-11-21 09:00
+        # A fresh checkout has no image in public/uploads/maps/, so the map
+        # carries no background and annotates the nominal 512 x 512 space.
+        minZoom: 0
+        maxZoom: 4
+
+map_route_types:
+    main-roads:
+        map: '@maps.demo-map'
+        name: Main road
+        color: '#c9a13b'
+
+map_routes:
+    high-street:
+        map: '@maps.demo-map'
+        type: '@map_route_types.main-roads'
+        isMajor: true
+        points: [[20, 30], [280, 200], [460, 220]]
+
+map_points:
+    town-hall:
+        map: '@maps.demo-map'
+        title: Town hall
+        x: 120
+        y: 80
+        description: The reference point of the demo map.
+        symbols: ['bi:geo-alt-fill']

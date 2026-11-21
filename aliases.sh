@@ -32,11 +32,12 @@ alias clear_logs_dev="rm -f var/log/dev.log"
 alias create_database="symfony console doctrine:database:create"
 alias drop_database="confirm && symfony console doctrine:database:drop --force"
 alias migrate_database="symfony console doctrine:migrations:migrate"
+alias load_datasets="symfony console app:dataset:load"
 alias create_database_test="php bin/console doctrine:schema:create --env=test"
 alias drop_database_test="php bin/console doctrine:schema:drop --force --env=test"
 
 # Quality
-alias lint_config="symfony console lint:yaml config/"
+alias lint_config="symfony console lint:yaml config/ datasets/"
 alias lint_autowiring="symfony console lint:container"
 alias lint_translations="symfony console lint:translations"
 alias lint_templates="symfony console lint:twig templates/"

@@ -1,0 +1,10 @@
+maps:
+    space-map:
+        name: Space test map
+
+map_points:
+    far:
+        map: '@maps.space-map'
+        title: Far
+        x: 9999
+        y: 10

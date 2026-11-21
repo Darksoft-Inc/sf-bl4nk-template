@@ -1,0 +1,7 @@
+left:
+    one:
+        other: '@right.two'
+
+right:
+    two:
+        other: '@left.one'

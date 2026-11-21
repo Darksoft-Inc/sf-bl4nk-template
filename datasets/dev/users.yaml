@@ -1,0 +1,17 @@
+# Development accounts
+#
+# The passwords are development values. Change them before exposing an
+# instance, or replace the rows: a load updates the fields a record names,
+# so editing "password" here and loading again rehashes the account.
+
+users:
+    admin:
+        email: admin@example.com
+        password: 'ChangeMeAdmin!'
+        roles: [ROLE_ADMIN]
+        isVerified: true
+
+    member:
+        email: member@example.com
+        password: 'ChangeMeMember!'
+        isVerified: true

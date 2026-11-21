@@ -49,7 +49,7 @@ Keep a package when it supports the baseline or a target feature. Remove a packa
 |---|---|---|
 | Pages and layout | `symfony/twig-bundle`, `symfony/asset-mapper`, `symfonycasts/sass-bundle`, `twbs/bootstrap` | Keep. Bootstrap 5.3 and Stimulus are the baseline. Do not add Turbo without changing the baseline. |
 | Routes in JavaScript | `symfony/ux-router`, the `@symfony/ux-router` entry in `importmap.php` | Keep. JavaScript reads routes from the router instead of data attributes rendered by controllers. |
-| Entity identifiers | None | Deferred references use slug columns, such as a scenario dataset naming records before they exist, and a dataset loader resolves relations between its own rows at insert time. `symfony/uid` was removed on 2026-11-21 because no feature used it. |
+| Entity identifiers | The `dataset_slug` column on the six importable entities | The dataset import keys its rows by slug and resolves `@type.slug` references at load time, so stored rows depend on no client-generated identifier. `symfony/uid` stays removed for the reason recorded on 2026-11-21. |
 | Account management | `symfony/security-bundle`, `symfony/form`, `symfony/validator`, `symfony/mailer`, `symfony/http-client`, `symfonycasts/reset-password-bundle`, `symfonycasts/verify-email-bundle` | Keep. `symfony/http-client` runs the compromised password check. |
 | Translations | `symfony/translation`, `symfony/ux-translator`, `symfony/intl`, `twig/intl-extra` | Keep. The catalogs live in `translations/`. |
 | Annotated map | `symfony/ux-map`, `symfony/ux-leaflet-map`, Leaflet entries in `importmap.php` | Keep. |

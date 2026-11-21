@@ -1,0 +1,4 @@
+users:
+    jane:
+        email: duplicate@example.com
+        password: 'FixturePassword42!'

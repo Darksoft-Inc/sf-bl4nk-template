@@ -1,0 +1,6 @@
+announcements:
+    orphan:
+        title: Orphan
+        content: No user of this slug is loaded.
+        publishedAt: 2026-11-01 10:00
+        author: '@users.nobody'

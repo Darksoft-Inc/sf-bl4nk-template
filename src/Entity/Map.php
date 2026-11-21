@@ -21,6 +21,14 @@ class Map
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * The dataset key this row was imported under, or null when the row was
+     * created outside the dataset import. The import never touches rows
+     * whose key is null.
+     */
+    #[ORM\Column(length: 64, nullable: true, unique: true)]
+    private ?string $datasetSlug = null;
+
     #[ORM\Column(length: 255)]
     private string $name;
 
@@ -162,6 +170,25 @@ class Map
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getDatasetSlug(): ?string
+    {
+        return $this->datasetSlug;
+    }
+
+    public function setDatasetSlug(?string $datasetSlug): static
+    {
+        $this->datasetSlug = $datasetSlug;
+
+        return $this;
     }
 
     /** @return Collection<int, MapPoint> */

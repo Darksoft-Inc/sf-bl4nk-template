@@ -1,0 +1,11 @@
+maps:
+    icon-map:
+        name: Icon test map
+
+map_points:
+    market:
+        map: '@maps.icon-map'
+        title: Market
+        x: 10
+        y: 10
+        symbols: ['not-an-icon-xyz']

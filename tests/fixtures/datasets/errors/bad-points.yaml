@@ -1,0 +1,15 @@
+maps:
+    route-map:
+        name: Route test map
+
+map_route_types:
+    road:
+        map: '@maps.route-map'
+        name: Road
+        color: '#c9a13b'
+
+map_routes:
+    stub:
+        map: '@maps.route-map'
+        type: '@map_route_types.road'
+        points: [[10, 10]]

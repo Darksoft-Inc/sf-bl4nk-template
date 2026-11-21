@@ -14,6 +14,14 @@ class MapRoute
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * The dataset key this row was imported under, or null when the row was
+     * created outside the dataset import. The import never touches rows
+     * whose key is null.
+     */
+    #[ORM\Column(length: 64, nullable: true, unique: true)]
+    private ?string $datasetSlug = null;
+
     #[ORM\ManyToOne(inversedBy: 'routes')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Map $map;
@@ -52,9 +60,6 @@ class MapRoute
     {
         $this->map = $map;
         $this->type = $type;
-
-        $map->getRoutes()->add($this);
-        $type->getRoutes()->add($this);
     }
 
     public function getId(): ?int
@@ -65,6 +70,13 @@ class MapRoute
     public function getMap(): Map
     {
         return $this->map;
+    }
+
+    public function setMap(Map $map): static
+    {
+        $this->map = $map;
+
+        return $this;
     }
 
     public function getType(): MapRouteType
@@ -127,6 +139,18 @@ class MapRoute
     public function setPoints(array $points): static
     {
         $this->points = $points;
+
+        return $this;
+    }
+
+    public function getDatasetSlug(): ?string
+    {
+        return $this->datasetSlug;
+    }
+
+    public function setDatasetSlug(?string $datasetSlug): static
+    {
+        $this->datasetSlug = $datasetSlug;
 
         return $this;
     }

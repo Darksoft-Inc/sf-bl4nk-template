@@ -47,6 +47,16 @@ symfony console doctrine:migrations:migrate
 
 The development database uses PostgreSQL through `DATABASE_URL` in `.env`.
 
+## Load the datasets
+
+```bash
+symfony console app:dataset:load
+```
+
+The command loads `datasets/shared/` plus `datasets/dev/` in one transaction: an admin and a member account with the passwords documented in `datasets/dev/users.yaml`, one announcement, and one demo map with a point, a route type, and a route. Records are keyed by dataset slug, so re-running the command updates the rows instead of adding new ones, and rows created outside the import are never touched. A subset of a dataset loads on its own when its references name rows of an earlier load, which is the practical way to update a few records of a large set. Large loads write in batches of 100 records between two flushes; `--batch-size=N` bounds memory further or speeds the load up. The rules and the format are in `docs/DECISIONS.md`.
+
+For production, create the records in `datasets/prod/` on the server, which git ignores, and load them with `symfony console app:dataset:load --env=prod`. The workflow, including the first admin account, is in `datasets/prod/README.md`.
+
 ## Run the scheduled tasks
 
 The scheduler ships its tasks as the `scheduler_default` messenger transport. One worker runs every scheduled task, including the daily login audit cleanup:

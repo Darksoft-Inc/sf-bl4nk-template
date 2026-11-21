@@ -1,0 +1,13 @@
+maps:
+    old-town:
+        name: Old town
+
+map_route_types:
+    gone:
+        remove: true
+
+map_routes:
+    r:
+        map: '@maps.old-town'
+        type: '@map_route_types.gone'
+        points: [[0, 0], [10, 10]]

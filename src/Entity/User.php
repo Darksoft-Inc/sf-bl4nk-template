@@ -19,6 +19,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * The dataset key this row was imported under, or null when the row was
+     * created outside the dataset import. The import never touches rows
+     * whose key is null.
+     */
+    #[ORM\Column(length: 64, nullable: true, unique: true)]
+    private ?string $datasetSlug = null;
+
     #[ORM\Column(length: 180)]
     private string $email;
 
@@ -173,6 +181,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastIp(?string $lastIp): static
     {
         $this->lastIp = $lastIp;
+
+        return $this;
+    }
+
+    public function getDatasetSlug(): ?string
+    {
+        return $this->datasetSlug;
+    }
+
+    public function setDatasetSlug(?string $datasetSlug): static
+    {
+        $this->datasetSlug = $datasetSlug;
 
         return $this;
     }

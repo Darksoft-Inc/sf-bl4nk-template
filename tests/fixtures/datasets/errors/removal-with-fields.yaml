@@ -1,0 +1,4 @@
+users:
+    jane:
+        remove: true
+        email: jane@example.com

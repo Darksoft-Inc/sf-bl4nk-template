@@ -203,6 +203,7 @@ final class AdminMapEntryControllerTest extends WebTestCase
         $point = new MapPoint($map, 'Alphen', 120, 80);
         $this->em->persist($point);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->loginUser($this->createUser('admin@example.com', true));
 
@@ -279,6 +280,7 @@ final class AdminMapEntryControllerTest extends WebTestCase
         $type = new MapRouteType($map, 'Trade road', '#aa3311');
         $this->em->persist($type);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->loginUser($this->createUser('admin@example.com', true));
 
@@ -309,6 +311,7 @@ final class AdminMapEntryControllerTest extends WebTestCase
         $route->setPoints([['x' => 0, 'y' => 0], ['x' => 100, 'y' => 100]]);
         $this->em->persist($route);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->loginUser($this->createUser('admin@example.com', true));
 
@@ -343,6 +346,7 @@ final class AdminMapEntryControllerTest extends WebTestCase
         $type = new MapRouteType($map, 'Trade road', '#aa3311');
         $this->em->persist($type);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->loginUser($this->createUser('admin@example.com', true));
 
@@ -375,6 +379,7 @@ final class AdminMapEntryControllerTest extends WebTestCase
         $type = new MapRouteType($map, 'Trade road', '#aa3311');
         $this->em->persist($type);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->loginUser($this->createUser('admin@example.com', true));
 
@@ -398,6 +403,7 @@ final class AdminMapEntryControllerTest extends WebTestCase
         $type = new MapRouteType($map, 'Trade road', '#aa3311');
         $this->em->persist($type);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->loginUser($this->createUser('admin@example.com', true));
 
@@ -433,6 +439,7 @@ final class AdminMapEntryControllerTest extends WebTestCase
         $route->setPoints([['x' => 0, 'y' => 0], ['x' => 100, 'y' => 100]]);
         $this->em->persist($route);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->loginUser($this->createUser('admin@example.com', true));
 
@@ -481,6 +488,7 @@ final class AdminMapEntryControllerTest extends WebTestCase
         $route->setPoints([['x' => 0, 'y' => 0], ['x' => 100, 'y' => 100]]);
         $this->em->persist($route);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->loginUser($this->createUser('admin@example.com', true));
 
@@ -513,6 +521,7 @@ final class AdminMapEntryControllerTest extends WebTestCase
         $route->setPoints([['x' => 0, 'y' => 0], ['x' => 100, 'y' => 100]]);
         $this->em->persist($route);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->loginUser($this->createUser('admin@example.com', true));
 
@@ -542,6 +551,7 @@ final class AdminMapEntryControllerTest extends WebTestCase
         $route->setPoints([['x' => 0, 'y' => 0], ['x' => 100, 'y' => 100]]);
         $this->em->persist($route);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->loginUser($this->createUser('admin@example.com', true));
 

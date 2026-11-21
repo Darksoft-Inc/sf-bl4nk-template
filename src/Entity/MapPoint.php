@@ -14,6 +14,14 @@ class MapPoint
     #[ORM\Column]
     private ?int $id = null;
 
+    /**
+     * The dataset key this row was imported under, or null when the row was
+     * created outside the dataset import. The import never touches rows
+     * whose key is null.
+     */
+    #[ORM\Column(length: 64, nullable: true, unique: true)]
+    private ?string $datasetSlug = null;
+
     #[ORM\ManyToOne(inversedBy: 'points')]
     #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
     private Map $map;
@@ -49,8 +57,6 @@ class MapPoint
         $this->title = $title;
         $this->x = $x;
         $this->y = $y;
-
-        $map->getPoints()->add($this);
     }
 
     public function getId(): ?int
@@ -61,6 +67,13 @@ class MapPoint
     public function getMap(): Map
     {
         return $this->map;
+    }
+
+    public function setMap(Map $map): static
+    {
+        $this->map = $map;
+
+        return $this;
     }
 
     public function getTitle(): string
@@ -123,6 +136,18 @@ class MapPoint
     public function setSymbols(array $symbols): static
     {
         $this->symbols = $symbols;
+
+        return $this;
+    }
+
+    public function getDatasetSlug(): ?string
+    {
+        return $this->datasetSlug;
+    }
+
+    public function setDatasetSlug(?string $datasetSlug): static
+    {
+        $this->datasetSlug = $datasetSlug;
 
         return $this;
     }

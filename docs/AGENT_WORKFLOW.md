@@ -30,7 +30,7 @@ Run the checks that apply to the change:
 ```bash
 php bin/phpunit
 symfony console lint:container
-symfony console lint:yaml config/
+symfony console lint:yaml config/ datasets/
 symfony console lint:twig templates/
 vendor/bin/phpstan analyse --no-progress
 vendor/bin/php-cs-fixer fix --dry-run

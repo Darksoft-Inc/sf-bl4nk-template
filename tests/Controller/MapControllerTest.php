@@ -70,6 +70,7 @@ final class MapControllerTest extends WebTestCase
         $type = $this->createRouteType($map, 'Trade road', '#aa3311');
         $this->createRoute($type, 'The old road', [[0, 0], [400, 300]], true);
         $this->em->flush();
+        $this->em->clear();
 
         $crawler = $this->client->request('GET', '/maps/'.$map->getId());
 
@@ -156,6 +157,7 @@ final class MapControllerTest extends WebTestCase
         $map = $this->createMap('A known world');
         $this->createPoint($map, '<b>City</b>', 0, 0);
         $this->em->flush();
+        $this->em->clear();
 
         $crawler = $this->client->request('GET', '/maps/'.$map->getId());
 
@@ -175,6 +177,7 @@ final class MapControllerTest extends WebTestCase
         $map = $this->createMap('A plain world');
         $this->createPoint($map, 'Alphen', 10, 10);
         $this->em->flush();
+        $this->em->clear();
 
         $this->client->request('GET', '/maps/'.$map->getId());
 

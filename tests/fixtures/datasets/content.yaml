@@ -1,0 +1,45 @@
+# The announcement section comes first and references a user defined
+# below: the loader orders records by their references, not by file order.
+
+announcements:
+    welcome:
+        title: Welcome to the demo
+        content: |
+            First line.
+            Second line.
+        publishedAt: 2026-11-01 10:00
+        author: '@users.jane'
+
+users:
+    jane:
+        email: jane@example.com
+        password: 'FixturePassword42!'
+        isVerified: true
+
+maps:
+    old-town:
+        name: Old town
+        createdAt: 2026-11-10 08:00
+        minZoom: 1
+        maxZoom: 5
+
+map_route_types:
+    main-roads:
+        map: '@maps.old-town'
+        name: Main road
+        color: '#c9a13b'
+
+map_routes:
+    high-street:
+        map: '@maps.old-town'
+        type: '@map_route_types.main-roads'
+        isMajor: true
+        points: [[10, 20], [200, 180], [400, 120]]
+
+map_points:
+    market:
+        map: '@maps.old-town'
+        title: Market
+        x: 120
+        y: 80
+        symbols: ['bi:geo-alt-fill']
