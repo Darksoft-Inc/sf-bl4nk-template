@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Tests\Controller;
 
 use App\Entity\User;
@@ -232,7 +233,7 @@ final class ResetPasswordControllerTest extends WebTestCase
 
         $user = $this->userRepository->findOneBy(['email' => 'reuse-session@example.com']);
         self::assertInstanceOf(User::class, $user);
-        self::assertTrue($this->passwordHasher->isPasswordValid($user, "NewStrongPassword42!"), "actual hash: " . $user->getPassword());
+        self::assertTrue($this->passwordHasher->isPasswordValid($user, 'NewStrongPassword42!'), 'actual hash: '.$user->getPassword());
     }
 
     public function testExpiredResetTokenIsRejected(): void

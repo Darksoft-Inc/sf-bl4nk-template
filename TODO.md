@@ -25,8 +25,8 @@ Progress on 2026-11-21: the last three P2 tests are in, and the suite reports 36
 
 ## P2: Test infrastructure and tooling
 
-- [ ] Add CI checks for Sass build, test schema creation, lint commands, PHPStan, and PHPUnit.
-  - Deferred on 2026-11-19 until the hosting platform is chosen. The checks to run: `symfony console sass:build`, `php bin/console doctrine:schema:create --env=test`, the lint commands and PHPStan from `docs/AGENT_WORKFLOW.md`, and `php bin/phpunit`.
+- [ ] Add CI checks for Sass build, test schema creation, lint commands, PHPStan, code style, and PHPUnit.
+  - Deferred on 2026-11-19 until the hosting platform is chosen. The checks to run: `symfony console sass:build`, `php bin/console doctrine:schema:create --env=test`, the lint commands, PHPStan, and the code style dry run from `docs/AGENT_WORKFLOW.md`, and `php bin/phpunit`.
 
 ## Documentation follow-up
 

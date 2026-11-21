@@ -42,6 +42,8 @@ alias lint_translations="symfony console lint:translations"
 alias lint_templates="symfony console lint:twig templates/"
 alias lint_php="vendor/bin/phpstan --memory-limit=256M analyze"
 alias lint_doctrine="symfony console doctrine:schema:validate"
+alias lint_php_cs="vendor/bin/php-cs-fixer fix --dry-run"
+alias format_php="vendor/bin/php-cs-fixer fix"
 alias run_tests="vendor/bin/pest -v"
 
 # Debug

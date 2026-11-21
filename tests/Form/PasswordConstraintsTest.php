@@ -37,7 +37,7 @@ final class PasswordConstraintsTest extends TestCase
 
     /**
      * @param list<Constraint> $constraints
-     * @param class-string $class
+     * @param class-string     $class
      */
     private function findConstraint(array $constraints, string $class): ?object
     {

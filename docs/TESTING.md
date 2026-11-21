@@ -60,10 +60,13 @@ symfony console lint:container
 symfony console lint:yaml config/
 symfony console lint:twig templates/
 vendor/bin/phpstan analyse --no-progress
+vendor/bin/php-cs-fixer fix --dry-run
 symfony console doctrine:schema:validate
 ```
 
 Lint commands and PHPStan pass with the full configuration. The `lint_php` alias uses all paths from `phpstan.dist.neon`. Do not add PHPStan suppressions or a baseline to hide future errors.
+
+`php-cs-fixer` enforces the `@Symfony` rules from `.php-cs-fixer.dist.php`. The dry run fails when a file does not comply; `format_php` rewrites the files. The finder excludes `config/bundles.php` and `config/reference.php`, which are generated, and the `.php-cs-fixer.cache` file is ignored by git.
 
 ## Current tests
 

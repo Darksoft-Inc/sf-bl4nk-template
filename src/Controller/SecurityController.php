@@ -2,7 +2,6 @@
 
 namespace App\Controller;
 
-use LogicException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -22,6 +21,6 @@ final class SecurityController extends AbstractController
     #[Route(path: '/logout', name: 'app_logout')]
     public function logout(): void
     {
-        throw new LogicException('The firewall intercepts the logout route before this action runs.');
+        throw new \LogicException('The firewall intercepts the logout route before this action runs.');
     }
 }

@@ -6,8 +6,8 @@ use App\Entity\User;
 use App\Repository\UserRepository;
 use App\Tests\ResetDatabase;
 use Doctrine\ORM\EntityManager;
-use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bridge\PhpUnit\Attribute\UseRecord;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
