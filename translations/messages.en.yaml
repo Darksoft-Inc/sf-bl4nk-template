@@ -17,6 +17,7 @@ app:
         reset_password: 'Reset your password'
         profile: Profile
         announcements: Announcements
+        documentation: Documentation
         toggle: 'Toggle navigation'
     account:
         email: Email

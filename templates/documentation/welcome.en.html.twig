@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Welcome{% endblock %}
+
+{% block body %}
+    <main>
+        <h1>Welcome</h1>
+
+        <p>
+            This site runs on a shared base for public-facing services. You can
+            <a href="{{ path('app_register') }}">create an account</a> to get started,
+            and the announcements page lists short posts from the team.
+        </p>
+
+        <p>
+            This documentation page holds its text directly in the template, one
+            template per language. The link stays stable when a new language is added.
+        </p>
+    </main>
+{% endblock %}

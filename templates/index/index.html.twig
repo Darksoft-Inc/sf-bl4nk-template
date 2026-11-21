@@ -8,6 +8,7 @@
 
     <ul>
         <li><a href="{{ path('app_announcement_index') }}">{{ 'app.navigation.announcements'|trans }}</a></li>
+        <li><a href="{{ path('app_documentation_show', {page: 'welcome'}) }}">{{ 'app.navigation.documentation'|trans }}</a></li>
         {% if app.user %}
             <li><a href="{{ path('app_profile') }}">{{ 'app.navigation.profile'|trans }}</a></li>
             <li><a href="{{ path('app_logout') }}">{{ 'app.navigation.logout'|trans }}</a></li>

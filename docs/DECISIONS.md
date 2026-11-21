@@ -110,6 +110,8 @@ Decision from 2026-11-19: how a page with long prose gets its text.
 
 The approaches are not exclusive. A feature chooses per page: a documentation feature can keep static prose in per-locale templates while managed content comes from a dataset, and forms keep using the catalogs.
 
+Approach A is implemented by the documentation route since 2026-11-21: `templates/documentation/{page}.{locale}.html.twig`, with the default locale as fallback, and no code change for a new page or variant.
+
 Adding a locale means copying the catalogs and, when prose pages exist, adding their per-locale templates or dataset content too.
 
 ## Installed UX and infrastructure packages
