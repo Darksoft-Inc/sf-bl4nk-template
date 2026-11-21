@@ -25,10 +25,12 @@ class MapRepository extends ServiceEntityRepository
     }
 
     /**
+     * @param list<string> $filenames
+     *
      * @return list<Map>
      */
-    public function findByImageFilename(string $filename): array
+    public function findByImageFilenames(array $filenames): array
     {
-        return $this->findBy(['imageFilename' => $filename], ['id' => 'ASC']);
+        return $this->findBy(['imageFilename' => $filenames], ['id' => 'ASC']);
     }
 }

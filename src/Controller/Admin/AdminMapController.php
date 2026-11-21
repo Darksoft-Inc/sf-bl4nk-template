@@ -51,13 +51,14 @@ final class AdminMapController extends AbstractController
     public function new(
         Request $request,
         ClockInterface $clock,
+        MapImageUploadKind $mapImages,
         EntityManagerInterface $entityManager,
         TranslatorInterface $translator,
     ): Response {
         $map = new Map('', $clock->now());
 
         $form = $this->createForm(MapFormType::class, $map, [
-            'image_files' => $this->imageFiles(),
+            'image_files' => $this->imageFiles($mapImages),
             'current_image' => null,
         ]);
         $form->handleRequest($request);
@@ -88,6 +89,7 @@ final class AdminMapController extends AbstractController
         Request $request,
         int $id,
         MapRepository $maps,
+        MapImageUploadKind $mapImages,
         EntityManagerInterface $entityManager,
         TranslatorInterface $translator,
     ): Response {
@@ -98,7 +100,7 @@ final class AdminMapController extends AbstractController
         }
 
         $form = $this->createForm(MapFormType::class, $map, [
-            'image_files' => $this->imageFiles(),
+            'image_files' => $this->imageFiles($mapImages),
             'current_image' => $map->getImageFilename(),
         ]);
         $form->handleRequest($request);
@@ -220,24 +222,13 @@ final class AdminMapController extends AbstractController
     }
 
     /**
-     * The image pool is the content of the map image directory: files from
-     * the admin upload and files an operator dropped there are listed the
-     * same way.
+     * The names of the image pool, as the kind lists them: uploaded files
+     * and files an operator dropped into the directory are the same to it.
      *
      * @return list<string>
      */
-    private function imageFiles(): array
+    private function imageFiles(MapImageUploadKind $mapImages): array
     {
-        if (!is_dir($this->mapImageDir)) {
-            return [];
-        }
-
-        $names = scandir($this->mapImageDir);
-        \assert(\is_array($names));
-
-        return array_values(array_filter(
-            $names,
-            static fn (string $filename): bool => !str_starts_with($filename, '.'),
-        ));
+        return array_column($mapImages->list(), 'filename');
     }
 }
