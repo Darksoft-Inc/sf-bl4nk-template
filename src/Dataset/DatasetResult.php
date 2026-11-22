@@ -19,6 +19,8 @@ final class DatasetResult
 
     private int $cleared = 0;
 
+    private int $skippedRemovals = 0;
+
     public function __construct(
         private readonly int $fileCount,
     ) {
@@ -44,6 +46,15 @@ final class DatasetResult
         $this->cleared += $count;
     }
 
+    /**
+     * Records removal entries the load skipped because its mode does
+     * not remove rows.
+     */
+    public function addSkippedRemovals(int $count): void
+    {
+        $this->skippedRemovals += $count;
+    }
+
     public function fileCount(): int
     {
         return $this->fileCount;
@@ -52,6 +63,11 @@ final class DatasetResult
     public function cleared(): int
     {
         return $this->cleared;
+    }
+
+    public function skippedRemovals(): int
+    {
+        return $this->skippedRemovals;
     }
 
     /**

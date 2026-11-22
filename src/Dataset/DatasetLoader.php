@@ -79,8 +79,15 @@ final class DatasetLoader
         $files = $this->findFiles($paths);
         [$records, $removals] = $this->parseFiles($files);
 
+        // The insert and the clear mode start from a database with
+        // nothing to remove, so a removal entry is skipped there, not
+        // an error: a file that still carries a historical removal
+        // loads on a fresh install, and the load reports the skipped
+        // count. The update mode applies the entries, guarded.
+        $skippedRemovals = 0;
         if ([] !== $removals && DatasetMode::Update !== $mode) {
-            $removals[0]->fail('removal entries need --update: the default mode inserts and --clear starts from empty tables');
+            $skippedRemovals = \count($removals);
+            $removals = [];
         }
 
         $this->assertRemovalsAreNotDefined($removals, $records);
@@ -95,6 +102,10 @@ final class DatasetLoader
         }
 
         $result = new DatasetResult(\count($files));
+
+        if ($skippedRemovals > 0) {
+            $result->addSkippedRemovals($skippedRemovals);
+        }
 
         $resolver = new DatasetResolver($this->em, $this->types);
         foreach ($external as [$type, $slug, $id]) {

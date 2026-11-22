@@ -119,6 +119,10 @@ final class DatasetLoadCommand extends Command
 
         $io->table(['type', 'created', 'updated', 'removed'], $rows);
 
+        if ($result->skippedRemovals() > 0) {
+            $io->note(\sprintf('Skipped %d removal entries: only the update mode removes rows.', $result->skippedRemovals()));
+        }
+
         if ($result->cleared() > 0) {
             $io->note(\sprintf('Cleared %d table(s) before loading.', $result->cleared()));
         }

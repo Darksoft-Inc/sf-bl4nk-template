@@ -4,6 +4,7 @@ namespace App\Tests\Integration;
 
 use App\Command\DatasetLoadCommand;
 use App\Dataset\DatasetLoader;
+use App\Entity\MapRouteType;
 use App\Entity\User;
 use App\Tests\ResetDatabase;
 use Doctrine\ORM\EntityManagerInterface;
@@ -128,6 +129,19 @@ final class DatasetLoadCommandTest extends KernelTestCase
         $this->tester->assertCommandFailed();
         self::assertStringContainsString('Slugs that already exist', $this->tester->getDisplay());
         self::assertStringContainsString('--update', $this->tester->getDisplay());
+    }
+
+    public function testDefaultModeSkipsRemovalEntries(): void
+    {
+        $this->tester->execute(['paths' => ['tests/fixtures/datasets/removal.yaml']], ['interactive' => false]);
+
+        $this->tester->assertCommandIsSuccessful();
+        self::assertStringContainsString('Skipped 1 removal entries', $this->tester->getDisplay());
+        self::assertStringContainsString('only the update mode removes rows', $this->tester->getDisplay());
+
+        $this->em->clear();
+
+        self::assertCount(0, $this->em->getRepository(MapRouteType::class)->findAll(), 'A skipped removal deletes nothing.');
     }
 
     public function testClearIsRefusedInTheProdEnvironment(): void

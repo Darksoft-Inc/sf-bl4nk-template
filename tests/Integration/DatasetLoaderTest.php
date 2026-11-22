@@ -218,21 +218,17 @@ final class DatasetLoaderTest extends KernelTestCase
         self::assertCount(1, $this->em->getRepository(Announcement::class)->findAll(), 'The announcement that referenced the user survives.');
     }
 
-    public function testRemovalEntriesNeedTheUpdateMode(): void
+    public function testRemovalEntriesAreSkippedOutsideTheUpdateMode(): void
     {
         $this->loader->load([$this->fixture('content.yaml')]);
 
-        try {
-            $this->loader->load([$this->fixture('removal.yaml')]);
-            self::fail('A removal entry outside the update mode must fail the load.');
-        } catch (DatasetException $e) {
-            self::assertStringContainsString('map_route_types.main-roads', $e->getMessage());
-            self::assertStringContainsString('removal entries need --update', $e->getMessage());
-        }
+        $result = $this->loader->load([$this->fixture('removal.yaml')]);
+
+        self::assertSame(1, $result->skippedRemovals(), 'The insert mode skips the removal entry instead of applying it or failing on it.');
 
         $this->em->clear();
 
-        self::assertCount(1, $this->em->getRepository(MapRouteType::class)->findAll(), 'The refused load leaves the removal target in place.');
+        self::assertCount(1, $this->em->getRepository(MapRouteType::class)->findAll(), 'The skipped removal leaves the row in place.');
     }
 
     public function testClearEmptiesEveryTableBeforeLoading(): void
