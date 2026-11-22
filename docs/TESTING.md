@@ -126,8 +126,12 @@ Two behaviors of the test stack show up in the admin tests. An invalid submitted
 
 A crafted post can also submit required fields empty. The map forms carry `App\Form\KeepCurrentData::emptyData()` on their mapped non-nullable fields, so such a submission keeps the current value and the tests above assert that outcome; the other forms of the app still crash on that input, which is why only the map tests cover it.
 
+## Continuous integration
+
+GitHub Actions runs the quality chain on every push and pull request through `.github/workflows/ci.yml`, on `ubuntu-latest` over PHP 8.4 and 8.5. Every command runs on plain `php bin/console`, because the runner has no Docker service and no Symfony CLI: the SQLite test database is self-contained, and the suite replays its HTTP exchanges from `tests/recordings/`, so nothing beyond the composer install touches the network. The chain mirrors `run_all_checks` in `aliases.sh`, and a change to the chain updates both. See `docs/DECISIONS.md` for the platform choice.
+
 ## Coverage gaps
 
-The P2 test list from `TODO.md` is complete. The remaining test work is tied to the deferred items there: the rate limiting tests with the production readiness pass, and the CI checks once the hosting platform is chosen.
+The P2 test list from `TODO.md` is complete. The remaining test work is tied to the deferred items there: the rate limiting tests with the production readiness pass.
 
 When fixing a bug, write a test that reproduces it first.

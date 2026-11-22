@@ -74,16 +74,16 @@ The worker stays in the foreground and checks the schedule every few seconds. In
 php bin/console doctrine:schema:create --env=test
 ```
 
-If the local test schema is stale, recreate it:
-
-```bash
-php bin/console doctrine:schema:drop --force --env=test
-php bin/console doctrine:schema:create --env=test
-```
-
 Do not use `doctrine:migrations:migrate --env=test` with the current test database. The test database uses SQLite, and the committed migration contains PostgreSQL specific SQL.
 
 Also keep the test commands on plain `php`. Running them through the Symfony CLI while the Docker services are up injects the container `DATABASE_URL`, which wins over the SQLite URL in `.env.test`: the `dbname_suffix` `_test` then targets the `app_test` database of the container, which no setup step creates, and the run fails on connect. The development database is never reached that way. `TESTING.md` names the failure messages.
+
+If the local test schema is stale, reset it by deleting the file: the SQLite database is disposable, and `doctrine:schema:drop --force` is not a reliable reset, because Doctrine's SchemaTool swallows every per-statement exception and reports success while tables remain. The `drop_database_test` alias runs the same deletion.
+
+```bash
+rm -f var/test.db*
+php bin/console doctrine:schema:create --env=test
+```
 
 ## Verify the setup
 

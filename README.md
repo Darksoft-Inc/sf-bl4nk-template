@@ -50,7 +50,7 @@ php bin/console doctrine:schema:create --env=test
 php bin/phpunit
 ```
 
-Both commands run on plain PHP, never through the Symfony CLI: with the Docker services up, the CLI injects the container `DATABASE_URL`, which breaks the SQLite test connection. `docs/TESTING.md` explains the runners, the recorded HTTP exchanges, and the quality checks.
+Both commands run on plain PHP, never through the Symfony CLI: with the Docker services up, the CLI injects the container `DATABASE_URL`, which breaks the SQLite test connection. `docs/TESTING.md` explains the runners, the recorded HTTP exchanges, and the quality checks. GitHub Actions runs the same chain on every push and pull request through `.github/workflows/ci.yml`.
 
 ## Documentation
 

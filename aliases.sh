@@ -34,7 +34,12 @@ alias drop_database="confirm && symfony console doctrine:database:drop --force"
 alias migrate_database="symfony console doctrine:migrations:migrate"
 alias load_datasets="symfony console app:dataset:load"
 alias create_database_test="php bin/console doctrine:schema:create --env=test"
-alias drop_database_test="php bin/console doctrine:schema:drop --force --env=test"
+# Doctrine's SchemaTool::dropSchema swallows every per-statement
+# exception, so doctrine:schema:drop can report success while leaving
+# tables behind (reproduced 2026-11-22, see docs/DECISIONS.md). The
+# SQLite test file is disposable: deleting it is the deterministic
+# reset.
+alias drop_database_test="rm -f var/test.db*"
 
 # Quality
 alias lint_config="symfony console lint:yaml config/ datasets/"

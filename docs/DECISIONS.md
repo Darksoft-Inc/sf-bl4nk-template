@@ -14,6 +14,8 @@ Decision from 2026-11-19: keep SQLite for tests. The test schema comes from the 
 
 `config/packages/doctrine.yaml` keeps the ParaTest `dbname_suffix`. DoctrineBundle ignores that option for SQLite, so the test file is always `var/test.db`.
 
+Update from 2026-11-22: `doctrine:schema:drop --force --env=test` is not a reliable reset. `SchemaTool::dropSchema` swallows every per-statement exception (`catch (Throwable) { // ignored }`, still on the 3.9 branch, with the stated rationale that a dropped table "probably just doesn't exist"), so the command prints "dropped successfully" and exits 0 while tables remain. Reproduced on the starter schema: the leftover varied from run to run (nothing one run, `map` the next), and a following `doctrine:schema:create` then failed on a table "already exists". The test database is a disposable SQLite file, so the reset deletes it: `rm -f var/test.db*` then `doctrine:schema:create --env=test`, the commands SETUP.md documents and the `drop_database_test` alias runs. A drop against the development PostgreSQL keeps working for what it is: a best-effort cleanup that may skip tables.
+
 ## Generated CSS
 
 Current choice: Sass output is generated into `var/sass/` and is not committed.
@@ -323,6 +325,16 @@ The routes stay separate from `/docs`: `/docs/{page}` would capture "reference" 
 The text of a page is metadata, not a catalog key: every string goes through `trans`, and a literal renders as itself when no catalog entry exists, so a derived app writes plain text and translates later by adding catalog entries under the same literal. The chrome around the pages (the index title, the related heading, the back link) uses catalog keys as usual. The `Reference` attribute is repeatable on purpose: a duplicated declaration fails the build with a message naming the class, instead of an engine crash at `newInstance()` or a silent first-declaration win.
 
 Consequence: adding a page is one attribute on a service, and the rebuild validates it. Nothing lands in the database, so the feature ships no migration and no dataset type: the code is the source. The first pages document the starter's own services: `login-audit-retention` on `LoginAuditRetention`, whose retention window cites `%app.login_audit_retention_days%`, and `shared-files` on `SharedUploadStorage`, whose size limit cites `MAX_SIZE`, the constant the upload form enforces too.
+
+## Continuous integration
+
+Decision from 2026-11-22: the CI platform is GitHub Actions, and the template repository runs the whole quality chain on every push and pull request.
+
+Evidence: `.github/workflows/ci.yml` runs the chain of the P2 item: `sass:build`, the test schema creation, the lint commands, PHPStan, the PHP and Twig style dry runs, and `php bin/phpunit`. The workflow runs on `ubuntu-latest` over a matrix of PHP 8.4 and 8.5, the floor and the runtime of `composer.json`. Every command runs on plain `php bin/console`, not the Symfony CLI: CI runs no Docker service, and the plain command never depends on the container state, the rule `docs/AGENT_WORKFLOW.md` already states for the test environment. The tests need no network: the suite replays the HIBP exchanges from `tests/recordings/`, and the SQLite test database is self-contained.
+
+The platform choice: standard GitHub-hosted runners are free and unmetered for public repositories (GitHub billing, read on 2026-11-22), so a public template runs CI at no cost, on any plan. A private derived project pays from its included monthly compute instead, 12 dollars on the GitHub Free plan, about 2,000 standard Linux minutes at the 0.006 dollar rate, which covers dozens of full chain runs, and a self-hosted runner is free of GitHub metering. Under MIT, a derived project carries no obligation at all: it may keep its repository private, and the CI minutes are the only cost it may ever see.
+
+Consequence: the workflow and `run_all_checks` in `aliases.sh` describe the same chain in two places, and a change to the chain updates both. The runner chain lists each check as its own step, so a failure names the check that failed. The suite runs through `php bin/phpunit` only: Pest is a presentation layer over the same tests, recorded in `docs/TESTING.md`, and one runner is the source of truth.
 
 ## Rate limiting
 

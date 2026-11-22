@@ -1,0 +1,62 @@
+# The whole chain from docs/AGENT_WORKFLOW.md, on the plain PHP setup:
+# CI runs no Docker service and no Symfony CLI, so every command uses
+# plain `php bin/console`. The tests are self-contained on SQLite and
+# replay their HTTP exchanges from tests/recordings/, so no network
+# access is needed after the composer install.
+name: CI
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    checks:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+            matrix:
+                php-version: ['8.4', '8.5']
+        name: PHP ${{ matrix.php-version }}
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Set up PHP
+              uses: shivammathur/action-setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+                  extensions: mbstring, intl
+                  coverage: none
+
+            - name: Install the dependencies
+              run: composer install --prefer-dist --no-interaction --no-progress
+
+            - name: Build the Sass output
+              run: php bin/console sass:build
+
+            - name: Create the test schema
+              run: php bin/console doctrine:schema:create --env=test
+
+            - name: Lint the container
+              run: php bin/console lint:container
+
+            - name: Lint the YAML files
+              run: php bin/console lint:yaml config/ datasets/ .github/
+
+            - name: Lint the Twig templates
+              run: php bin/console lint:twig templates/
+
+            - name: Lint the translations
+              run: php bin/console lint:translations
+
+            - name: PHPStan
+              run: vendor/bin/phpstan analyse --no-progress
+
+            - name: PHP code style
+              run: vendor/bin/php-cs-fixer fix --dry-run
+
+            - name: Twig code style
+              run: vendor/bin/twig-cs-fixer lint templates/
+
+            - name: Run the test suite
+              run: php bin/phpunit
