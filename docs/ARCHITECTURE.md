@@ -6,6 +6,7 @@ This page describes the current application, not a target design. `TODO.md` list
 
 | Name | Path | Purpose |
 |---|---|---|
+| `app_health` | `/health` | Dev only, registered by `config/routes/health.yaml` under `when@dev`: answers the local tooling probes with a plain 200. |
 | `app_index` | `/` | Neutral start page. |
 | `app_register` | `/register` | Registration form and email verification entry point. |
 | `app_verify_email` | `/verify/email` | Validates the signed verification link. |

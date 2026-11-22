@@ -355,3 +355,11 @@ Evidence: `docs/PURPOSE.md` plans private sections and admin functions, but no a
 Consequence: an admin role, a real admin user, and fixtures land with the first admin feature. Tests create their own users, so a fixture user would only be dead data today.
 
 Update from 2026-11-21: the admin section carries `ROLE_ADMIN`, and the dataset import ships the accounts as dataset records instead of hand-written fixtures: `datasets/dev/users.yaml` holds the admin and the member with documented development passwords, and the accounts of a deployed instance come from the git-ignored `datasets/prod/` directory through the same load command. Tests still create their own users, so the suite stays independent of the datasets.
+
+## Dev health route
+
+Decision from 2026-11-22: `/health` answers 200 and exists in the dev environment only.
+
+Evidence: the local development tooling (the OpenCode CLI, User-Agent `opencode/latest/2.3.2/cli`) probes `http://127.0.0.1:8000/health` every 30 seconds, and the app had no such route: 1350 probes over two days, each a 404 warning with a stack trace in `var/log/dev.log`. `HealthController` carries no `#[Route]` attribute, because the automatic controller import would register the route in every environment, and `config/routes/health.yaml` registers it under `when@dev`, the same mechanism the web profiler routes use. No route `condition:` was an option: `symfony/expression-language` is deliberately absent from the project.
+
+Consequence: production stays closed, because an unauthenticated liveness endpoint is a deployment decision for the derived application, and the test environment keeps no route it cannot use; `HealthControllerTest` pins that contract with a 404. The probes still land in the dev profiler index every 30 seconds; the web profiler offers no collection filter, and the profiles are tiny, so the remaining noise stays acceptable.

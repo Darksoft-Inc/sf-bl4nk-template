@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=../../vendor/symfony/routing/Loader/schema/routing.schema.json
+# Dev only: the local tooling probes /health every 30 seconds on the dev
+# server, and the app had no such route, so every probe turned into a 404
+# warning in the log. Production stays closed and the test environment
+# needs no route.
+when@dev:
+    app_health:
+        path: /health
+        controller: App\Controller\HealthController::health
