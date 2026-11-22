@@ -82,6 +82,8 @@ Profiler and UX routes exist in development. They are not part of the product su
 
 ## Forms
 
+The form types live in `App\Form\` grouped by area: `Account`, `Announcement`, `Field`, `Map`, `Support`, and `User`. The map text parsers `RoutePoints` and `Symbols` live in `App\Map` with `UxMapBuilder`.
+
 - `RegistrationFormType` collects email, password, and terms acceptance. It maps the password to a non-mapped `plainPassword` field.
 - `ResetPasswordRequestFormType` collects the email address.
 - `ChangePasswordFormType` collects a repeated new password. The profile page and password reset flow both use it.
@@ -144,6 +146,15 @@ Registration and password reset use the same password rules. In the `dev` enviro
 ## Icons
 
 `ux-icons` renders the icons inline through the `ux_icon()` Twig function. The icons used by the templates are locked into `assets/icons/` with `php bin/console ux:icons:lock`, which scans the templates and imports each icon from iconify. The locked files are committed, so pages and tests render without a network connection. A new icon in a template needs the same command run once.
+
+## Frontend routes and translations
+
+The JavaScript baseline keeps `symfony/ux-router` and `symfony/ux-translator`, recorded in `docs/PURPOSE.md`. Their recipes wrote one entry file, one configuration file, and one dump directory per package:
+
+- `assets/router.js` builds the client-side router from the routes dumped into `var/routes/index.js` and exports `path` and `url`, so a controller resolves a route by name instead of reading its URL from a data attribute rendered by a template. `config/packages/ux_router.yaml` exposes route names by pattern, and the pattern list is empty today, so the dump holds no route: naming a pattern and warming the cache fills the dump.
+- `assets/translator.js` builds the client-side translator from the messages dumped into `var/translations/index.js` and exports `trans`. `config/packages/ux_translator.yaml` sets the dump directory.
+
+Both dumps regenerate at cache warmup, and `importmap.php` maps `@symfony/ux-router` and `@symfony/ux-translator` to the vendor controllers. No page imports the two entry files yet: the base template loads only the `app` entry, so the packages wait for their first consumer, the state recorded in `docs/DECISIONS.md`.
 
 ## Data storage
 
