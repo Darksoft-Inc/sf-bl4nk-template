@@ -163,6 +163,16 @@ final class AdminMapControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertNotNull($crawler->filter('#map_form_minZoom')->attr('required'));
 
+        // The section headers translate: their keys once missed from the
+        // catalog and the page printed the raw keys instead.
+        $html = (string) $this->client->getResponse()->getContent();
+        self::assertStringContainsString('Route types', $html);
+        self::assertStringContainsString('Points', $html);
+        self::assertStringContainsString('Routes', $html);
+        self::assertStringNotContainsString('app.admin.map.route_types', $html);
+        self::assertStringNotContainsString('app.admin.map.points', $html);
+        self::assertStringNotContainsString('app.admin.map.routes', $html);
+
         $token = $crawler->filter('#map_form__token')->attr('value');
         self::assertIsString($token);
 

@@ -208,6 +208,9 @@ app:
             delete: Delete
             view_public: 'Open the public page'
             parameters: 'Map parameters'
+            route_types: 'Route types'
+            points: Points
+            routes: Routes
             image: 'Background image'
             image_none: 'No image'
             image_help: 'Choose an image from the pool. Upload new images or see the pool on the map images page.'

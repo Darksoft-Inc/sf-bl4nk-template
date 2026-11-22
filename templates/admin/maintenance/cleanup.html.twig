@@ -41,9 +41,9 @@
                         <td>{{ run.ranAt|format_datetime('medium', 'short') }}</td>
                         <td>
                             {% if run.trigger == 'schedule' %}
-                                <span class="badge text-bg-secondary">{{ 'app.admin.cleanup.runs.trigger.schedule'|trans }}</span>
+                                <span class="badge text-bg-secondary">{{ 'app.admin.cleanup.runs.trigger_schedule'|trans }}</span>
                             {% else %}
-                                <span class="badge text-bg-info">{{ 'app.admin.cleanup.runs.trigger.manual'|trans }}</span>
+                                <span class="badge text-bg-info">{{ 'app.admin.cleanup.runs.trigger_manual'|trans }}</span>
                             {% endif %}
                         </td>
                         <td>{{ run.result }}</td>

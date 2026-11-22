@@ -12,6 +12,9 @@ app:
         min_length: 'Your password should be at least {{ limit }} characters'
     form:
         password_must_match: 'The password fields must match.'
+    admin:
+        map:
+            zoom_not_negative: 'The zoom cannot be negative.'
     announcement:
         title_not_blank: 'Please enter a title'
         content_not_blank: 'Please enter a content'

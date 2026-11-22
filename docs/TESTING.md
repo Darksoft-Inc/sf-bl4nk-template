@@ -22,6 +22,8 @@ Tests stay in the PHPUnit class style, so both commands run the whole suite. Rec
 
 `tests/Controller/AuthRateLimitTest.php` covers the auth throttling. The test kernel clears the `cache.rate_limiter` pool between tests through the framework's `kernel.test_state` tag, so every test starts from an empty limiter state; a test blocks an address by consuming the limit within one test, not by waiting for a window to pass. The login test loops over bounded attempts because its one minute window can reset while the loop runs.
 
+`tests/Unit/TranslationCoverageTest.php` guards the catalogs: templates translate their literal keys through the messages domain, form labels and help through messages, constraint messages through validators, and the security exception through security, and the test fails naming the key and the file whenever a referenced key misses from its catalog. A missing entry renders the raw key on the page, which is how the map section headers once broke.
+
 ## Deprecations
 
 Both commands report no deprecations and exit 0.
