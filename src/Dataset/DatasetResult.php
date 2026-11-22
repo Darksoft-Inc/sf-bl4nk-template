@@ -4,7 +4,7 @@ namespace App\Dataset;
 
 /**
  * What one load run wrote: created, updated, and removed records per type
- * section, plus the rows removed by the purge.
+ * section, plus the tables emptied by a clear load.
  */
 final class DatasetResult
 {
@@ -17,7 +17,7 @@ final class DatasetResult
     /** @var array<string, int> */
     private array $removed = [];
 
-    private int $purged = 0;
+    private int $cleared = 0;
 
     public function __construct(
         private readonly int $fileCount,
@@ -39,9 +39,9 @@ final class DatasetResult
         $this->removed[$type] = ($this->removed[$type] ?? 0) + 1;
     }
 
-    public function addPurged(int $count): void
+    public function addCleared(int $count): void
     {
-        $this->purged += $count;
+        $this->cleared += $count;
     }
 
     public function fileCount(): int
@@ -49,9 +49,9 @@ final class DatasetResult
         return $this->fileCount;
     }
 
-    public function purged(): int
+    public function cleared(): int
     {
-        return $this->purged;
+        return $this->cleared;
     }
 
     /**

@@ -27,12 +27,23 @@ Run the load against the production database:
 symfony console app:dataset:load --env=prod
 ```
 
-A later release can update a few records instead of repeating the whole set: a file whose references name rows of an earlier load loads on its own. Large loads write in batches; `--batch-size=N` bounds memory further.
+The default mode inserts only and stops with the slugs that already
+exist, so it is the first-install command. After any edit to the files,
+apply it with the update mode, which never touches a row without a
+dataset slug:
 
-The `--purge` option is refused in the prod environment, on purpose: it
-deletes every row that carries a dataset slug. Rows dropped from a
-dataset are removed with a removal entry instead, which names only the
-slug:
+```bash
+symfony console app:dataset:load --env=prod --update
+```
+
+A later release can update a few records instead of repeating the whole
+set: a file whose references name rows of an earlier load loads on its
+own. Large loads write in batches; `--batch-size=N` bounds memory
+further.
+
+The `--clear` option is refused in the prod environment, on purpose: it
+empties every table. Rows dropped from a dataset are removed with a
+removal entry instead, which names only the slug and needs `--update`:
 
 ```yaml
 users:

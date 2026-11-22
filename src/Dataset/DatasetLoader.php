@@ -11,23 +11,24 @@ use Symfony\Component\Yaml\Yaml;
 
 /**
  * Loads YAML dataset files into the database. Records are keyed by their
- * dataset slug: a slug new to the database inserts a row, a known slug
- * updates the fields the record names, and rows whose slug column is null
- * are never touched. Relations between records are written as
- * "@type.slug" references and resolved at load time, either against the
- * current load or against a row of an earlier load, so a subset of a
- * dataset loads on its own.
+ * dataset slug, and rows whose slug column is null are never touched.
+ * Relations between records are written as "@type.slug" references and
+ * resolved at load time, either against the current load or against a
+ * row of an earlier load, so a subset of a dataset loads on its own.
  *
- * The load parses every file once, inside one transaction. The parse
+ * The mode decides what a known slug means: Insert leaves it alone and
+ * fails fast before any write, Update applies the fields the record
+ * names and accepts removal entries, and Clear empties every table
+ * before loading, so a clear load must name every record it references.
+ * The load parses every file once, inside one transaction: the parse
  * validates the structure, the references, and the cycles, so every
- * structural failure happens before any write, and the records stay in
- * memory for the write phase. The writes follow the order the cycle
- * check produces, so a record is written after every record it
- * references, in batches: each full batch is flushed and the entity
- * manager cleared, so memory holds the parsed records and one batch,
- * not a growing unit of work. The peak of a 40,000-row load, the
- * dimensioning ceiling, is recorded in docs/DECISIONS.md. Any failure
- * rolls the transaction back and leaves the database unchanged.
+ * failure happens before any write, and the records stay in memory for
+ * the write phase. The writes follow the order the cycle check
+ * produces, in batches: each full batch is flushed and the entity
+ * manager cleared, so memory holds the parsed records and one batch.
+ * The peak of a 40,000-row load, the dimensioning ceiling, is recorded
+ * in docs/DECISIONS.md. Any failure rolls the transaction back and
+ * leaves the database unchanged.
  */
 final class DatasetLoader
 {
@@ -63,9 +64,9 @@ final class DatasetLoader
      *
      * @param list<string> $paths
      *
-     * @throws DatasetException when a file is invalid or the database rejects the data
+     * @throws DatasetException when a file is invalid, the mode refuses the load, or the database rejects the data
      */
-    public function load(array $paths, bool $purge = false, bool $dryRun = false, int $batchSize = self::DEFAULT_BATCH_SIZE): DatasetResult
+    public function load(array $paths, DatasetMode $mode = DatasetMode::Insert, bool $dryRun = false, int $batchSize = self::DEFAULT_BATCH_SIZE): DatasetResult
     {
         if ($batchSize < 1) {
             throw new DatasetException('The batch size must be 1 or more.');
@@ -73,8 +74,17 @@ final class DatasetLoader
 
         $files = $this->findFiles($paths);
         [$records, $removals] = $this->parseFiles($files);
+
+        if ([] !== $removals && DatasetMode::Update !== $mode) {
+            $removals[0]->fail('removal entries need --update: the default mode inserts and --clear starts from empty tables');
+        }
+
         $this->assertRemovalsAreNotDefined($removals, $records);
-        [$order, $external] = $this->validateReferences($records, $removals, $purge);
+        [$order, $external] = $this->validateReferences($records, $removals, $mode);
+
+        if (DatasetMode::Insert === $mode) {
+            $this->assertSlugsAreNew($records);
+        }
 
         $result = new DatasetResult(\count($files));
 
@@ -91,12 +101,12 @@ final class DatasetLoader
             // removals and the lookups below read fresh instances.
             $this->em->clear();
 
-            if ($purge) {
-                $result->addPurged($this->purgeSluggedRows());
+            if (DatasetMode::Clear === $mode) {
+                $result->addCleared($this->clearTables());
             }
 
             $this->removeRecords($removals, $batchSize, $result);
-            $this->writeRecords($order, $resolver, $batchSize, $result);
+            $this->writeRecords($order, $resolver, $batchSize, $result, $mode);
             $this->em->flush();
 
             if ($dryRun) {
@@ -117,6 +127,49 @@ final class DatasetLoader
         }
 
         return $result;
+    }
+
+    /**
+     * The insert mode leaves known slugs alone, so a slug that already
+     * exists is a stop, not an overwrite: one query per loaded type
+     * collects every collision, and the refusal names them all before
+     * any write.
+     *
+     * @param array<string, array<string, DatasetRecord>> $records
+     */
+    private function assertSlugsAreNew(array $records): void
+    {
+        $collisions = [];
+
+        foreach ($records as $type => $bySlug) {
+            $existing = $this->em->getRepository($this->types[$type]->getEntityClass())
+                ->createQueryBuilder('e')
+                ->select('e.datasetSlug')
+                ->andWhere('e.datasetSlug IS NOT NULL')
+                ->getQuery()
+                ->getSingleColumnResult();
+            $existing = array_values(array_filter($existing, 'is_string'));
+
+            $perType = array_values(array_intersect($existing, array_keys($bySlug)));
+
+            if ([] !== $perType) {
+                $collisions[$type] = $perType;
+            }
+        }
+
+        if ([] === $collisions) {
+            return;
+        }
+
+        $lines = [];
+        foreach ($collisions as $type => $perType) {
+            $names = \array_slice($perType, 0, 10);
+            $more = \count($perType) > 10 ? \sprintf(', and %d more', \count($perType) - 10) : '';
+
+            $lines[] = \sprintf('%s (%s%s)', $type, implode(', ', $names), $more);
+        }
+
+        throw new DatasetException(\sprintf('Slugs that already exist: %s. Run with --update to apply the fields the records name, or --clear to start from empty tables.', implode('; ', $lines)));
     }
 
     /**
@@ -297,17 +350,18 @@ final class DatasetLoader
      * order together with the row ids of the external references.
      * Internal references must name a record of the load; external
      * references must name a row of an earlier load, found by its
-     * dataset slug. A purge load must be self-contained, because the
-     * purge deletes the rows an external reference would point at. The
-     * order comes from the same pass that rejects the cycles: a record
-     * is placed after every record it references inside the load.
+     * dataset slug. A clear load must be self-contained, because the
+     * clear empties every table first and no row of an earlier load
+     * survives it. The order comes from the same pass that rejects the
+     * cycles: a record is placed after every record it references
+     * inside the load.
      *
      * @param array<string, array<string, DatasetRecord>> $records
      * @param list<DatasetRecord>                         $removals
      *
      * @return array{0: list<DatasetRecord>, 1: list<array{0: string, 1: string, 2: int}>}
      */
-    private function validateReferences(array $records, array $removals, bool $purge): array
+    private function validateReferences(array $records, array $removals, DatasetMode $mode): array
     {
         $removalKeys = [];
         foreach ($removals as $removal) {
@@ -343,10 +397,10 @@ final class DatasetLoader
             }
         }
 
-        if ([] !== $external && $purge) {
+        if ([] !== $external && DatasetMode::Clear === $mode) {
             [$type, $slug, $record] = reset($external);
             $record->fail(\sprintf(
-                'the reference "@%s.%s" targets a row of an earlier load, but the purge deletes it first; include the record in this load instead',
+                'the reference "@%s.%s" targets a row of an earlier load, but --clear empties every table first; include the record in this load instead',
                 $type,
                 $slug,
             ));
@@ -426,16 +480,23 @@ final class DatasetLoader
     /**
      * Writes the records in the validated order, in batches. Each full
      * batch is flushed and the entity manager cleared, so the unit of
-     * work holds one batch at a time.
+     * work holds one batch at a time. Update mode looks every slug up
+     * and applies the named fields; the other modes proved their slugs
+     * new, so they insert without the lookup.
      *
      * @param list<DatasetRecord> $order
      */
-    private function writeRecords(array $order, DatasetResolver $resolver, int $batchSize, DatasetResult $result): void
+    private function writeRecords(array $order, DatasetResolver $resolver, int $batchSize, DatasetResult $result, DatasetMode $mode): void
     {
         $written = 0;
 
         foreach ($order as $record) {
-            $this->processRecord($record, $resolver, $result);
+            if (DatasetMode::Update === $mode) {
+                $this->processRecord($record, $resolver, $result);
+            } else {
+                $this->insertRecord($record, $resolver, $result);
+            }
+
             ++$written;
 
             if (0 === $written % $batchSize) {
@@ -447,8 +508,8 @@ final class DatasetLoader
     }
 
     /**
-     * Writes one ordered record: a known slug updates the entity, a new
-     * slug creates one.
+     * Writes one ordered record in update mode: a known slug updates
+     * the entity, a new slug creates one.
      */
     private function processRecord(DatasetRecord $record, DatasetResolver $resolver, DatasetResult $result): void
     {
@@ -464,6 +525,21 @@ final class DatasetLoader
             $this->em->persist($entity);
             $result->created($record->type);
         }
+
+        $resolver->add($record->type, $record->slug, $entity);
+    }
+
+    /**
+     * Writes one ordered record in insert mode: the collision check
+     * proved the slug new, and the unique index remains as the backstop
+     * if a row appears between the check and the write.
+     */
+    private function insertRecord(DatasetRecord $record, DatasetResolver $resolver, DatasetResult $result): void
+    {
+        $this->assertRequiredFields($record);
+        $entity = $this->types[$record->type]->create($record, $resolver);
+        $this->em->persist($entity);
+        $result->created($record->type);
 
         $resolver->add($record->type, $record->slug, $entity);
     }
@@ -529,7 +605,7 @@ final class DatasetLoader
 
         $removed = 0;
 
-        foreach ($this->deleteOrder() as $class) {
+        foreach ($this->deleteOrder($this->typeClasses()) as $class) {
             foreach ($byClass[$class] ?? [] as $record) {
                 $entity = $this->em->getRepository($class)->findOneBy(['datasetSlug' => $record->slug]);
 
@@ -548,35 +624,38 @@ final class DatasetLoader
     }
 
     /**
-     * Deletes every row that carries a dataset slug, children first.
+     * Empties every mapped table, children first, with one statement per
+     * table: the platform turns it into a truncate where it has one and
+     * into a bulk delete where it does not. Nothing runs through the
+     * entity manager, so no row is ever loaded.
      */
-    private function purgeSluggedRows(): int
+    private function clearTables(): int
     {
-        $count = 0;
+        $connection = $this->em->getConnection();
+        $platform = $connection->getDatabasePlatform();
 
-        foreach ($this->deleteOrder() as $class) {
-            $deleted = $this->em->createQueryBuilder()
-                ->delete($class, 'e')
-                ->where('e.datasetSlug IS NOT NULL')
-                ->getQuery()
-                ->execute();
-
-            if (\is_int($deleted)) {
-                $count += $deleted;
-            }
+        $classes = [];
+        foreach ($this->em->getMetadataFactory()->getAllMetadata() as $metadata) {
+            $classes[] = $metadata->getName();
         }
 
-        return $count;
+        $cleared = 0;
+        foreach ($this->deleteOrder($classes) as $class) {
+            $table = $this->em->getClassMetadata($class)->getTableName();
+            $connection->executeStatement($platform->getTruncateTableSQL($table, true));
+
+            ++$cleared;
+        }
+
+        return $cleared;
     }
 
     /**
-     * The managed classes ordered so every class that references another
-     * is deleted before it: children first, because the referencing side
-     * holds the foreign key.
+     * The dataset types' entity classes.
      *
      * @return list<class-string>
      */
-    private function deleteOrder(): array
+    private function typeClasses(): array
     {
         $classes = [];
         foreach ($this->types as $type) {
@@ -586,6 +665,20 @@ final class DatasetLoader
             }
         }
 
+        return $classes;
+    }
+
+    /**
+     * The given classes ordered so every class that references another
+     * is deleted before it: children first, because the referencing side
+     * holds the foreign key.
+     *
+     * @param list<class-string> $classes
+     *
+     * @return list<class-string>
+     */
+    private function deleteOrder(array $classes): array
+    {
         // Only the owning side carries the foreign key, so only it
         // constrains the delete order; inverse sides would form
         // artificial cycles.

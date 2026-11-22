@@ -2,7 +2,9 @@
 #
 # This file loads before users.yaml (files load in name order), and the
 # announcement references "@users.member" anyway: the loader orders
-# records by their references, not by file order.
+# records by their references, not by file order. After the first load,
+# edit the files and run "symfony console app:dataset:load --update" to
+# apply a change: a known slug updates the row, a new slug inserts one.
 
 announcements:
     welcome:

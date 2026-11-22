@@ -14,7 +14,7 @@ use Symfony\Component\Console\Tester\CommandTester;
 /**
  * Runs the load command the way an operator would, through the console
  * entry point. The loader service test covers the record rules; this
- * class covers the command surface: paths, purge, and dry run.
+ * class covers the command surface: paths, the three modes, and dry run.
  */
 final class DatasetLoadCommandTest extends KernelTestCase
 {
@@ -69,33 +69,68 @@ final class DatasetLoadCommandTest extends KernelTestCase
         self::assertStringContainsString('datasets/shared', $display);
     }
 
-    public function testPurgeNeedsForceWhenNonInteractive(): void
+    public function testClearNeedsForceWhenNonInteractive(): void
     {
-        $this->tester->execute(['paths' => [self::FIXTURE], '--purge' => true], ['interactive' => false]);
+        $this->tester->execute(['paths' => [self::FIXTURE], '--clear' => true], ['interactive' => false]);
 
         $this->tester->assertCommandFailed();
-        self::assertStringContainsString('--purge option needs --force', $this->tester->getDisplay());
+        self::assertStringContainsString('--clear option needs --force', $this->tester->getDisplay());
     }
 
-    public function testPurgeRunsAfterConfirmation(): void
+    public function testClearRunsAfterConfirmation(): void
     {
         $this->tester->execute(['paths' => [self::FIXTURE]], ['interactive' => false]);
 
+        $hand = (new User())->setEmail('hand@example.com')->setIsVerified(true);
+        $hand->setPassword(password_hash('hand-password', \PASSWORD_DEFAULT));
+        $this->em->persist($hand);
+        $this->em->flush();
+
         $this->tester->setInputs(['y']);
-        $this->tester->execute(['paths' => [self::FIXTURE], '--purge' => true], ['interactive' => true]);
+        $this->tester->execute(['paths' => [self::FIXTURE], '--clear' => true], ['interactive' => true]);
 
         $this->tester->assertCommandIsSuccessful();
-        self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The purge confirmed by the operator runs.');
+        $this->em->clear();
+        self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The clear confirmed by the operator emptied the tables and loaded the fixture rows.');
+        self::assertStringContainsString('Cleared', $this->tester->getDisplay());
 
         $this->tester->setInputs(['n']);
-        $this->tester->execute(['paths' => [self::FIXTURE], '--purge' => true], ['interactive' => true]);
+        $this->tester->execute(['paths' => [self::FIXTURE], '--clear' => true], ['interactive' => true]);
 
         $this->tester->assertCommandIsSuccessful();
         self::assertStringContainsString('Aborted without changing anything', $this->tester->getDisplay());
-        self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The purge declined by the operator changes nothing.');
+        self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The clear declined by the operator changes nothing.');
     }
 
-    public function testPurgeIsRefusedInTheProdEnvironment(): void
+    public function testUpdateAndClearExcludeEachOther(): void
+    {
+        $this->tester->execute(['paths' => [self::FIXTURE], '--update' => true, '--clear' => true], ['interactive' => false]);
+
+        $this->tester->assertCommandFailed();
+        self::assertStringContainsString('--update and --clear options exclude each other', $this->tester->getDisplay());
+    }
+
+    public function testUpdateAppliesASecondLoad(): void
+    {
+        $this->tester->execute(['paths' => [self::FIXTURE]], ['interactive' => false]);
+        $this->tester->execute(['paths' => [self::FIXTURE], '--update' => true], ['interactive' => false]);
+
+        $this->tester->assertCommandIsSuccessful();
+        $this->em->clear();
+        self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The update rerun changes no row count.');
+    }
+
+    public function testDefaultModeRefusesASecondLoad(): void
+    {
+        $this->tester->execute(['paths' => [self::FIXTURE]], ['interactive' => false]);
+        $this->tester->execute(['paths' => [self::FIXTURE]], ['interactive' => false]);
+
+        $this->tester->assertCommandFailed();
+        self::assertStringContainsString('Slugs that already exist', $this->tester->getDisplay());
+        self::assertStringContainsString('--update', $this->tester->getDisplay());
+    }
+
+    public function testClearIsRefusedInTheProdEnvironment(): void
     {
         /** @var DatasetLoader $loader */
         $loader = static::getContainer()->get(DatasetLoader::class);
@@ -106,10 +141,10 @@ final class DatasetLoadCommandTest extends KernelTestCase
         $command = new DatasetLoadCommand($loader, 'prod', $kernel->getProjectDir());
         $tester = new CommandTester($command);
 
-        $tester->execute(['paths' => [self::FIXTURE], '--purge' => true, '--force' => true], ['interactive' => false]);
+        $tester->execute(['paths' => [self::FIXTURE], '--clear' => true, '--force' => true], ['interactive' => false]);
 
         $tester->assertCommandFailed();
-        self::assertStringContainsString('--purge option is refused in the prod environment', $tester->getDisplay());
+        self::assertStringContainsString('--clear option is refused in the prod environment', $tester->getDisplay());
     }
 
     public function testDryRunWritesNothing(): void

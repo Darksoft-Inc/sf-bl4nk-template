@@ -4,6 +4,7 @@ namespace App\Command;
 
 use App\Dataset\DatasetException;
 use App\Dataset\DatasetLoader;
+use App\Dataset\DatasetMode;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -15,9 +16,10 @@ use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
 /**
  * Loads the YAML datasets into the database. Without arguments it loads
- * "datasets/shared" plus the directory of the current environment; a
- * load inserts new slugs, updates known ones, and never touches rows
- * without a slug.
+ * "datasets/shared" plus the directory of the current environment: a
+ * first run inserts, later runs need --update to apply edits, and
+ * --clear rebuilds from empty tables. Production loads run --update,
+ * which never touches a row without a dataset slug.
  */
 #[AsCommand(
     name: 'app:dataset:load',
@@ -39,8 +41,9 @@ final class DatasetLoadCommand extends Command
     {
         $this
             ->addArgument('paths', InputArgument::IS_ARRAY | InputArgument::OPTIONAL, 'Dataset files or directories, relative to the project directory; defaults to "datasets/shared" plus the environment directory')
-            ->addOption('purge', null, InputOption::VALUE_NONE, 'Deletes every row that carries a dataset slug before loading; refused in the prod environment')
-            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Runs --purge without the confirmation question')
+            ->addOption('update', null, InputOption::VALUE_NONE, 'Applies the fields a record names on a known slug and accepts removal entries; the recommended production mode')
+            ->addOption('clear', null, InputOption::VALUE_NONE, 'Empties every table, then inserts; refused in the prod environment and exclusive with --update')
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Runs --clear without the confirmation question')
             ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Validates and reports without writing anything')
             ->addOption('batch-size', null, InputOption::VALUE_REQUIRED, 'Records to write between two flushes: a lower value bounds memory, a higher value speeds the load', (string) DatasetLoader::DEFAULT_BATCH_SIZE)
         ;
@@ -50,7 +53,8 @@ final class DatasetLoadCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
 
-        $purge = true === $input->getOption('purge');
+        $update = true === $input->getOption('update');
+        $clear = true === $input->getOption('clear');
         $dryRun = true === $input->getOption('dry-run');
         $batchSize = $input->getOption('batch-size');
 
@@ -60,20 +64,26 @@ final class DatasetLoadCommand extends Command
             return Command::FAILURE;
         }
 
-        if ($purge && 'prod' === $this->environment) {
-            $io->error('The --purge option is refused in the prod environment. Load datasets without it: rows without a dataset slug are never touched either way.');
+        if ($update && $clear) {
+            $io->error('The --update and --clear options exclude each other: --clear starts from empty tables, so there is nothing to update.');
 
             return Command::FAILURE;
         }
 
-        if ($purge && true !== $input->getOption('force')) {
+        if ($clear && 'prod' === $this->environment) {
+            $io->error('The --clear option is refused in the prod environment. Production loads run --update: a row without a dataset slug is never touched, and a removal entry names the row to delete.');
+
+            return Command::FAILURE;
+        }
+
+        if ($clear && true !== $input->getOption('force')) {
             if (!$input->isInteractive()) {
-                $io->error('The --purge option needs --force when the command runs non-interactively.');
+                $io->error('The --clear option needs --force when the command runs non-interactively.');
 
                 return Command::FAILURE;
             }
 
-            if (!$io->confirm('Purge deletes every row that carries a dataset slug before loading. Continue?', false)) {
+            if (!$io->confirm('Clear empties every table before loading. Continue?', false)) {
                 $io->note('Aborted without changing anything.');
 
                 return Command::SUCCESS;
@@ -86,8 +96,10 @@ final class DatasetLoadCommand extends Command
             return Command::SUCCESS;
         }
 
+        $mode = $clear ? DatasetMode::Clear : ($update ? DatasetMode::Update : DatasetMode::Insert);
+
         try {
-            $result = $this->loader->load($paths, $purge, $dryRun, (int) $batchSize);
+            $result = $this->loader->load($paths, $mode, $dryRun, (int) $batchSize);
         } catch (DatasetException $e) {
             $io->error($e->getMessage());
 
@@ -107,8 +119,8 @@ final class DatasetLoadCommand extends Command
 
         $io->table(['type', 'created', 'updated', 'removed'], $rows);
 
-        if ($result->purged() > 0) {
-            $io->note(\sprintf('Purged %d row(s) that carried a dataset slug.', $result->purged()));
+        if ($result->cleared() > 0) {
+            $io->note(\sprintf('Cleared %d table(s) before loading.', $result->cleared()));
         }
 
         if ($dryRun) {

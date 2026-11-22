@@ -4,6 +4,7 @@ namespace App\Tests\Integration;
 
 use App\Dataset\DatasetException;
 use App\Dataset\DatasetLoader;
+use App\Dataset\DatasetMode;
 use App\Dataset\DatasetRecord;
 use App\Dataset\DatasetResolver;
 use App\Dataset\DatasetTypeInterface;
@@ -112,17 +113,38 @@ final class DatasetLoaderTest extends KernelTestCase
     public function testRerunUpdatesExistingRowsInsteadOfDuplicating(): void
     {
         $this->loader->load([$this->fixture('content.yaml')]);
-        $result = $this->loader->load([$this->fixture('content.yaml')]);
+        $result = $this->loader->load([$this->fixture('content.yaml')], mode: DatasetMode::Update);
 
         self::assertSame(1, $result->counts()['users']['updated']);
         self::assertSame(0, $result->counts()['users']['created']);
         self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The second load updates the known slug instead of adding a row.');
     }
 
+    public function testInsertModeRefusesSlugsThatAlreadyExist(): void
+    {
+        $this->loader->load([$this->fixture('content.yaml')]);
+
+        try {
+            $this->loader->load([$this->fixture('content.yaml')]);
+            self::fail('The insert mode must refuse a slug that already exists.');
+        } catch (DatasetException $e) {
+            self::assertStringContainsString('Slugs that already exist', $e->getMessage());
+            self::assertStringContainsString('jane', $e->getMessage());
+            self::assertStringContainsString('welcome', $e->getMessage());
+            self::assertStringContainsString('Run with --update', $e->getMessage());
+            self::assertStringContainsString('--clear', $e->getMessage());
+        }
+
+        $this->em->clear();
+
+        self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The refused load leaves the database as it was.');
+        self::assertCount(1, $this->em->getRepository(Announcement::class)->findAll());
+    }
+
     public function testPartialRecordUpdatesOnlyTheNamedFields(): void
     {
         $this->loader->load([$this->fixture('content.yaml')]);
-        $this->loader->load([$this->fixture('update.yaml')]);
+        $this->loader->load([$this->fixture('update.yaml')], mode: DatasetMode::Update);
 
         $this->em->clear();
 
@@ -135,7 +157,7 @@ final class DatasetLoaderTest extends KernelTestCase
     public function testRemovalTagDeletesTheSlugRowOnly(): void
     {
         $this->loader->load([$this->fixture('content.yaml')]);
-        $result = $this->loader->load([$this->fixture('removal.yaml')]);
+        $result = $this->loader->load([$this->fixture('removal.yaml')], mode: DatasetMode::Update);
 
         self::assertSame(1, $result->counts()['map_route_types']['removed']);
 
@@ -147,11 +169,28 @@ final class DatasetLoaderTest extends KernelTestCase
         self::assertCount(1, $this->em->getRepository(MapPoint::class)->findAll());
         self::assertCount(1, $this->em->getRepository(User::class)->findAll());
 
-        $reload = $this->loader->load([$this->fixture('content.yaml')]);
+        $reload = $this->loader->load([$this->fixture('content.yaml')], mode: DatasetMode::Update);
         self::assertSame(1, $reload->counts()['map_route_types']['created'], 'After the removal, the same record can be loaded again.');
     }
 
-    public function testPurgeDeletesOnlyRowsThatCarryASlug(): void
+    public function testRemovalEntriesNeedTheUpdateMode(): void
+    {
+        $this->loader->load([$this->fixture('content.yaml')]);
+
+        try {
+            $this->loader->load([$this->fixture('removal.yaml')]);
+            self::fail('A removal entry outside the update mode must fail the load.');
+        } catch (DatasetException $e) {
+            self::assertStringContainsString('map_route_types.main-roads', $e->getMessage());
+            self::assertStringContainsString('removal entries need --update', $e->getMessage());
+        }
+
+        $this->em->clear();
+
+        self::assertCount(1, $this->em->getRepository(MapRouteType::class)->findAll(), 'The refused load leaves the removal target in place.');
+    }
+
+    public function testClearEmptiesEveryTableBeforeLoading(): void
     {
         $handUser = (new User())->setEmail('hand@example.com')->setIsVerified(true);
         $handUser->setPassword($this->passwordHasher->hashPassword($handUser, 'hand-password'));
@@ -159,19 +198,16 @@ final class DatasetLoaderTest extends KernelTestCase
         $this->em->persist(new Announcement('Hand written', 'Made through the app.', new \DateTimeImmutable('2026-11-20 10:00'), $handUser));
         $this->em->flush();
 
-        $this->loader->load([$this->fixture('content.yaml')]);
-        $result = $this->loader->load([$this->fixture('content.yaml')], purge: true);
+        $result = $this->loader->load([$this->fixture('content.yaml')], mode: DatasetMode::Clear);
 
-        self::assertSame(6, $result->purged());
+        self::assertSame(1, $result->counts()['users']['created']);
+        self::assertGreaterThan(0, $result->cleared());
 
         $this->em->clear();
 
-        self::assertCount(2, $this->em->getRepository(User::class)->findAll(), 'The hand-made user survives the purge.');
-        self::assertCount(2, $this->em->getRepository(Announcement::class)->findAll(), 'The hand-made announcement survives the purge.');
-
-        $handAnnouncement = $this->em->getRepository(Announcement::class)->findOneBy(['datasetSlug' => null]);
-        self::assertNotNull($handAnnouncement);
-        self::assertSame('hand@example.com', $handAnnouncement->getAuthor()->getEmail());
+        self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The clear emptied the tables, so only the loaded user remains.');
+        self::assertCount(1, $this->em->getRepository(Announcement::class)->findAll(), 'The hand-made announcement is gone with the clear.');
+        self::assertCount(0, $this->em->getRepository(User::class)->findBy(['email' => 'hand@example.com']));
     }
 
     public function testDryRunWritesNothing(): void
@@ -265,7 +301,7 @@ final class DatasetLoaderTest extends KernelTestCase
 
     public function testReferenceToARemovedRecordFails(): void
     {
-        $message = $this->loadFailure('errors/reference-to-removed.yaml');
+        $message = $this->loadFailure('errors/reference-to-removed.yaml', mode: DatasetMode::Update);
 
         self::assertStringContainsString('map_routes.r', $message);
         self::assertStringContainsString('"@map_route_types.gone" points at a record marked for removal', $message);
@@ -364,21 +400,21 @@ final class DatasetLoaderTest extends KernelTestCase
         self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The partial load adds no row of its referenced types.');
     }
 
-    public function testPurgeLoadMustBeSelfContained(): void
+    public function testClearLoadMustBeSelfContained(): void
     {
         $this->loader->load([$this->fixture('content.yaml')]);
 
         try {
-            $this->loader->load([$this->fixture('partial.yaml')], purge: true);
-            self::fail('A purge load cannot reference rows it deletes first.');
+            $this->loader->load([$this->fixture('partial.yaml')], mode: DatasetMode::Clear);
+            self::fail('A clear load cannot reference rows it empties first.');
         } catch (DatasetException $e) {
             self::assertStringContainsString('partial.yaml] map_points.harbor', $e->getMessage());
-            self::assertStringContainsString('"@maps.old-town" targets a row of an earlier load, but the purge deletes it first', $e->getMessage());
+            self::assertStringContainsString('"@maps.old-town" targets a row of an earlier load, but --clear empties every table first', $e->getMessage());
         }
 
         $this->em->clear();
 
-        self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The refused purge leaves every row in place.');
+        self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The refused clear leaves every row in place.');
         self::assertCount(1, $this->em->getRepository(Map::class)->findAll());
     }
 
@@ -415,12 +451,12 @@ final class DatasetLoaderTest extends KernelTestCase
     /**
      * @param list<string>|string $fixtures
      */
-    private function loadFailure(array|string $fixtures): string
+    private function loadFailure(array|string $fixtures, DatasetMode $mode = DatasetMode::Insert): string
     {
         $paths = \is_array($fixtures) ? $fixtures : [$fixtures];
 
         try {
-            $this->loader->load(array_map($this->fixture(...), $paths));
+            $this->loader->load(array_map($this->fixture(...), $paths), mode: $mode);
             self::fail('The load must fail.');
         } catch (DatasetException $e) {
             return $e->getMessage();
