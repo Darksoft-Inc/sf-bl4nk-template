@@ -73,6 +73,9 @@ The remaining target features from `docs/PURPOSE.md`, in build order. Each item 
 
 Findings from the manual review pass. Each item closes with the fix and its verification.
 
+- [x] The admin user list has an administrator-specific column (found in manual review on 2026-11-22).
+  - The column showed a check for `ROLE_ADMIN` only, while the intent is to list the actual roles. The column header is now "Roles" and lists every role of the account: `ROLE_USER` is omitted because every account holds it, and the `ROLE_` prefix is stripped for display because it eats space without information. The edit modal keeps the full role names. Verified on 2026-11-22: `testAdminSeesUsers` asserts the header, the `ADMIN` badge on the admin row, and the dash on the plain member row, and both runners pass with 209 tests and 1235 assertions, PHPStan, the lint commands, and the two style dry runs pass.
+
 - [x] The local tooling probes /health every 30 seconds and the app had no route (found in environment review on 2026-11-22).
   - The poller is the OpenCode CLI, User-Agent `opencode/latest/2.3.2/cli` from 127.0.0.1: 1350 probes over two days, each a 404 warning with a stack trace in `var/log/dev.log`. `HealthController` answers 200 with the body `ok`, carries no `#[Route]` attribute, and is registered by `config/routes/health.yaml` under `when@dev`, the mechanism the web profiler routes already use: production stays closed, and the test environment keeps no route. Verified on 2026-11-22: the running dev server answers 200 on `/health`, `debug:router --env=test` lists no `app_health`, `HealthControllerTest` asserts the 404 in the test environment, and both runners plus PHPStan and the lint and style checks pass with 209 tests and 1230 assertions.
 

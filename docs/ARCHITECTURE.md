@@ -63,7 +63,7 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `SharedController` lists, shows, uploads, and removes the files the members share with each other. The section is the first one restricted to members only, and only the uploader deletes a file.
 - `ReferenceController` lists the generated reference pages and shows one. Every page comes from the `Reference` attribute of a service, collected and validated at build time, so the controller only resolves slugs.
 - `DocumentationController` renders a documentation page from a per-locale template, falling back to the default locale.
-- `App\Controller\Admin\AdminUserController` lists the users page by page and saves the modal edit form that changes the email, the verified state, and the admin role.
+- `App\Controller\Admin\AdminUserController` lists the users page by page and saves the modal edit form that changes the email, the verified state, and the admin role. The list column shows each account's roles without `ROLE_USER`, which every account holds, and without the `ROLE_` prefix; the edit form works with the full role names.
 - `App\Controller\Admin\AdminAnnouncementController` lists, creates, and edits announcements. The author of a new announcement is the signed-in admin.
 - `App\Controller\Admin\AdminMapController` lists the maps, saves the map parameters, manages the map image pool with its upload form, and removes maps.
 - `App\Controller\Admin\AdminMapPointController` creates, edits, and removes the points of a map.

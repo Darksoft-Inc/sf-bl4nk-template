@@ -27,7 +27,7 @@
             <tr>
                 <th scope="col">ID</th>
                 <th scope="col">{{ 'app.account.email'|trans }}</th>
-                <th scope="col">{{ 'app.admin.user.administrator'|trans }}</th>
+                <th scope="col">{{ 'app.admin.user.roles'|trans }}</th>
                 <th scope="col">{{ 'app.account.verified'|trans }}</th>
                 <th scope="col">{{ 'app.account.last_connection'|trans }}</th>
                 <th scope="col" class="text-end">{{ 'app.admin.user.actions'|trans }}</th>
@@ -38,7 +38,20 @@
                 <tr class="user-row">
                     <td>{{ user.id }}</td>
                     <td class="user-email">{{ user.email }}</td>
-                    <td>{{ 'ROLE_ADMIN' in user.roles ? '✓' : '—' }}</td>
+                    {# The column lists the account's real roles: ROLE_USER
+                       belongs to every account, and the ROLE_ prefix eats
+                       space without information. The edit form keeps the
+                       full role names. #}
+                    <td class="user-roles">
+                        {% set extraRoles = user.roles|filter(role => role != 'ROLE_USER') %}
+                        {% if extraRoles is empty %}
+                            —
+                        {% else %}
+                            {% for role in extraRoles %}
+                                <span class="badge text-bg-secondary">{{ role starts with 'ROLE_' ? role|slice(5) : role }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </td>
                     <td>{{ user.isVerified ? '✓' : '—' }}</td>
                     <td class="user-last-connection">
                         {% if user.lastConnectedAt %}

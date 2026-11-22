@@ -61,6 +61,14 @@ final class AdminUserControllerTest extends WebTestCase
 
         self::assertGreaterThan(0, $crawler->filter('select[multiple]')->count());
         self::assertGreaterThan(0, $crawler->filter('option[value="ROLE_ADMIN"][selected]')->count());
+
+        // The roles column lists the account's real roles without the
+        // ROLE_ prefix and without ROLE_USER; the edit form keeps the
+        // full role names.
+        self::assertSame('Roles', $crawler->filter('th')->eq(2)->text());
+        self::assertCount(1, $crawler->filter('td.user-roles .badge'));
+        self::assertSame('ADMIN', trim($crawler->filter('td.user-roles .badge')->eq(0)->text()));
+        self::assertSame('—', trim($crawler->filter('tr.user-row:contains("target@example.com") td.user-roles')->text()));
     }
 
     public function testUserListIsPaginated(): void
