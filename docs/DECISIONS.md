@@ -266,6 +266,12 @@ Dimensioning from 2026-11-22: a load targets 2,000 to 40,000 rows, the scale of 
 
 Measured against production shape on 2026-11-22: the prod environment against the compose PostgreSQL, the same one-file corpus, a 256M cap matching the smallest prod host. With the default batches of 100, 40,000 rows peak at 167 MB resident in 48 s and complete under `php -d memory_limit=256M`, and 30,000 rows peak at 140 MB in 36 s under the same cap. With `--batch-size 40000`, one flush, the same 40,000 rows peak at 278 MB resident and also complete under the cap, but with almost no headroom: the zend peak that the limit polices came close to 256 MB, and a record heavier than the bench shape, which carries a title and two numbers, exhausts it. The default batching stays the rule on a 256M host, and the ceiling is not the place to raise `--batch-size`. PostgreSQL is where the time goes, about 1.2 ms per row across the slug lookup and the insert, so a 40,000-row load takes under a minute and the 2,000-row floor takes seconds.
 
+Decision from 2026-11-22: the loader parses once and writes in the order the cycle check produces.
+
+Evidence: the dimensioning target of 2,000 to 40,000 rows made the second parse and the pending-list ordering cost more complexity than the memory they saved. The write phase already held each file's complete parsed records, and the measured single-file peak proved that holding the whole corpus at once was the worst case, so the second pass bought no headroom at the ceiling. The parse now builds the records themselves, the reference validation returns the write order from the same Kahn pass that rejects the cycles, and `DatasetIndexEntry` with the pending-list machinery is gone. Measured after the change, the same one-file corpus: the test database peaks at 136 MB in 5.5 s against 173 MB in 7.2 s before, and the prod PostgreSQL load under the 256M cap peaks at 132 MB in 50 s against 167 MB in 48 s before. The batching, the one-transaction rule, the external reference resolution, the removals, and the purge keep their behavior; the loader and command integration suites pass unchanged, including the batch size of 1, the dry run, and every error file.
+
+Consequence: memory holds the parsed records of the whole load for the duration of the write phase. The dimensioning ceiling bounds that at the measured 132 to 136 MB, and the floor does not feel it.
+
 ## Rate limiting
 
 Decision from 2026-11-19: deferred to the production readiness pass.

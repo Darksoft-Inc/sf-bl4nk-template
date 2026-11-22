@@ -18,13 +18,15 @@ use Symfony\Component\Yaml\Yaml;
  * current load or against a row of an earlier load, so a subset of a
  * dataset loads on its own.
  *
- * The load runs in two passes and one transaction. The first pass reads
- * every file and reduces it to a light index: record identity, file, and
- * references; it validates the structure, the references, and the
- * cycles, so every structural failure happens before any write. The
- * second pass streams the files again and writes in batches: each full
- * batch is flushed and the entity manager cleared, so memory holds one
- * file, one batch, and the index, not the whole dataset. Any failure
+ * The load parses every file once, inside one transaction. The parse
+ * validates the structure, the references, and the cycles, so every
+ * structural failure happens before any write, and the records stay in
+ * memory for the write phase. The writes follow the order the cycle
+ * check produces, so a record is written after every record it
+ * references, in batches: each full batch is flushed and the entity
+ * manager cleared, so memory holds the parsed records and one batch,
+ * not a growing unit of work. The peak of a 40,000-row load, the
+ * dimensioning ceiling, is recorded in docs/DECISIONS.md. Any failure
  * rolls the transaction back and leaves the database unchanged.
  */
 final class DatasetLoader
@@ -70,9 +72,9 @@ final class DatasetLoader
         }
 
         $files = $this->findFiles($paths);
-        [$definitions, $removals] = $this->buildIndex($files);
-        $this->assertRemovalsAreNotDefined($removals, $definitions);
-        $external = $this->validateReferences($definitions, $removals, $purge);
+        [$records, $removals] = $this->parseFiles($files);
+        $this->assertRemovalsAreNotDefined($removals, $records);
+        [$order, $external] = $this->validateReferences($records, $removals, $purge);
 
         $result = new DatasetResult(\count($files));
 
@@ -94,7 +96,7 @@ final class DatasetLoader
             }
 
             $this->removeRecords($removals, $batchSize, $result);
-            $this->writeRecords($files, $definitions, $resolver, $batchSize, $result);
+            $this->writeRecords($order, $resolver, $batchSize, $result);
             $this->em->flush();
 
             if ($dryRun) {
@@ -155,9 +157,9 @@ final class DatasetLoader
 
     /**
      * Parses one file and returns its records by type section and slug.
-     * Validated here, so both passes can trust the shape: the sections
-     * name known types, the slugs are well formed, and the field keys are
-     * strings.
+     * Validated here, so every later pass can trust the shape: the
+     * sections name known types, the slugs are well formed, and the
+     * field keys are strings.
      *
      * @return array<string, array<string, array<string, mixed>>>
      */
@@ -216,94 +218,96 @@ final class DatasetLoader
     }
 
     /**
-     * First pass: reads every file once and reduces it to the index,
-     * without keeping the record data, and validates the structure:
-     * duplicate slugs, the shape of removal entries, and the field
-     * names.
+     * Parses every file once and returns the records keyed by type
+     * section and slug, plus the removal entries. The structure, the
+     * "remove" flag, the field names, and the duplicate slugs are
+     * validated here, so the write phase can trust what it holds.
      *
      * @param list<string> $files
      *
-     * @return array{0: array<string, array<string, DatasetIndexEntry>>, 1: list<DatasetIndexEntry>}
+     * @return array{0: array<string, array<string, DatasetRecord>>, 1: list<DatasetRecord>}
      */
-    private function buildIndex(array $files): array
+    private function parseFiles(array $files): array
     {
-        $definitions = [];
+        $records = [];
         $removals = [];
 
         foreach ($files as $file) {
-            foreach ($this->parseFile($file) as $type => $records) {
-                foreach ($records as $slug => $fields) {
-                    $entry = new DatasetIndexEntry($type, $slug, $file, $this->referencesOf($fields));
+            foreach ($this->parseFile($file) as $type => $bySlug) {
+                foreach ($bySlug as $slug => $fields) {
+                    $record = new DatasetRecord($type, $slug, $file, $fields);
 
                     if (\array_key_exists('remove', $fields)) {
                         if (true !== $fields['remove']) {
-                            $entry->fail('the "remove" flag must be true; drop the entry to leave the row in place');
+                            $record->fail('the "remove" flag must be true; drop the entry to leave the row in place');
                         }
 
                         if (\count($fields) > 1) {
-                            $entry->fail('a removal entry carries only the "remove" flag, because only the slug identifies the row');
+                            $record->fail('a removal entry carries only the "remove" flag, because only the slug identifies the row');
                         }
 
-                        $removals[] = $entry;
+                        $removals[] = $record;
 
                         continue;
                     }
 
-                    $this->assertKnownFields($entry, $fields);
+                    $this->assertKnownFields($record, $fields);
 
-                    if (isset($definitions[$type][$slug])) {
-                        $entry->fail(\sprintf('the slug is already defined in [%s].', $definitions[$type][$slug]->file));
+                    if (isset($records[$type][$slug])) {
+                        $record->fail(\sprintf('the slug is already defined in [%s].', $records[$type][$slug]->file));
                     }
 
-                    $definitions[$type][$slug] = $entry;
+                    $records[$type][$slug] = $record;
                 }
             }
         }
 
-        return [$definitions, $removals];
+        return [$records, $removals];
     }
 
     /**
      * @param array<string, mixed> $fields
      */
-    private function assertKnownFields(DatasetIndexEntry $entry, array $fields): void
+    private function assertKnownFields(DatasetRecord $record, array $fields): void
     {
-        $known = $this->types[$entry->type]->getFieldNames();
+        $known = $this->types[$record->type]->getFieldNames();
 
         foreach (array_keys($fields) as $field) {
             if (!\in_array($field, $known, true)) {
-                $entry->fail(\sprintf('unknown field "%s". Known fields: %s.', (string) $field, implode(', ', $known)));
+                $record->fail(\sprintf('unknown field "%s". Known fields: %s.', (string) $field, implode(', ', $known)));
             }
         }
     }
 
     /**
-     * @param list<DatasetIndexEntry>                         $removals
-     * @param array<string, array<string, DatasetIndexEntry>> $definitions
+     * @param list<DatasetRecord>                         $removals
+     * @param array<string, array<string, DatasetRecord>> $records
      */
-    private function assertRemovalsAreNotDefined(array $removals, array $definitions): void
+    private function assertRemovalsAreNotDefined(array $removals, array $records): void
     {
         foreach ($removals as $removal) {
-            if (isset($definitions[$removal->type][$removal->slug])) {
+            if (isset($records[$removal->type][$removal->slug])) {
                 $removal->fail('the slug is also defined as a record in this load; a record cannot be removed and written at once');
             }
         }
     }
 
     /**
-     * Validates every reference before any write, and returns the row
-     * ids of the external ones. Internal references must name a record
-     * of the load; external references must name a row of an earlier
-     * load, found by its dataset slug. A purge load must be
-     * self-contained, because the purge deletes the rows an external
-     * reference would point at.
+     * Validates every reference before any write and returns the write
+     * order together with the row ids of the external references.
+     * Internal references must name a record of the load; external
+     * references must name a row of an earlier load, found by its
+     * dataset slug. A purge load must be self-contained, because the
+     * purge deletes the rows an external reference would point at. The
+     * order comes from the same pass that rejects the cycles: a record
+     * is placed after every record it references inside the load.
      *
-     * @param array<string, array<string, DatasetIndexEntry>> $definitions
-     * @param list<DatasetIndexEntry>                         $removals
+     * @param array<string, array<string, DatasetRecord>> $records
+     * @param list<DatasetRecord>                         $removals
      *
-     * @return list<array{0: string, 1: string, 2: int}> the (type, slug, id) of every external reference
+     * @return array{0: list<DatasetRecord>, 1: list<array{0: string, 1: string, 2: int}>}
      */
-    private function validateReferences(array $definitions, array $removals, bool $purge): array
+    private function validateReferences(array $records, array $removals, bool $purge): array
     {
         $removalKeys = [];
         foreach ($removals as $removal) {
@@ -313,35 +317,35 @@ final class DatasetLoader
         $edges = [];
         $external = [];
 
-        foreach ($definitions as $bySlug) {
-            foreach ($bySlug as $entry) {
+        foreach ($records as $bySlug) {
+            foreach ($bySlug as $record) {
                 $targets = [];
 
-                foreach ($entry->references as [$type, $slug, $raw]) {
+                foreach ($this->referencesOf($record->data) as [$type, $slug, $raw]) {
                     if (!isset($this->types[$type])) {
-                        $entry->fail(\sprintf('the reference "%s" names the unknown type "%s". Known types: %s.', $raw, $type, implode(', ', array_keys($this->types))));
+                        $record->fail(\sprintf('the reference "%s" names the unknown type "%s". Known types: %s.', $raw, $type, implode(', ', array_keys($this->types))));
                     }
 
                     if (isset($removalKeys[$type.'.'.$slug])) {
-                        $entry->fail(\sprintf('the reference "%s" points at a record marked for removal in this load.', $raw));
+                        $record->fail(\sprintf('the reference "%s" points at a record marked for removal in this load.', $raw));
                     }
 
-                    if (isset($definitions[$type][$slug])) {
+                    if (isset($records[$type][$slug])) {
                         $targets[] = $type.'.'.$slug;
 
                         continue;
                     }
 
-                    $external[$type.'.'.$slug] ??= [$type, $slug, $entry];
+                    $external[$type.'.'.$slug] ??= [$type, $slug, $record];
                 }
 
-                $edges[$entry->type.'.'.$entry->slug] = array_values(array_unique($targets));
+                $edges[$record->type.'.'.$record->slug] = array_values(array_unique($targets));
             }
         }
 
         if ([] !== $external && $purge) {
-            [$type, $slug, $entry] = reset($external);
-            $entry->fail(\sprintf(
+            [$type, $slug, $record] = reset($external);
+            $record->fail(\sprintf(
                 'the reference "@%s.%s" targets a row of an earlier load, but the purge deletes it first; include the record in this load instead',
                 $type,
                 $slug,
@@ -349,12 +353,12 @@ final class DatasetLoader
         }
 
         $ids = [];
-        foreach ($external as [$type, $slug, $entry]) {
+        foreach ($external as [$type, $slug, $record]) {
             $class = $this->types[$type]->getEntityClass();
             $entity = $this->em->getRepository($class)->findOneBy(['datasetSlug' => $slug]);
 
             if (null === $entity) {
-                $entry->fail(\sprintf(
+                $record->fail(\sprintf(
                     'unknown reference "@%s.%s": neither a record in this load nor a row with this dataset slug exists in the database',
                     $type,
                     $slug,
@@ -364,22 +368,27 @@ final class DatasetLoader
             $ids[] = [$type, $slug, $this->identifierOf($this->types[$type], $entity)];
         }
 
-        $this->detectCycles($definitions, $edges);
-
-        return $ids;
+        return [$this->writeOrder($records, $edges), $ids];
     }
 
     /**
-     * Fails before any write when the internal references form a cycle.
+     * Rejects a cycle and returns the records in a write order: a record
+     * is placed after every record it references inside the load. The
+     * placement is Kahn's algorithm, the same pass that detects the
+     * cycles, so the order and the cycle rejection share one walk.
      *
-     * @param array<string, array<string, DatasetIndexEntry>> $definitions
-     * @param array<string, list<string>>                     $edges
+     * @param array<string, array<string, DatasetRecord>> $records
+     * @param array<string, list<string>>                 $edges
+     *
+     * @return list<DatasetRecord>
      */
-    private function detectCycles(array $definitions, array $edges): void
+    private function writeOrder(array $records, array $edges): array
     {
-        $count = 0;
-        foreach ($definitions as $bySlug) {
-            $count += \count($bySlug);
+        $byKey = [];
+        foreach ($records as $bySlug) {
+            foreach ($bySlug as $slug => $record) {
+                $byKey[$record->type.'.'.$slug] = $record;
+            }
         }
 
         $indegree = [];
@@ -392,12 +401,13 @@ final class DatasetLoader
             }
         }
 
-        $placed = 0;
+        $order = [];
         $ready = array_keys(array_filter($indegree, static fn (int $dependencies): bool => 0 === $dependencies));
 
         while ([] !== $ready) {
             $key = array_shift($ready);
-            ++$placed;
+            $order[] = $byKey[$key];
+            unset($byKey[$key]);
 
             foreach ($dependents[$key] ?? [] as $dependent) {
                 if (0 === --$indegree[$dependent]) {
@@ -406,40 +416,26 @@ final class DatasetLoader
             }
         }
 
-        if ($placed !== $count) {
-            $stuck = array_keys(array_filter($indegree, static fn (int $dependencies): bool => $dependencies > 0));
-
-            throw new DatasetException(\sprintf('Circular references among: %s.', implode(', ', $stuck)));
+        if ([] !== $byKey) {
+            throw new DatasetException(\sprintf('Circular references among: %s.', implode(', ', array_keys($byKey))));
         }
+
+        return $order;
     }
 
     /**
-     * Second pass: streams the files again and writes the records in
-     * batches. A record is written when every internal reference has
-     * been written; records read too early wait in the pending list
-     * until the file holding their dependency is read. Each full batch
-     * is flushed and cleared, so memory holds one file, one batch, and
-     * the index instead of the whole dataset.
+     * Writes the records in the validated order, in batches. Each full
+     * batch is flushed and the entity manager cleared, so the unit of
+     * work holds one batch at a time.
      *
-     * @param list<string>                                    $files
-     * @param array<string, array<string, DatasetIndexEntry>> $definitions
+     * @param list<DatasetRecord> $order
      */
-    private function writeRecords(array $files, array $definitions, DatasetResolver $resolver, int $batchSize, DatasetResult $result): void
+    private function writeRecords(array $order, DatasetResolver $resolver, int $batchSize, DatasetResult $result): void
     {
-        $internal = [];
-        foreach ($definitions as $bySlug) {
-            foreach ($bySlug as $slug => $entry) {
-                $internal[$entry->type.'.'.$slug] = true;
-            }
-        }
-
-        $placed = [];
-        $pending = [];
         $written = 0;
 
-        $write = function (DatasetRecord $record) use (&$placed, &$written, $resolver, $result, $batchSize): void {
+        foreach ($order as $record) {
             $this->processRecord($record, $resolver, $result);
-            $placed[$record->type.'.'.$record->slug] = true;
             ++$written;
 
             if (0 === $written % $batchSize) {
@@ -447,80 +443,7 @@ final class DatasetLoader
                 $this->em->clear();
                 $resolver->forgetEntities();
             }
-        };
-
-        foreach ($files as $file) {
-            foreach ($this->parseFile($file) as $type => $records) {
-                foreach ($records as $slug => $fields) {
-                    if (\array_key_exists('remove', $fields)) {
-                        continue;
-                    }
-
-                    $record = new DatasetRecord($type, $slug, $file, $fields);
-
-                    if ($this->isReady($record, $internal, $placed)) {
-                        $write($record);
-                    } else {
-                        $pending[] = $record;
-                    }
-                }
-            }
-
-            $pending = $this->drainPending($pending, $internal, $placed, $write);
         }
-
-        while ([] !== $pending) {
-            $before = \count($pending);
-            $pending = $this->drainPending($pending, $internal, $placed, $write);
-
-            if (\count($pending) === $before) {
-                throw new \LogicException('Records are still blocked after every file was read; the first pass validated the reference graph.');
-            }
-        }
-    }
-
-    /**
-     * @param list<DatasetRecord>           $pending
-     * @param array<string, true>           $internal
-     * @param array<string, true>           $placed
-     * @param \Closure(DatasetRecord): void $write
-     *
-     * @return list<DatasetRecord> the records still waiting
-     */
-    private function drainPending(array $pending, array $internal, array $placed, \Closure $write): array
-    {
-        $remaining = [];
-
-        foreach ($pending as $record) {
-            if ($this->isReady($record, $internal, $placed)) {
-                $write($record);
-            } else {
-                $remaining[] = $record;
-            }
-        }
-
-        return $remaining;
-    }
-
-    /**
-     * A record is ready when every record it references inside this load
-     * has been written; references to earlier loads were validated
-     * against the database in the first pass.
-     *
-     * @param array<string, true> $internal
-     * @param array<string, true> $placed
-     */
-    private function isReady(DatasetRecord $record, array $internal, array $placed): bool
-    {
-        foreach ($this->referencesOf($record->data) as [$type, $slug]) {
-            $key = $type.'.'.$slug;
-
-            if (isset($internal[$key]) && !isset($placed[$key])) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -591,7 +514,7 @@ final class DatasetLoader
      * batches like the writes. A removal is a no-op when no row carries
      * the slug.
      *
-     * @param list<DatasetIndexEntry> $removals
+     * @param list<DatasetRecord> $removals
      */
     private function removeRecords(array $removals, int $batchSize, DatasetResult $result): void
     {
@@ -600,19 +523,19 @@ final class DatasetLoader
         }
 
         $byClass = [];
-        foreach ($removals as $entry) {
-            $byClass[$this->types[$entry->type]->getEntityClass()][] = $entry;
+        foreach ($removals as $record) {
+            $byClass[$this->types[$record->type]->getEntityClass()][] = $record;
         }
 
         $removed = 0;
 
         foreach ($this->deleteOrder() as $class) {
-            foreach ($byClass[$class] ?? [] as $entry) {
-                $entity = $this->em->getRepository($class)->findOneBy(['datasetSlug' => $entry->slug]);
+            foreach ($byClass[$class] ?? [] as $record) {
+                $entity = $this->em->getRepository($class)->findOneBy(['datasetSlug' => $record->slug]);
 
                 if (null !== $entity) {
                     $this->em->remove($entity);
-                    $result->removed($entry->type);
+                    $result->removed($record->type);
                     ++$removed;
 
                     if (0 === $removed % $batchSize) {
