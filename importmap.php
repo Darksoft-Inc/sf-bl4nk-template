@@ -24,9 +24,9 @@
  * }>
  */
 return [
-    '@formatjs/fast-memoize' => ['version' => '2.2.7'],
-    '@formatjs/icu-messageformat-parser' => ['version' => '2.11.4'],
-    '@formatjs/icu-skeleton-parser' => ['version' => '1.8.16'],
+    '@formatjs/fast-memoize' => ['version' => '3.1.7'],
+    '@formatjs/icu-messageformat-parser' => ['version' => '3.5.23'],
+    '@formatjs/icu-skeleton-parser' => ['version' => '2.1.13'],
     '@hotwired/stimulus' => ['version' => '3.2.2'],
     '@orchidjs/sifter' => ['version' => '1.1.0'],
     '@orchidjs/unicode-variants' => ['version' => '1.2.2'],
@@ -38,7 +38,8 @@ return [
     '@symfony/ux-translator' => ['path' => './vendor/symfony/ux-translator/assets/dist/translator_controller.js'],
     'app' => ['path' => './assets/app.js', 'entrypoint' => true],
     'bootstrap' => ['version' => '5.3.9'],
-    'intl-messageformat' => ['version' => '10.7.18'],
+    'bootstrap/dist/css/bootstrap.min.css' => ['version' => '5.3.9', 'type' => 'css'],
+    'intl-messageformat' => ['version' => '12.1.5'],
     'leaflet' => ['version' => '1.9.4'],
     'leaflet/dist/leaflet.min.css' => ['version' => '1.9.4', 'type' => 'css'],
     'tom-select' => ['version' => '2.7.0'],
@@ -46,5 +47,5 @@ return [
     'tom-select/dist/css/tom-select.bootstrap5.css' => ['version' => '2.7.0', 'type' => 'css'],
     'tom-select/dist/css/tom-select.default.css' => ['version' => '2.7.0', 'type' => 'css'],
     'tom-select/dist/css/tom-select.default.min.css' => ['version' => '2.7.0', 'type' => 'css'],
-    'tslib' => ['version' => '2.8.1'],
+    'tslib' => ['version' => '2.9.1'],
 ];

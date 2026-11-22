@@ -7,7 +7,7 @@
              data-controller="closeable"
              {% if auto_close %}data-closeable-auto-close-value="{{ auto_close }}"{% endif %}
         >
-            {{ ux_icon('success' == alert_type ? 'bi:check-circle-fill' : 'bi:exclamation-triangle-fill', {'class': 'me-2 flex-shrink-0'}) }}
+            {{ ux_icon('success' == alert_type ? 'bi:check-circle-fill' : 'bi:exclamation-triangle-fill', {class: 'me-2 flex-shrink-0'}) }}
             <div>{{ message }}</div>
             <button type="button" class="btn-close" data-action="click->closeable#close" aria-label="{{ 'app.flash.dismiss'|trans }}"></button>
             {% if auto_close %}

@@ -13,7 +13,7 @@ alias stop_docker="docker compose down"
 alias shell_docker_pg="docker compose exec database bash"
 
 # Server management
-alias start_server="symfony server:start"
+alias start_server="symfony server:start --no-tls"
 alias stop_server="symfony server:stop"
 
 # Packages management
@@ -45,6 +45,8 @@ alias lint_php="vendor/bin/phpstan --memory-limit=256M analyze"
 alias lint_doctrine="symfony console doctrine:schema:validate"
 alias lint_php_cs="vendor/bin/php-cs-fixer fix --dry-run"
 alias format_php="vendor/bin/php-cs-fixer fix"
+alias lint_twig_cs="vendor/bin/twig-cs-fixer lint templates/"
+alias format_twig="vendor/bin/twig-cs-fixer fix templates/"
 alias run_tests="vendor/bin/pest -v"
 
 # Debug
@@ -82,6 +84,8 @@ run_all_checks()
     lint_templates &&
     lint_php &&
     lint_doctrine &&
+    lint_php_cs &&
+    lint_twig_cs &&
     run_tests
 }
 run_essential_checks()
@@ -94,4 +98,14 @@ boot_dev_server()
 {
     start_docker &&
     start_server
+}
+setup_database()
+{
+    migrate_database &&
+    load_datasets
+}
+setup_database_test()
+{
+    drop_database_test &&
+    create_database_test
 }

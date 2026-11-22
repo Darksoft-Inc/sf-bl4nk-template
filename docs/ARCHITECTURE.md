@@ -6,7 +6,7 @@ This page describes the current application, not a target design. `TODO.md` list
 
 | Name | Path | Purpose |
 |---|---|---|
-| `app_index` | `/index` | Neutral start page. |
+| `app_index` | `/` | Neutral start page. |
 | `app_register` | `/register` | Registration form and email verification entry point. |
 | `app_verify_email` | `/verify/email` | Validates the signed verification link. |
 | `app_forgot_password_request` | `/reset-password` | Password reset request form. |

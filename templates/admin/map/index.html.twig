@@ -7,11 +7,11 @@
 
     <p class="mb-3">
         <a class="btn btn-primary" href="{{ path('app_admin_map_new') }}">
-            {{ ux_icon('bi:plus-lg', {'class': 'me-1'}) }}
+            {{ ux_icon('bi:plus-lg', {class: 'me-1'}) }}
             {{ 'app.admin.map.new'|trans }}
         </a>
         <a class="btn btn-outline-secondary" href="{{ path('app_admin_map_images') }}">
-            {{ ux_icon('bi:images', {'class': 'me-1'}) }}
+            {{ ux_icon('bi:images', {class: 'me-1'}) }}
             {{ 'app.admin.map_images.page'|trans }}
         </a>
     </p>
@@ -48,7 +48,7 @@
                     <td>{{ map.createdAt|format_datetime('medium', 'none') }}</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_map_edit', {id: map.id}) }}">
-                            {{ ux_icon('bi:pencil-square', {'class': 'me-1'}) }}
+                            {{ ux_icon('bi:pencil-square', {class: 'me-1'}) }}
                             {{ 'app.admin.user.edit'|trans }}
                         </a>
                         <twig:PostLink
@@ -57,7 +57,7 @@
                             confirm="{{ 'app.admin.map.confirm_delete'|trans }}"
                             class="btn btn-sm btn-outline-danger"
                         >
-                            {{ ux_icon('bi:trash', {'class': 'me-1'}) }}
+                            {{ ux_icon('bi:trash', {class: 'me-1'}) }}
                             {{ 'app.admin.map.delete'|trans }}
                         </twig:PostLink>
                     </td>

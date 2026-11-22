@@ -7,7 +7,7 @@
         <article>
             <h1>{{ announcement.title }}</h1>
             <p class="text-body-secondary d-inline-flex align-items-center">
-                {{ ux_icon('bi:calendar-event', {'class': 'me-1'}) }}
+                {{ ux_icon('bi:calendar-event', {class: 'me-1'}) }}
                 <span>{{ 'app.announcement.published_on'|trans({'%date%': announcement.publishedAt|format_datetime('medium', 'none')}) }}</span>
                 <span class="mx-2">·</span>
                 <span>{{ 'app.announcement.posted_by'|trans({'%author%': announcement.author.email}) }}</span>
@@ -16,7 +16,7 @@
         </article>
 
         <a class="d-inline-flex align-items-center" href="{{ path('app_announcement_index') }}">
-            {{ ux_icon('bi:arrow-left', {'class': 'me-1'}) }}
+            {{ ux_icon('bi:arrow-left', {class: 'me-1'}) }}
             {{ 'app.announcement.back'|trans }}
         </a>
     </main>

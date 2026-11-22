@@ -3,8 +3,8 @@
 {% block password_widget %}
     {%- set attr = attr|merge({
         'data-password-visibility-target': 'input',
-        'spellcheck': 'false',
-        'autocapitalize': 'off',
+        spellcheck: 'false',
+        autocapitalize: 'off',
     }) -%}
     <div class="input-group" data-controller="password-visibility">
         {{- parent() -}}

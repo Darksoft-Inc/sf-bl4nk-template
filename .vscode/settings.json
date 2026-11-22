@@ -1,0 +1,46 @@
+{
+    // Intelephense reads the @return tag on Doctrine's EntityRepository::find()
+    // (@return object|null) instead of the @phpstan-return ?T tag that carries
+    // the generic entity type. Preferring the prefixed tags lets the IDE resolve
+    // find() to the entity type through the repository's
+    // @extends ServiceEntityRepository<Entity> annotation.
+    // See https://intelephense.com/docs and bmewburn/vscode-intelephense#2128.
+    "intelephense.compatibility.preferPsalmPhpstanPrefixedAnnotations": true,
+
+    // This setting replaces the defaults instead of merging with them, so the
+    // relevant defaults are copied. Entries for .svn/.hg/CVS (this repo is
+    // git-only) and bower_components (no JS toolchain here) are dropped.
+    // var/ is added: it holds the compiled container and compiled templates,
+    // generated code, expensive to index, rewritten on every cache rebuild.
+    "intelephense.files.exclude": [
+        "**/.git/**",
+        "**/.DS_Store/**",
+        "**/node_modules/**",
+        "**/.history/**",
+        "**/vendor/**/{Tests,tests}/**",
+        "**/vendor/**/vendor/**",
+        "**/var/**"
+    ],
+
+    // Generated cache would flood full-text search; var/log stays
+    // searchable because the debugging workflow reads var/log/dev.log.
+    "search.exclude": {
+        "**/var/cache/**": true
+    },
+
+    // Symfony rewrites var/cache whenever the container changes; the
+    // watcher has nothing to gain from those events.
+    "files.watcherExclude": {
+        "**/var/**": true
+    },
+
+    // Snippets show up in the completion list even when never expanded on
+    // purpose; this removes the Craft CMS half of them.
+    "twig-language-2.craftSnippets": false,
+
+    // Routes Shift+Alt+F (document) and Ctrl+K Ctrl+F (selection) to the
+    // Twig Language 2 formatter. No formatOnSave: nothing runs on its own.
+    "[twig]": {
+        "editor.defaultFormatter": "mblode.twig-language-2"
+    }
+}

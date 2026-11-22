@@ -14,7 +14,7 @@
                     </div>
                     <div class="col-md-4 d-grid d-md-block">
                         <button type="submit" class="btn btn-primary">
-                            {{ ux_icon('bi:search', {'class': 'me-1'}) }}
+                            {{ ux_icon('bi:search', {class: 'me-1'}) }}
                             {{ 'app.announcement.search.go'|trans }}
                         </button>
                     </div>
@@ -30,7 +30,7 @@
                     <li class="list-group-item">
                         <a class="announcement-link fw-semibold" href="{{ path('app_announcement_show', {id: announcement.id}) }}">{{ announcement.title }}</a>
                         <div class="text-body-secondary d-inline-flex align-items-center">
-                            {{ ux_icon('bi:calendar-event', {'class': 'me-1'}) }}
+                            {{ ux_icon('bi:calendar-event', {class: 'me-1'}) }}
                             <span>{{ announcement.publishedAt|format_datetime('medium', 'none') }}</span>
                         </div>
                     </li>

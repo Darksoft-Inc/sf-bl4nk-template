@@ -13,7 +13,7 @@
                 </div>
                 <div class="col-md-4 d-grid d-md-block">
                     <button type="submit" class="btn btn-primary">
-                        {{ ux_icon('bi:search', {'class': 'me-1'}) }}
+                        {{ ux_icon('bi:search', {class: 'me-1'}) }}
                         {{ 'app.admin.search.filter'|trans }}
                     </button>
                 </div>
@@ -23,7 +23,7 @@
 
     <p class="mb-3">
         <a class="btn btn-primary" href="{{ path('app_admin_announcement_new') }}">
-            {{ ux_icon('bi:plus-lg', {'class': 'me-1'}) }}
+            {{ ux_icon('bi:plus-lg', {class: 'me-1'}) }}
             {{ 'app.admin.announcement.new'|trans }}
         </a>
     </p>
@@ -45,7 +45,7 @@
                     <td>{{ announcement.author.email }}</td>
                     <td class="text-end">
                         <a class="btn btn-sm btn-outline-primary" href="{{ path('app_admin_announcement_edit', {id: announcement.id}) }}">
-                            {{ ux_icon('bi:pencil-square', {'class': 'me-1'}) }}
+                            {{ ux_icon('bi:pencil-square', {class: 'me-1'}) }}
                             {{ 'app.admin.user.edit'|trans }}
                         </a>
                     </td>
