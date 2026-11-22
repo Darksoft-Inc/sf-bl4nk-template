@@ -69,6 +69,23 @@ The remaining target features from `docs/PURPOSE.md`, in build order. Each item 
 - [x] Generated documentation pages: build pages from metadata on business services. The format must stay domain independent.
   - One `#[Reference]` attribute on a service declares a page: a slug (hyphens and dots allowed, dots a pure naming convention), a title, a summary, an optional group, labeled details rendered as a `<dl>`, and related slugs. `ReferenceCompilerPass` collects and validates the pages at build time into a registry the `/reference` pages read: duplicate or invalid slugs, empty fields, unknown related slugs, and unknown or placeholder-valued `%parameters%` fail the build naming the page. A detail cites true values two ways: a class constant concatenated in the attribute argument, or a `%parameter%` resolved by the pass. The starter documents its own services: `login-audit-retention` on `LoginAuditRetention` (the window cites `app.login_audit_retention_days`) and `shared-files` on `SharedUploadStorage` (the limit cites `MAX_SIZE`, which the upload form enforces too). Verified on 2026-11-22: both runners pass with 194 tests and 1135 assertions, PHPStan, the two style dry runs, and the lint commands pass, and the live dev server rendered the index and both pages with the constant and parameter values.
 
+## Additional features
+
+Features not yet added in core feature list, require a study of its pertinence, integration and if it can be generic enough for several projects.
+Because of that they are to be developped in a separate branch before merge.
+
+[ ] Create a generic action system with:
+- action discovery (full list or restricted by user role), 
+- action popup with extract of action description, form and preview, 
+- dynamic update of values and possible inputs, 
+- feedback on actions not possible due to business rules, 
+- execution with business-specific logging, 
+- callback to trigger business-oriented processing (recursion not allowed). 
+The action will check for business rules thanks to policy unique to the action. This will use business rules composition. 
+Messages will be part of a separate translation domain. Action full description will include a title, icon, points cost (that may vary also by rules)
+and documentation (using existing dynamic system). To be refined and clarified before any implementation.
+On branch feature/action-framework
+
 ## Polish
 
 Findings from the manual review pass. Each item closes with the fix and its verification.
@@ -104,4 +121,3 @@ Findings from the manual review pass. Each item closes with the fix and its veri
 
 - [x] Announcement content: a richer rendering than `nl2br` plain text. The form can gain a better editor together with it.
   - `App\Text\MarkdownRenderer` renders member-authored markdown through `league/commonmark` (GitHub flavor) with the two recorded policies: raw HTML escapes into visible literal text, and unsafe link targets lose their attribute. The Twig filter `app_markdown` exposes the renderer, the announcement detail renders through it, the admin form keeps a plain monospace textarea with a syntax help line, and the development demo announcement carries a markdown sample. The rendering is a service for any future member page, a journal or any use a derived application invents. Verified on 2026-11-22: both runners pass with 198 tests and 1163 assertions, PHPStan and the style dry runs pass, and the live dev server rendered the demo announcement with bold, italic, code, links, and a list.
-
