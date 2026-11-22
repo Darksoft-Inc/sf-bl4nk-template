@@ -218,6 +218,20 @@ Evidence: `docs/PURPOSE.md` requires a public list and a detail page. The write 
 
 Consequence: `Announcement` holds title, content, and `publishedAt`, which is set once in the constructor. The author field and the publish form land with the admin functions item. The migration was hand-written while the development database was unreachable and ran against the development PostgreSQL database on 2026-11-21; the test schema comes from the entity metadata.
 
+Update from 2026-11-22: the content renders through markdown, see the Markdown rendering section; the `nl2br` rendering is gone.
+
+## Markdown rendering
+
+Decision from 2026-11-22: member-authored text renders through `league/commonmark`, and the announcement detail is the first consumer.
+
+Evidence: `App\Text\MarkdownRenderer` wraps the Github-flavored converter, whose defaults are unsafe for member content, verified on the installed 2.10: `html_input` defaults to `HtmlFilter::ALLOW`, which passes raw HTML through, and `allow_unsafe_links` defaults to `true`, which passes a `javascript:` target through. The renderer sets the two policies itself: `HtmlFilter::ESCAPE` and `allow_unsafe_links => false`. ESCAPE beats STRIP on measured behavior: STRIP removes an inline tag but leaks its inner text into visible output, and a line that opens an HTML block, such as a pasted `<script>` at the start of a line, swallows the whole line silently; ESCAPE shows every character as visible literal text and never loses content. With `allow_unsafe_links` false, a `javascript:` link renders as `<a>link</a>` without an href, and a `data:` image loses its src.
+
+`App\Text\MarkdownExtension` exposes the renderer as the Twig filter `app_markdown`, declared `is_safe(['html'])`: the filter result is the only raw HTML the templates emit, and the renderer's output is what makes it safe. `twig/markdown-extra` stays uninstalled: its adapters run a converter the application does not configure, and the two policies must be the application's own.
+
+The admin side keeps a plain textarea with monospace styling and a help line naming the syntax: no editor, no WYSIWYG, the writer sees the markdown and the public page sees the rendering. The development demo announcement carries a markdown sample, applied through `app:dataset:load --update`.
+
+Consequence: the rendering is a service any future page can call, and the filter works in any template: a member-restricted journal or any other use a derived application invents needs no new wiring. Nothing is stored rendered: the markdown stays the source of truth in the row, so re-rendering follows a converter upgrade with no migration. Raw HTML appears as literal text, so a pasted `<script>` shows as characters on the page and executes nowhere.
+
 ## Content-heavy pages
 
 Decision from 2026-11-19: how a page with long prose gets its text.

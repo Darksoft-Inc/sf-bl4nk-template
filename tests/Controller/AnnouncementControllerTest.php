@@ -62,7 +62,7 @@ final class AnnouncementControllerTest extends WebTestCase
     public function testShowDisplaysAnnouncement(): void
     {
         $author = $this->createUser('author@example.com');
-        $announcement = $this->createAnnouncement('A title', "First line.\nSecond line.", new \DateTimeImmutable('2026-11-21 10:00'), $author);
+        $announcement = $this->createAnnouncement('A title', "First **line**.\n\n- an item", new \DateTimeImmutable('2026-11-21 10:00'), $author);
 
         $this->client->request('GET', '/announcements/'.$announcement->getId());
 
@@ -70,7 +70,32 @@ final class AnnouncementControllerTest extends WebTestCase
         self::assertPageTitleContains('A title');
         self::assertSelectorTextContains('h1', 'A title');
         self::assertSelectorTextContains('.announcement-content', 'First line.');
+        self::assertSelectorTextContains('.announcement-content strong', 'line');
+        self::assertSelectorTextContains('.announcement-content li', 'an item');
         self::assertSelectorTextContains('body', 'Posted by author@example.com');
+    }
+
+    public function testShowEscapesRawHtmlAndDropsUnsafeLinks(): void
+    {
+        $author = $this->createUser('author@example.com');
+        $announcement = $this->createAnnouncement(
+            'A dangerous title',
+            '<script>alert("xss")</script>'."\n\n".'A [link](javascript:alert(1)) in the content.',
+            new \DateTimeImmutable('2026-11-21 10:00'),
+            $author,
+        );
+
+        $crawler = $this->client->request('GET', '/announcements/'.$announcement->getId());
+
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('.announcement-content', 'alert("xss")');
+        self::assertSelectorTextContains('.announcement-content', 'A link in the content.');
+
+        $contentHtml = $crawler->filter('.announcement-content')->html();
+        self::assertStringContainsString('&lt;script&gt;', $contentHtml);
+        self::assertStringNotContainsStringIgnoringCase('<script', $contentHtml);
+        self::assertStringNotContainsStringIgnoringCase('javascript:', $contentHtml);
+        self::assertCount(0, $crawler->filter('.announcement-content a[href]'));
     }
 
     public function testShowUnknownAnnouncementReturns404(): void

@@ -29,8 +29,9 @@ final class AnnouncementFormType extends AbstractType
             ])
             ->add('content', TextareaType::class, [
                 'label' => 'app.announcement.content',
+                'help' => 'app.announcement.content_help',
                 'constraints' => [new NotBlank(message: 'app.announcement.content_not_blank')],
-                'attr' => ['rows' => 10],
+                'attr' => ['rows' => 10, 'class' => 'font-monospace'],
             ])
         ;
     }

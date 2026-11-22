@@ -56,7 +56,7 @@ Keep a package when it supports the baseline or a target feature. Remove a packa
 | JSON for the frontend | `symfony/serializer` | Keep. Dynamic frontend data, such as map annotations and autocomplete results, arrives as JSON. |
 | Scheduled maintenance | `symfony/scheduler`, `symfony/messenger`, `symfony/doctrine-messenger` | Keep. Choose and document a transport before using background jobs. |
 | User uploads | `symfony/ux-dropzone`, `symfony/validator` | Keep. The three categories are built: the avatar on the profile page, and the shared image and plain-text files in the members-only section at `/shared`. Image processing stays out; the pages cap the display size in the browser. |
-| Blog and documentation pages | Doctrine ORM and Twig | No extra package is needed at this stage. |
+| Blog and documentation pages | Doctrine ORM and Twig, `league/commonmark` for the markdown rendering | No extra package is needed for the pages. The markdown policies are recorded in `docs/DECISIONS.md`. |
 | Private sections and admin | `symfony/security-bundle` | Keep. Add roles and access rules with the features. |
 | Large admin lists | `symfony/ux-pagination` | Keep for lists such as logs. |
 | Search | `symfony/ux-autocomplete`, `tom-select` in `importmap.php` | Keep. Add the search endpoint with the feature that needs it. |

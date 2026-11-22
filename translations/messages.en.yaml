@@ -49,6 +49,7 @@ app:
         title: Title
         published_at: 'Published at'
         content: Content
+        content_help: 'Markdown renders on the page: **bold**, *italic*, lists, links, code, and tables. Raw HTML is shown as literal text, not rendered.'
         search:
             label: 'Search an announcement'
             placeholder: 'Type to search announcements'

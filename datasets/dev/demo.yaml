@@ -11,9 +11,14 @@ announcements:
         title: Welcome to the starter
         content: |
             This announcement and the map below come from the development
-            dataset, datasets/dev/demo.yaml. Edit the files and run
-            "symfony console app:dataset:load" to apply the change: a
-            known slug updates the row, a new slug inserts one.
+            dataset, datasets/dev/demo.yaml.
+
+            The page renders **markdown**: *emphasis*, `code`,
+            [links](https://example.com), and tables.
+
+            - Edit the files
+            - Run "symfony console app:dataset:load"
+            - A known slug updates the row, a new slug inserts one
         publishedAt: 2026-11-21 10:00
         author: '@users.member'
 
