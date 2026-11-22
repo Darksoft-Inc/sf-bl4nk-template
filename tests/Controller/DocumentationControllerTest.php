@@ -21,6 +21,9 @@ final class DocumentationControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains('Welcome');
         self::assertSelectorTextContains('main h1', 'Welcome');
+
+        // The navbar links the documentation pages.
+        self::assertSelectorExists('.navbar a[href="/docs/welcome"]');
     }
 
     public function testTermsPageRendersItsPlaceholder(): void
