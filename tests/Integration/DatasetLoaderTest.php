@@ -173,6 +173,51 @@ final class DatasetLoaderTest extends KernelTestCase
         self::assertSame(1, $reload->counts()['map_route_types']['created'], 'After the removal, the same record can be loaded again.');
     }
 
+    public function testARemovalIsRefusedWhenRowsOutsideTheDatasetWouldCascade(): void
+    {
+        $this->loader->load([$this->fixture('content.yaml')]);
+
+        $map = $this->em->getRepository(Map::class)->findOneBy(['datasetSlug' => 'old-town']);
+        self::assertNotNull($map);
+
+        $this->em->persist(new MapPoint($map, 'Hand pin', 10.0, 10.0));
+        $this->em->flush();
+
+        try {
+            $this->loader->load([$this->fixture('remove-map.yaml')], mode: DatasetMode::Update);
+            self::fail('A removal that would delete rows outside the dataset must fail the load.');
+        } catch (DatasetException $e) {
+            self::assertStringContainsString('maps.old-town', $e->getMessage());
+            self::assertStringContainsString('MapPoint', $e->getMessage());
+            self::assertStringContainsString('1 row(s)', $e->getMessage());
+            self::assertStringContainsString('a removal would delete them', $e->getMessage());
+        }
+
+        $this->em->clear();
+
+        self::assertCount(2, $this->em->getRepository(MapPoint::class)->findAll(), 'The hand pin survives the refused removal.');
+        self::assertCount(1, $this->em->getRepository(Map::class)->findAll(), 'The refused removal leaves the map in place.');
+    }
+
+    public function testARemovalIsRefusedWhenRowsWouldBlockTheDelete(): void
+    {
+        $this->loader->load([$this->fixture('content.yaml')]);
+
+        try {
+            $this->loader->load([$this->fixture('remove-user.yaml')], mode: DatasetMode::Update);
+            self::fail('A removal that the database would refuse must fail with the guard message.');
+        } catch (DatasetException $e) {
+            self::assertStringContainsString('users.jane', $e->getMessage());
+            self::assertStringContainsString('Announcement', $e->getMessage());
+            self::assertStringContainsString('the database would refuse the removal', $e->getMessage());
+        }
+
+        $this->em->clear();
+
+        self::assertCount(1, $this->em->getRepository(User::class)->findAll(), 'The refused removal leaves the user in place.');
+        self::assertCount(1, $this->em->getRepository(Announcement::class)->findAll(), 'The announcement that referenced the user survives.');
+    }
+
     public function testRemovalEntriesNeedTheUpdateMode(): void
     {
         $this->loader->load([$this->fixture('content.yaml')]);

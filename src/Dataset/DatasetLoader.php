@@ -4,6 +4,8 @@ namespace App\Dataset;
 
 use Doctrine\DBAL\Exception as DbalException;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\Mapping\InverseSideMapping;
+use Doctrine\ORM\Mapping\ToOneOwningSideMapping;
 use Symfony\Component\DependencyInjection\Attribute\AutowireIterator;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -18,8 +20,10 @@ use Symfony\Component\Yaml\Yaml;
  *
  * The mode decides what a known slug means: Insert leaves it alone and
  * fails fast before any write, Update applies the fields the record
- * names and accepts removal entries, and Clear empties every table
- * before loading, so a clear load must name every record it references.
+ * names and accepts removal entries, each checked against the rows
+ * that reference it outside the dataset before anything is deleted,
+ * and Clear empties every table before loading, so a clear load must
+ * name every record it references.
  * The load parses every file once, inside one transaction: the parse
  * validates the structure, the references, and the cycles, so every
  * failure happens before any write, and the records stay in memory for
@@ -84,6 +88,10 @@ final class DatasetLoader
 
         if (DatasetMode::Insert === $mode) {
             $this->assertSlugsAreNew($records);
+        }
+
+        if ([] !== $removals) {
+            $this->guardRemovals($removals);
         }
 
         $result = new DatasetResult(\count($files));
@@ -170,6 +178,173 @@ final class DatasetLoader
         }
 
         throw new DatasetException(\sprintf('Slugs that already exist: %s. Run with --update to apply the fields the records name, or --clear to start from empty tables.', implode('; ', $lines)));
+    }
+
+    /**
+     * Refuses a removal that would take rows outside the dataset with
+     * it, or that the database would refuse. The check runs before the
+     * transaction, one batched count per incoming association for the
+     * whole removal list of a target class, so the cost is a handful of
+     * indexed queries whatever the list holds; only a violated
+     * association names the individual records.
+     *
+     * Rows that carry a dataset slug may cascade along with their
+     * parent, the recorded design; rows outside the dataset may not.
+     * A SET NULL edge empties a field instead of deleting a row, so it
+     * never appears here.
+     *
+     * @param list<DatasetRecord> $removals
+     */
+    private function guardRemovals(array $removals): void
+    {
+        $byClass = [];
+        foreach ($removals as $record) {
+            $byClass[$this->types[$record->type]->getEntityClass()][] = $record;
+        }
+
+        $violations = [];
+
+        foreach ($byClass as $class => $records) {
+            $ids = $this->idsOf($class, $records);
+
+            if ([] === $ids) {
+                continue;
+            }
+
+            foreach ($this->incomingEdges($class) as [$referencing, $field, $kind]) {
+                if (0 === $this->referencingRowCount($referencing, $field, $ids, $kind)) {
+                    continue;
+                }
+
+                $hasSlugColumn = $this->em->getClassMetadata($referencing)->hasField('datasetSlug');
+
+                foreach ($records as $record) {
+                    $count = $this->referencingRowCount($referencing, $field, $this->idsOf($class, [$record]), $kind);
+
+                    if (0 === $count) {
+                        continue;
+                    }
+
+                    $phrase = match ($kind) {
+                        'cascade' => $hasSlugColumn
+                            ? 'that did not come from a dataset reference it; a removal would delete them'
+                            : 'reference it; a removal would delete them',
+                        'restrict' => 'reference it; the database would refuse the removal',
+                    };
+
+                    $violations[] = \sprintf(
+                        '[%s] %s.%s: %d row(s) of %s %s',
+                        $record->file,
+                        $record->type,
+                        $record->slug,
+                        $count,
+                        substr((string) strrchr($referencing, '\\'), 1),
+                        $phrase,
+                    );
+                }
+            }
+        }
+
+        if ([] !== $violations) {
+            throw new DatasetException(\sprintf("Removals refused: the rows that reference the records below block them.\n%s", implode("\n", $violations)));
+        }
+    }
+
+    /**
+     * The ids of the rows a removal list names, in one query.
+     *
+     * @param class-string        $class
+     * @param list<DatasetRecord> $records
+     *
+     * @return list<int>
+     */
+    private function idsOf(string $class, array $records): array
+    {
+        $idField = $this->em->getClassMetadata($class)->getSingleIdentifierFieldName();
+        $ids = $this->em->getRepository($class)->createQueryBuilder('e')
+            ->select('e.'.$idField)
+            ->andWhere('e.datasetSlug IN (:slugs)')
+            ->setParameter('slugs', array_map(static fn (DatasetRecord $record): string => $record->slug, $records))
+            ->getQuery()
+            ->getSingleColumnResult();
+
+        return array_values(array_filter($ids, 'is_int'));
+    }
+
+    /**
+     * The to-one associations that reference one class: the referencing
+     * class, the field on it, and whether deleting the target takes the
+     * rows along (a cascade) or the database refuses it (a restriction).
+     * A SET NULL edge empties the field instead, so it never appears.
+     *
+     * @return list<array{0: class-string, 1: string, 2: 'cascade'|'restrict'}>
+     */
+    private function incomingEdges(string $class): array
+    {
+        $edges = [];
+
+        foreach ($this->em->getMetadataFactory()->getAllMetadata() as $metadata) {
+            foreach ($metadata->getAssociationMappings() as $mapping) {
+                if (!$mapping->isOwningSide() || !$mapping->isToOne() || $mapping->targetEntity !== $class) {
+                    continue;
+                }
+
+                $onDelete = null;
+
+                if ($mapping instanceof ToOneOwningSideMapping) {
+                    $onDelete = $mapping->joinColumns[0]->onDelete ?? null;
+                }
+
+                $cascades = 'CASCADE' === $onDelete || $this->targetCascades($class, $metadata->getName(), $mapping->fieldName);
+
+                if ('SET NULL' === $onDelete && !$cascades) {
+                    continue;
+                }
+
+                $edges[] = [$metadata->getName(), $mapping->fieldName, $cascades ? 'cascade' : 'restrict'];
+            }
+        }
+
+        return $edges;
+    }
+
+    /**
+     * Whether the target class carries an inverse collection whose
+     * removal the entity manager cascades over the referencing rows.
+     *
+     * @param class-string $class
+     * @param class-string $referencing
+     */
+    private function targetCascades(string $class, string $referencing, string $field): bool
+    {
+        foreach ($this->em->getClassMetadata($class)->getAssociationMappings() as $inverse) {
+            if ($inverse instanceof InverseSideMapping
+                && $inverse->targetEntity === $referencing
+                && $inverse->mappedBy === $field
+                && $inverse->isCascadeRemove()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * @param class-string $referencing
+     * @param list<int>    $ids
+     */
+    private function referencingRowCount(string $referencing, string $field, array $ids, string $kind): int
+    {
+        $query = $this->em->getRepository($referencing)->createQueryBuilder('r')
+            ->select('COUNT(r)')
+            ->andWhere("r.$field IN (:ids)")
+            ->setParameter('ids', $ids);
+
+        if ('cascade' === $kind && $this->em->getClassMetadata($referencing)->hasField('datasetSlug')) {
+            $query->andWhere('r.datasetSlug IS NULL');
+        }
+
+        return (int) $query->getQuery()->getSingleScalarResult();
     }
 
     /**
