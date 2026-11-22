@@ -39,6 +39,11 @@ security:
                 target: app_index
                 enable_csrf: true
 
+            # The firewall throttles repeated login failures: 5 attempts per
+            # minute for one username and IP, 25 per minute for one IP. The
+            # limiter state lives in the cache.rate_limiter pool.
+            login_throttling: {}
+
             # Activate different ways to authenticate:
             # https://symfony.com/doc/current/security.html#the-firewall
 

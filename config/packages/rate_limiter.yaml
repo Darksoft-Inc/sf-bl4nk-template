@@ -1,0 +1,21 @@
+# yaml-language-server: $schema=../schema.json
+rate_limiter:
+    # One limiter per public auth route, declared on the controller through
+    # the RateLimit attribute. The login form does not use these limiters:
+    # login_throttling in config/packages/security.yaml covers it.
+    limiters:
+        # A POST is an attempt; a page view is not, so the controllers
+        # declare methods: 'POST' for the two forms.
+        register:
+            policy: fixed_window
+            limit: 5
+            interval: '1 hour'
+        # The verification link is a GET request, so every request counts.
+        verify_email:
+            policy: fixed_window
+            limit: 5
+            interval: '1 hour'
+        reset_request:
+            policy: fixed_window
+            limit: 5
+            interval: '1 hour'

@@ -61,6 +61,18 @@ The firewall enables persistent sessions with `remember_me`: the cookie lives 7 
 
 `framework.uri_signer.expiration` is unset. Symfony 8.2 deprecates signed URIs without an expiration, but that option configures the framework's own `uri_signer` service and does not reach the private signer the verify-email bundle builds for its links. `config/services.yaml` instead overrides the bundle's `symfonycasts.verify_email.uri_signer` service with the arguments the bundle uses, `'%kernel.secret%'` and `signature`, plus a default expiration of 1 day. The value stays above the bundle link lifetime of 1 hour (`symfonycasts_verify_email.lifetime`, default 3600), because the bundle then reports an expired link while the signer reports an invalid signature. No bundle release passes an expiration, including the 2.x branch under development, so the override stays until the bundle fixes its `sign()` call. The choice is recorded in `docs/DECISIONS.md`.
 
+## Rate limits
+
+The public auth routes rate-limit by client IP, and a rejected request turns into a 429 response with a `Retry-After` header. `config/packages/rate_limiter.yaml` defines three fixed-window limiters of 5 requests per hour. `register` and `reset_request` count POST submissions only, because the controllers declare `methods: 'POST'` on the attribute, so a page view is not an attempt. `verify_email` counts every request, because the verification link is a GET.
+
+The routes declare their limiter through the `#[RateLimit]` attribute on the controller action: the framework consumes one token before the action runs, keyed on the client IP and the path. The login form does not use these limiters: `login_throttling` on the `main` firewall in `config/packages/security.yaml` throttles it with its built-in values, 5 failed attempts per minute for one username and IP and 25 for one IP, and a successful login resets the counter.
+
+Each limiter counts attempts, not outcomes. On the reset request route, the reset-password bundle already throttles token generation per account, one token and one email per hour (`throttle_limit`, default 3600), so a submission for an account that holds a live token produces nothing, but it still consumes one request of the IP bucket; an unknown address never reaches the per-account throttle at all, so the IP limiter is the only bound there. A used or expired token frees the account immediately, because the bundle throttles on the most recent non-expired row.
+
+The token step of the reset flow carries no limiter: `GET /reset-password/reset/{token}` and the change form POST are gated by possession of a valid token, which is single-use, lives one hour (`lifetime`, default 3600), and whose selector and hashed token are not guessable. A request without a valid token costs one lookup and changes nothing.
+
+The limiter state lives in the `cache.rate_limiter` pool, a child of `cache.app`, so the state follows the `cache.app` backend: the filesystem by default, Redis when `cache.app` points at it. Clearing the cache resets the counters, which is safe: they refill as traffic comes back. Change the values in `config/packages/rate_limiter.yaml` to tune the limits; the numbers apply to every environment.
+
 ## Symfony version
 
 `composer.json` requires `8.2.*` and allows dev packages. The installed runtime is Symfony 8.2.0-BETA2. Move to a stable release before production use.

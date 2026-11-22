@@ -71,8 +71,8 @@ Profiler and UX routes exist in development. They are not part of the product su
 - `App\Controller\Admin\AdminMaintenanceController` lists the uploads of every registered kind and removes them on request; a removal refused because a map uses the file reports a flash error.
 - `App\Controller\Admin\AdminLoginAuditController` lists the login audit rows page by page and filters them by an IP pattern.
 - `App\Controller\Admin\AdminMaintenanceCleanupController` shows the login audit cleanup state and dispatches the cleanup message by hand.
-- `RegistrationController` creates users, sends verification email, and verifies email links.
-- `ResetPasswordController` handles reset requests, reset confirmation, token validation, and password changes.
+- `RegistrationController` creates users, sends verification email, and verifies email links. The register action limits POST submissions and the verify action limits every request through the `#[RateLimit]` attribute.
+- `ResetPasswordController` handles reset requests, reset confirmation, token validation, and password changes. The reset request action limits POST submissions through the `#[RateLimit]` attribute.
 - `SecurityController` displays the login form and declares the logout route.
 - `ProfileController` shows account details, changes the signed-in user's password, and replaces the avatar through `App\Uploads\AvatarStorage`: a validated upload saved under a random name, after deleting the previous file.
 
@@ -186,3 +186,5 @@ Development uses PostgreSQL through `DATABASE_URL`. Tests use SQLite through `.e
 Successful registration, email verification, login, and password change redirect to `app_index`. Logout also redirects to `app_index`. Password changes on the profile page redirect to `app_profile`.
 
 `ProfileController` uses `#[IsGranted('ROLE_USER')]`, so anonymous visitors are sent to the login page. The `access_control` list guards `/admin` with `ROLE_ADMIN`, and the admin controllers repeat the check with `#[IsGranted('ROLE_ADMIN')]`. Admins hold `['ROLE_ADMIN']` in the roles field; `ROLE_USER` comes from the entity for everyone, so no role hierarchy is configured. The navbar shows the admin link only to admins.
+
+The public auth routes rate-limit by client IP: the firewall throttles the login form through `login_throttling`, and the register, verification, and reset request actions carry the `#[RateLimit]` attribute, which consumes before the action runs and answers 429 with a `Retry-After` header once the per-IP bucket is empty. The limiters and their values live in `config/packages/rate_limiter.yaml`; see `docs/DECISIONS.md` for the choices and `docs/CONFIGURATION.md` for the values.

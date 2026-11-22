@@ -20,6 +20,8 @@ Tests stay in the PHPUnit class style, so both commands run the whole suite. Rec
 
 `tests/Controller/` holds the HTTP-facing tests: each one submits a request and asserts the routing, the response, and the database state. Functional and unit tests become useful when logic moves out of the controllers into services, and integration tests when components interact across layers. The empty directory `tests/Functional/` stays reserved for that stage. `tests/Integration/` opened with the cleanup task test, which crosses the scheduler task, the message bus, and the database in one call, and `tests/Unit/` opened with the reference compiler pass test, which drives the pass against a container builder in isolation.
 
+`tests/Controller/AuthRateLimitTest.php` covers the auth throttling. The test kernel clears the `cache.rate_limiter` pool between tests through the framework's `kernel.test_state` tag, so every test starts from an empty limiter state; a test blocks an address by consuming the limit within one test, not by waiting for a window to pass. The login test loops over bounded attempts because its one minute window can reset while the loop runs.
+
 ## Deprecations
 
 Both commands report no deprecations and exit 0.

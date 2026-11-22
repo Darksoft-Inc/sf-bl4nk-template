@@ -18,7 +18,7 @@ The baseline is Symfony 8.2 (currently installed as a beta; a stable release is 
 
 ## Features
 
-- Account management: registration with email verification, login, logout, password reset, and a profile page with password change and avatar upload. Every login and every restore of a persistent session lands in a login audit with the IP.
+- Account management: registration with email verification, login, logout, password reset, and a profile page with password change and avatar upload. Every login and every restore of a persistent session lands in a login audit with the IP. The public auth routes rate-limit by client IP, and the login form throttles repeated failures.
 - Announcement blog: a public list and a detail page with an autocomplete search, the content renders through markdown (`app_markdown`), and the admin form is a plain textarea with syntax help.
 - Documentation pages: stable links rendered from per-locale templates.
 - Annotated 2D maps: a public display with pins, symbols, and filtered routes, and an admin section for maps, points, route types, and routes.

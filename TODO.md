@@ -14,7 +14,8 @@ Progress on 2026-11-22: the dataset import gained its production rules. The load
   - Replace the default database password in `.env:52`.
   - Configure trusted hosts and proxies if the app runs behind a reverse proxy.
   - [ ] Create the production dataset values, starting with the first admin account: `datasets/prod/` is git-ignored and its README documents the workflow.
-  - [ ] Rate limiting for the public auth routes. Planned in `docs/DECISIONS.md`.
+  - [x] Rate limiting for the public auth routes. Planned in `docs/DECISIONS.md`.
+    - `symfony/rate-limiter` joined the dependencies, and the four routes throttle by client IP. `login_throttling: {}` on the `main` firewall throttles the login form with its built-in defaults: 5 failed attempts per minute per username and IP, 25 per IP, reset by a successful login. The register, verify, and reset request actions carry the `#[RateLimit]` attribute, backed by the three fixed-window limiters of `config/packages/rate_limiter.yaml`, 5 requests per hour each, state in the `cache.rate_limiter` pool; a rejection is a 429 response with a `Retry-After` header. The tests isolate through the test kernel's pool clear, not the mock clock: the component reads the wall clock, so the plan's mock-clock wording did not survive contact, and the deviation is recorded in `docs/DECISIONS.md`. Verified on 2026-11-22: `tests/Controller/AuthRateLimitTest.php` covers the four routes, PHPUnit passes twice in a row with 202 tests and 1208 assertions, PHPStan, the lint commands, and the two style dry runs pass.
   - [x] Remove the notifier package and its placeholder `admin@example.com` recipient.
 
 ## P1: Move off Symfony 8.2 beta before production use

@@ -338,11 +338,13 @@ Consequence: the workflow and `run_all_checks` in `aliases.sh` describe the same
 
 ## Rate limiting
 
-Decision from 2026-11-19: deferred to the production readiness pass.
+Decision from 2026-11-22: the four public auth routes throttle by client IP, and a rejected request turns into a 429 response with a `Retry-After` header.
 
-Evidence: no target feature in `docs/PURPOSE.md` mentions rate limiting, and no route has a limiter today. The review covered registration, login, email verification, and password reset.
+Evidence: `symfony/rate-limiter` joined the dependencies for the plan recorded on 2026-11-19; it is the one package the feature needs, and it adds no JavaScript and no database objects. The login form throttles through `login_throttling: {}` on the `main` firewall, an empty mapping that enables the option with its built-in defaults: 5 failed attempts per minute for one username and IP, 25 for one IP, and a successful login resets the counter. The other three routes carry the `#[RateLimit]` attribute on their controller action instead of consumption code: the framework listener consumes before the action runs, and the limiter names, the 5 requests per hour, and the POST-only rule for the two forms live in `config/packages/rate_limiter.yaml`. The consumption key is the attribute's default, the client IP and the path, so each route keeps its own bucket per IP. The verification route counts every request because its link is a GET. The reset-password bundle already throttles token generation per account for one hour (`throttle_limit`, default 3600), and the route limiter adds the per-IP dimension across accounts, so the two throttles compose. The route limiter counts attempts, not tokens: a request the account throttle refuses still consumes one request of the IP bucket, so a client cannot probe the reset route indefinitely even when every probe is a no-op, and unknown addresses, which the account throttle never sees, get the IP bucket as their only bound.
 
-Plan: `symfony/rate-limiter` on the four public auth routes. `login_throttling` in `config/packages/security.yaml` covers the login form. The registration, verification, and reset request controllers consume a limiter keyed on the client IP. Tests control the limiter windows with the mock clock.
+Consequence: the controller code did not change; the two controllers gained the attribute only. The limiter state lives in the `cache.rate_limiter` pool, a child of `cache.app`, so a derived app that points `cache.app` at Redis carries the limiter state along, and clearing the cache resets the counters without data loss. `docs/CONFIGURATION.md` documents the values for operators.
+
+Deviation from the plan of 2026-11-19: the tests do not control the limiter windows with the mock clock. The component reads the wall clock through `time()`, not the `clock` service, so a mock clock cannot move its windows. The isolation comes from the framework instead: the test kernel clears the `cache.rate_limiter` pool between tests through its `kernel.test_state` tag, so every test starts from an empty limiter state. `tests/Controller/AuthRateLimitTest.php` covers the four routes; the login test loops over bounded attempts instead of counting to six, because its one minute window can reset while the loop runs.
 
 ## Admin and fixture users
 
