@@ -33,6 +33,7 @@ symfony serve -d
 ## Development tools
 
 - **Database**: Adminer runs at `http://localhost:8080` when the containers are up. The login form already proposes the `database` host. Sign in with the `app` user, the password from `POSTGRES_PASSWORD` (`!ChangeMe!` by default), and the `app` database.
+- **Queries**: `symfony console doctrine:query:dql "SELECT e.id FROM App\Entity\Name e"` runs DQL against the dev database, and `php bin/console doctrine:query:dql --env=test ...` against the test database. The app registers no `doctrine:query:sql` command: the console offers DQL instead.
 - **Emails**: Mailpit catches the mail sent through `symfony serve`, because the CLI injects `MAILER_DSN` for the running containers. Open the interface with `symfony open:local:webmail`.
 - **Styles**: `symfony serve` starts the Sass watch worker from `.symfony.local.yaml`. Save an `.scss` file and the worker rebuilds `var/sass`; reload the page to see the change. Development serves assets without a build cache.
 - **Scripts**: JavaScript has no build step. Save the file and reload the page.
