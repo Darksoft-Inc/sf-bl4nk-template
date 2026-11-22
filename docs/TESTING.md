@@ -59,6 +59,18 @@ SYMFONY_HTTP_RECORDER=missing php bin/phpunit
 
 `SYMFONY_HTTP_RECORDER=passthrough php bin/phpunit` makes real requests and ignores the recordings. The recording directory comes from the `http-recorder-directory` parameter of the `SymfonyExtension` entry in `phpunit.dist.xml`.
 
+## Dataset load benchmark
+
+`bin/dataset-benchmark.php` measures what a load costs at the dimensioning scale and leaves no bench row behind. It generates a throwaway corpus of one map plus 30,000 points, loads it through the console command with debug off, reports the wall time and the process peak, then removes the bench rows and verifies the restored table counts. It is not part of the suite, because a run writes to the database it points at and takes seconds to a minute:
+
+```bash
+php bin/dataset-benchmark.php --env=test
+symfony php bin/dataset-benchmark.php --env=dev
+symfony php bin/dataset-benchmark.php --env=prod --count=40000
+```
+
+Run dev and prod through the Symfony CLI, so the compose `DATABASE_URL` is injected; plain php sees the `.env` URL only. The run exits non-zero when the load fails or the counts do not come back, so it is safe in a scheduled check. The recorded baseline lives in `docs/DECISIONS.md`; run it before and after any change to the loader and keep the numbers.
+
 ## Quality checks
 
 ```bash

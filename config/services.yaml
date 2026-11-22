@@ -40,3 +40,13 @@ services:
     symfonycasts.verify_email.uri_signer:
         class: Symfony\Component\HttpFoundation\UriSigner
         arguments: ['%kernel.secret%', 'signature', '_expiration', null, 86400]
+
+when@test:
+    services:
+        # The test SQLite connection runs with PRAGMA foreign_keys=ON, the
+        # middleware Doctrine ships for its SQLite drivers. Without it a
+        # delete the database would refuse on PostgreSQL runs on the test
+        # database instead and leaves a dangling reference, so the two
+        # databases disagreed on what a load may do.
+        Doctrine\DBAL\Driver\AbstractSQLiteDriver\Middleware\EnableForeignKeys:
+            tags: [doctrine.middleware]

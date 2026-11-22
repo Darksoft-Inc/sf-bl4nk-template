@@ -147,7 +147,7 @@ Registration and password reset use the same password rules. In the `dev` enviro
 
 ## Data storage
 
-Development uses PostgreSQL through `DATABASE_URL`. Tests use SQLite through `.env.test`. The committed migration uses PostgreSQL syntax, so it cannot build the SQLite test schema. See `SETUP.md`.
+Development uses PostgreSQL through `DATABASE_URL`. Tests use SQLite through `.env.test`; the test connection enables DBAL's `EnableForeignKeys` middleware, so the SQLite database enforces the foreign keys PostgreSQL enforces. The committed migration uses PostgreSQL syntax, so it cannot build the SQLite test schema. See `SETUP.md`.
 
 ## Authentication and redirects
 
