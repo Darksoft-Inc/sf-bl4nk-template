@@ -2,7 +2,7 @@
     "name": "garvek/bl4nk-template",
     "description": "MMO games and collaborative tools application baseline with Symfony",
     "type": "project",
-    "license": "proprietary",
+    "license": "MIT",
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
