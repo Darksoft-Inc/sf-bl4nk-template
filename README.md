@@ -13,9 +13,10 @@ The baseline is Symfony 8.2 (currently installed as a beta; a stable release is 
 - Admin section behind `ROLE_ADMIN`: users, announcements, maps, the login audit, uploads, and maintenance, with paginated lists and autocomplete searches.
 - Scheduled maintenance: recurring tasks through the Symfony scheduler, recorded runs, and manual triggers from the admin pages.
 - Flexible dataset import: `app:dataset:load` reads YAML datasets keyed by a stored slug, in development and production.
+- Shared files: a members-only section where every member shares an image or a plain-text file, the list paginates newest first, and only the uploader removes a file.
 - Interface: Bootstrap 5.3 compiled from Sass, Twig components, locked icons, and translations.
 
-The unbuilt target features are the shared image uploads, the shared plain-text uploads, and the generated documentation pages. `TODO.md` at the repository root tracks the remaining work.
+The unbuilt target feature is the generated documentation pages. `TODO.md` at the repository root tracks the remaining work.
 
 ## Requirements
 

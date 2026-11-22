@@ -10,6 +10,7 @@ app:
         profile: Profile
         announcements: Announcements
         maps: Maps
+        shared: 'Shared files'
     navigation:
         start: Start
         login: Log in
@@ -20,6 +21,7 @@ app:
         announcements: Announcements
         documentation: Documentation
         maps: Maps
+        shared: 'Shared files'
         admin: Admin
         toggle: 'Toggle navigation'
     account:
@@ -90,6 +92,27 @@ app:
     map_route_type:
         name: Name
         color: Color
+    shared:
+        page:
+            new: 'Share a file'
+        none: 'No files shared yet.'
+        name: File
+        kind: Kind
+        type:
+            image: Image
+            text: 'Plain text'
+        owner: 'Uploaded by'
+        size: Size
+        uploaded_at: 'Shared on'
+        file: File
+        upload: 'Share the file'
+        back: 'Back to shared files'
+        delete: Delete
+        confirm_delete: 'Remove this shared file?'
+        flash:
+            uploaded: 'The file has been shared.'
+            deleted: 'The shared file has been removed.'
+            not_deleted: 'The removal was refused.'
     admin:
         navigation:
             section: 'Admin sections'
@@ -124,6 +147,8 @@ app:
             kind:
                 avatar: Avatars
                 map_image: 'Map images'
+                shared_image: 'Shared images'
+                shared_text: 'Shared text files'
             file: File
             owner: Owner
             size: Size

@@ -1,0 +1,45 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.page.shared'|trans }}{% endblock %}
+
+{% block body %}
+    <main>
+        <h1>{{ 'app.page.shared'|trans }}</h1>
+
+        <div class="mb-4">
+            <a class="btn btn-primary" href="{{ path('app_shared_new') }}">
+                {{ ux_icon('bi:plus-lg', {class: 'me-1'}) }}
+                {{ 'app.shared.upload'|trans }}
+            </a>
+        </div>
+
+        {% if pagination.count == 0 %}
+            <p class="shared-empty text-body-secondary">{{ 'app.shared.none'|trans }}</p>
+        {% else %}
+            <table class="table table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th scope="col">{{ 'app.shared.name'|trans }}</th>
+                        <th scope="col">{{ 'app.shared.kind'|trans }}</th>
+                        <th scope="col">{{ 'app.shared.owner'|trans }}</th>
+                        <th scope="col">{{ 'app.shared.size'|trans }}</th>
+                        <th scope="col">{{ 'app.shared.uploaded_at'|trans }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for upload in pagination %}
+                        <tr class="shared-row">
+                            <td><a href="{{ path('app_shared_show', {id: upload.id}) }}">{{ upload.originalName }}</a></td>
+                            <td>{{ ('app.shared.type.' ~ upload.type.value)|trans }}</td>
+                            <td>{{ upload.owner ? upload.owner.email : '—' }}</td>
+                            <td>{{ upload.size|number_format }} bytes</td>
+                            <td>{{ upload.uploadedAt|format_datetime('medium', 'short') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            {{ ux_pagination(pagination) }}
+        {% endif %}
+    </main>
+{% endblock %}

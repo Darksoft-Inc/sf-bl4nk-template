@@ -55,7 +55,7 @@ Keep a package when it supports the baseline or a target feature. Remove a packa
 | Annotated map | `symfony/ux-map`, `symfony/ux-leaflet-map`, Leaflet entries in `importmap.php` | Keep. |
 | JSON for the frontend | `symfony/serializer` | Keep. Dynamic frontend data, such as map annotations and autocomplete results, arrives as JSON. |
 | Scheduled maintenance | `symfony/scheduler`, `symfony/messenger`, `symfony/doctrine-messenger` | Keep. Choose and document a transport before using background jobs. |
-| User uploads | `symfony/ux-dropzone`, `symfony/validator` | Keep the upload control. Decide storage and image processing when the feature is built. |
+| User uploads | `symfony/ux-dropzone`, `symfony/validator` | Keep. The three categories are built: the avatar on the profile page, and the shared image and plain-text files in the members-only section at `/shared`. Image processing stays out; the pages cap the display size in the browser. |
 | Blog and documentation pages | Doctrine ORM and Twig | No extra package is needed at this stage. |
 | Private sections and admin | `symfony/security-bundle` | Keep. Add roles and access rules with the features. |
 | Large admin lists | `symfony/ux-pagination` | Keep for lists such as logs. |

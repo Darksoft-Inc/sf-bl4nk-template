@@ -1,0 +1,17 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'app.shared.page.new'|trans }}{% endblock %}
+
+{% block body %}
+    <main>
+        <h1>{{ 'app.shared.page.new'|trans }}</h1>
+
+        {{ form_start(form) }}
+            {{ form_row(form.file) }}
+            <button type="submit" class="btn btn-primary">
+                {{ ux_icon('bi:upload', {class: 'me-1'}) }}
+                {{ 'app.shared.upload'|trans }}
+            </button>
+        {{ form_end(form) }}
+    </main>
+{% endblock %}

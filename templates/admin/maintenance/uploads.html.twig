@@ -27,7 +27,7 @@
                     {% for file in files %}
                         <tr class="upload-row">
                             <td class="upload-filename">
-                                {% if file.url %}
+                                {% if file.url and file.url matches '/\\.(png|jpe?g|webp|gif)$/' %}
                                     <img src="{{ asset(file.url) }}" alt="{{ file.filename }}" class="me-2 rounded" style="max-width: 48px; max-height: 48px;">
                                 {% endif %}
                                 {{ file.filename }}

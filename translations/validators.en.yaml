@@ -18,6 +18,9 @@ app:
     avatar:
         mime_types: 'The avatar must be a PNG, JPEG, WebP, or GIF image.'
         max_size: 'The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.'
+    shared:
+        mime_types: 'The file must be a PNG, JPEG, WebP, or GIF image, or a plain-text file.'
+        max_size: 'The file is too large. Allowed maximum size is {{ limit }} {{ suffix }}.'
     map:
         name_not_blank: 'Please enter a name'
         name_too_long: 'The name is too long. It should have {{ limit }} characters or less.'

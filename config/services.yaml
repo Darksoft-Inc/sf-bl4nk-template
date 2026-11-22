@@ -12,6 +12,8 @@ parameters:
     app.avatar_dir: '%kernel.project_dir%/public/uploads/avatars'
     app.avatar_display_max: 96
     app.map_image_dir: '%kernel.project_dir%/public/uploads/maps'
+    app.shared_image_dir: '%kernel.project_dir%/public/uploads/shared/images'
+    app.shared_text_dir: '%kernel.project_dir%/public/uploads/shared/text'
     app.login_audit_retention_days: 90
 
 services:

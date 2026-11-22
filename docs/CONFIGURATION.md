@@ -35,6 +35,10 @@ Replace both defaults before deployment. The current values are placeholders.
 
 `UX_MAP_DSN` selects the map renderer; `leaflet://default` renders the public map display through `ux_map` and the `image_map_controller.js` decoration. See `docs/DECISIONS.md` for the image-plane adaptation.
 
+## Shared uploads
+
+`app.shared_image_dir` and `app.shared_text_dir` in `config/services.yaml` point at `public/uploads/shared/images/` and `public/uploads/shared/text/`. The members-only section at `/shared` accepts a 2 MB PNG, JPEG, WebP, GIF, or text/plain upload; the storage decides the category from the sniffed content, stores the file under a random hex name with the sniffed extension, and serves it directly from the public tree. The maintenance uploads page lists both kinds and removes a file together with its row. See `docs/DECISIONS.md` for the section, record, and serving choices.
+
 ## Translations
 
 `framework.enabled_locales` is set to `['en']` in `config/packages/framework.yaml`, and `en` is the default locale. Three catalogs live in `translations/`:

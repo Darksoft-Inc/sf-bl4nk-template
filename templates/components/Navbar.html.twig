@@ -21,6 +21,14 @@
                         {{ 'app.navigation.maps'|trans }}
                     </a>
                 </li>
+                {% if app.user %}
+                    <li class="nav-item">
+                        <a class="nav-link d-inline-flex align-items-center" href="{{ path('app_shared_index') }}">
+                            {{ ux_icon('bi:images', {class: 'me-1'}) }}
+                            {{ 'app.navigation.shared'|trans }}
+                        </a>
+                    </li>
+                {% endif %}
             </ul>
             <ul class="navbar-nav ms-auto mb-2 mb-md-0">
                 {% if app.user %}

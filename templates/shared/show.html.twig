@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ upload.originalName }}{% endblock %}
+
+{% block body %}
+    <main>
+        <h1 class="shared-title">{{ upload.originalName }}</h1>
+
+        <p class="text-body-secondary">
+            {{ ('app.shared.type.' ~ upload.type.value)|trans }},
+            {{ upload.owner ? upload.owner.email : '—' }},
+            {{ upload.uploadedAt|format_datetime('medium', 'short') }},
+            {{ upload.size|number_format }} bytes
+        </p>
+
+        {% if upload.type.value == 'image' %}
+            <img class="img-fluid rounded shared-image" src="{{ asset(upload.publicUrl) }}" alt="{{ upload.originalName }}">
+        {% else %}
+            <pre class="border rounded p-3 bg-body-tertiary shared-text">{{ content }}</pre>
+        {% endif %}
+
+        <div class="mt-4 d-flex gap-2">
+            <a class="btn btn-secondary" href="{{ path('app_shared_index') }}">
+                {{ ux_icon('bi:arrow-left', {class: 'me-1'}) }}
+                {{ 'app.shared.back'|trans }}
+            </a>
+            {% if canDelete %}
+                <twig:PostLink
+                    href="{{ path('app_shared_delete', {id: upload.id}) }}"
+                    csrfTokenId="delete-shared"
+                    confirm="{{ 'app.shared.confirm_delete'|trans }}"
+                    class="btn btn-outline-danger"
+                >
+                    {{ ux_icon('bi:trash', {class: 'me-1'}) }}
+                    {{ 'app.shared.delete'|trans }}
+                </twig:PostLink>
+            {% endif %}
+        </div>
+    </main>
+{% endblock %}
