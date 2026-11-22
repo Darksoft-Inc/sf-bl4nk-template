@@ -79,7 +79,7 @@
     {% for user in pagination %}
         {% set form = forms[user.id] %}
         <twig:Modal id="user-modal-{{ user.id }}">
-            <twig:Modal:Header>
+            <twig:Modal:Header closeLabel="{{ 'app.admin.user.close'|trans }}">
                 <twig:Modal:Title tag="h2">{{ user.email }}</twig:Modal:Title>
             </twig:Modal:Header>
             <twig:Modal:Body>

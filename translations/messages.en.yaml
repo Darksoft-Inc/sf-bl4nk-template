@@ -280,6 +280,11 @@ app:
         password:
             show: 'Show password'
             hide: 'Hide password'
+    dropzone:
+        placeholder: 'Drag and drop or browse'
+        remove: Remove
+        file_type_not_accepted: 'File type not accepted: %files%'
+        too_many_files: 'Too many files, not added: %files%'
     reset_password:
         request_help: 'Enter your email address, and we will send you a link to reset your password.'
         send_email: 'Send password reset email'

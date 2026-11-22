@@ -42,6 +42,9 @@ final class MapFormType extends AbstractType
                 'placeholder' => 'app.admin.map.image_none',
                 'data' => $options['current_image'],
                 'choices' => array_combine($imageFiles, $imageFiles),
+                // File names are data, not keys: the choice theme translates
+                // labels by default and would report each name as missing.
+                'choice_translation_domain' => false,
                 'help' => 'app.admin.map.image_help',
             ])
             ->add('minZoom', IntegerType::class, [

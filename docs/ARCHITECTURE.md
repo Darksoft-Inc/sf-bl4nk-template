@@ -159,7 +159,7 @@ Registration and password reset use the same password rules. In the `dev` enviro
 - `templates/admin/login_audit/` holds the audit list. `templates/admin/maintenance/` holds the maintenance pages, which share the `MaintenanceNav` sub-navigation from `templates/components/`.
 - `templates/form/fields.html.twig` holds the password field form theme.
 - `config/packages/ux_pagination.yaml` selects the Bootstrap theme of `symfony/ux-pagination`; both admin lists paginate through it.
-- `translations/` holds the app catalogs: `messages.en.yaml` for pages, form labels, flash messages, and emails, `validators.en.yaml` for constraint messages, and `security.en.yaml` for the login error from `VerifiedUserChecker`. Templates and controllers render translation keys, not literal text.
+- `translations/` holds the app catalogs: `messages.en.yaml` for pages, form labels, flash messages, and emails, `validators.en.yaml` for constraint messages, and `security.en.yaml` for the login error from `VerifiedUserChecker`. Templates and controllers render translation keys, not literal text. The generated reference pages are the exception: their metadata is plain text that renders as itself, so adding a catalog entry under the same text is optional. The three dropzone forms pass `app.dropzone.*` keys for the widget's four labels, and the map image choice passes `choice_translation_domain: false` so file names are not translated.
 
 ## Icons
 

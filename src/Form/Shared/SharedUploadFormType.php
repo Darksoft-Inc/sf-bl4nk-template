@@ -19,6 +19,12 @@ final class SharedUploadFormType extends AbstractType
         $builder
             ->add('file', DropzoneType::class, [
                 'label' => 'app.shared.file',
+                // The widget translates its four strings through the form's
+                // domain, so the app keys keep every string defined.
+                'placeholder' => 'app.dropzone.placeholder',
+                'remove_label' => 'app.dropzone.remove',
+                'accept_message' => 'app.dropzone.file_type_not_accepted',
+                'max_files_message' => 'app.dropzone.too_many_files',
                 'mapped' => false,
                 'constraints' => [
                     new File(

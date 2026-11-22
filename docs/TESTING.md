@@ -24,6 +24,8 @@ Tests stay in the PHPUnit class style, so both commands run the whole suite. Rec
 
 `tests/Unit/TranslationCoverageTest.php` guards the catalogs: templates translate their literal keys through the messages domain, form labels and help through messages, constraint messages through validators, and the security exception through security, and the test fails naming the key and the file whenever a referenced key misses from its catalog. A missing entry renders the raw key on the page, which is how the map section headers once broke.
 
+`tests/Controller/TranslatedPagesTest.php` checks the rendered pages with the profiler's translation collector. It walks the public, member, admin, and reference pages and fails with the page URL and the undefined keys. The collector sees strings the static scan cannot, such as the four `ux-dropzone` labels that the form theme translates and a file name the choice theme translated as a label. The reference pages are the one exception: their metadata is literal text that renders as itself, as `docs/DECISIONS.md` records, so the test collects those literals from the registry and allows only them on those pages.
+
 ## Deprecations
 
 Both commands report no deprecations and exit 0.
