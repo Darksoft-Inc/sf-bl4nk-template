@@ -10,7 +10,11 @@
             {{ form_start(searchForm) }}
                 <div class="row g-2 align-items-end">
                     <div class="col-md-8">
-                        {{ form_row(searchForm.announcement) }}
+                        {# The row aligns its columns on the input's bottom
+                           edge, so the form row may keep no bottom margin:
+                           with mb-3 the margin lifts the input one rem and
+                           the button sits half an input lower. #}
+                        {{ form_row(searchForm.announcement, {row_attr: {class: 'mb-0'}}) }}
                     </div>
                     <div class="col-md-4 d-grid d-md-block">
                         <button type="submit" class="btn btn-primary">

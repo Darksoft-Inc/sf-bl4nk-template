@@ -7,10 +7,13 @@
 
     <div class="mb-4">
         {{ form_start(searchForm) }}
+            {# The aligned columns hold only the label and the input, and the
+               form row keeps no bottom margin: any extra height inside the
+               column, such as a help line, pushes the button down by its
+               own height, so the help renders below the row instead. #}
             <div class="row g-2 align-items-end">
                 <div class="col-md-8">
-                    {{ form_row(searchForm.ip) }}
-                    <p class="form-text">{{ 'app.admin.audit.search.help'|trans }}</p>
+                    {{ form_row(searchForm.ip, {row_attr: {class: 'mb-0'}}) }}
                 </div>
                 <div class="col-md-4 d-grid d-md-block">
                     <button type="submit" class="btn btn-primary">
@@ -19,6 +22,7 @@
                     </button>
                 </div>
             </div>
+            <p class="form-text">{{ 'app.admin.audit.search.help'|trans }}</p>
         {{ form_end(searchForm) }}
     </div>
 

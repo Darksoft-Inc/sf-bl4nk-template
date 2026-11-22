@@ -9,7 +9,8 @@
         {{ form_start(searchForm) }}
             <div class="row g-2 align-items-end">
                 <div class="col-md-8">
-                    {{ form_row(searchForm.announcement) }}
+                    {# No bottom margin on the aligned row: see the announcements page. #}
+                    {{ form_row(searchForm.announcement, {row_attr: {class: 'mb-0'}}) }}
                 </div>
                 <div class="col-md-4 d-grid d-md-block">
                     <button type="submit" class="btn btn-primary">
