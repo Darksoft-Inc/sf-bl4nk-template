@@ -1,4 +1,16 @@
-# Bl4nk
+```text
+########    ##          ##    ##    ##      ##  ##      ##  
+########    ##          ##    ##    ##      ##  ##      ##  
+##      ##  ##          ##    ##    ####    ##  ##    ##    
+##      ##  ##          ##    ##    ####    ##  ##    ##    
+########    ##          ##########  ##  ##  ##  ######      
+########    ##          ##########  ##  ##  ##  ######      
+##      ##  ##                ##    ##    ####  ##    ##    
+##      ##  ##                ##    ##    ####  ##    ##    
+########    ##########        ##    ##      ##  ##      ##  
+########    ##########        ##    ##      ##  ##      ##  
+---------------------------------------------------------------
+```
 
 A Symfony application baseline for public-facing services: MMO games, collaborative tools, and sandboxes. It holds the features that several applications share, so each new application starts from the same base and adds its own domain rules. It is a working base, not a finished product.
 
@@ -62,6 +74,10 @@ Both commands run on plain PHP, never through the Symfony CLI: with the Docker s
 - `docs/CONFIGURATION.md`: environment variables and deployment values.
 - `docs/ARCHITECTURE.md`: routes, controllers, entities, and services.
 - `docs/DECISIONS.md`: current choices and open questions.
+
+## Status
+
+[![CI](https://github.com/Darksoft-Inc/sf-bl4nk-template/actions/workflows/ci.yml/badge.svg)](https://github.com/Darksoft-Inc/sf-bl4nk-template/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![PHP](https://img.shields.io/badge/PHP-8.4%2B-777BB4.svg)](https://www.php.net/)
 
 ## License
 
