@@ -43,7 +43,7 @@ If the SQLite test schema is missing, `tests/SetupSmokeTest.php` fails first and
 
 The test database uses `sqlite:///%kernel.project_dir%/var/test.db` from `.env.test`. The `dbname_suffix` in `config/packages/doctrine.yaml` applies to server databases only. DoctrineBundle ignores it for SQLite, so the test file is always `var/test.db`.
 
-The schema commands run with plain PHP on purpose. With Docker running, `symfony console` injects the dev `DATABASE_URL`, which wins over the SQLite URL in `.env.test`, and the test environment would connect to the development database instead.
+The schema commands and the suite run with plain PHP on purpose. With Docker running, the Symfony CLI injects the container `DATABASE_URL`, which wins over the SQLite URL in `.env.test`. The `dbname_suffix` applies to the injected URL, because the injected URL names a server database: the run then targets the `app_test` database of the container, which no setup step creates, and every database test fails on connect with `database "app_test" does not exist`. Creating `app_test` would not fix the run: the test connection registers the `EnableForeignKeys` middleware of `config/services.yaml`, which sends `PRAGMA foreign_keys=ON` on connect, and PostgreSQL rejects that statement. The `dbname_suffix` also keeps the mistake away from the `app` database, so the development data is never at risk. Without the running services the CLI injects nothing and the run would pass, but keep plain PHP in every case so the command never depends on the container state.
 
 ## Recorded HTTP exchanges
 

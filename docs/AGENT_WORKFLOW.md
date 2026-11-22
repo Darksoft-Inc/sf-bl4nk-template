@@ -19,7 +19,9 @@ symfony console sass:build
 php bin/console doctrine:schema:create --env=test
 ```
 
-Run dev-env commands through `symfony console`: the CLI injects the `DATABASE_URL` and `MAILER_DSN` of the running Docker services, including the dynamic ports that `php bin/console` cannot see. Run test-env commands with plain PHP (`php bin/console ... --env=test`, `php bin/phpunit`): the injected `DATABASE_URL` would otherwise win over the SQLite URL in `.env.test` and connect the test environment to the development database.
+Run dev-env commands through `symfony console`: the CLI injects the `DATABASE_URL` and `MAILER_DSN` of the running Docker services, including the dynamic ports that `php bin/console` cannot see.
+
+Run test-env commands with plain PHP (`php bin/console ... --env=test`, `php bin/phpunit`), never through the Symfony CLI. `AGENTS.md` shows `symfony php bin/phpunit` in its running-the-app section: that example does not apply to the test environment, and `AGENTS.md` is a recipe file the project does not edit. With the Docker services up, the CLI injects the container `DATABASE_URL`, which wins over the SQLite URL in `.env.test`, and the `dbname_suffix` `_test` points the run at the `app_test` database of the container, which no setup step creates. Every database test then fails on connect. `TESTING.md` names the failure messages of that mistake.
 
 See `SETUP.md` and `TESTING.md` for details.
 

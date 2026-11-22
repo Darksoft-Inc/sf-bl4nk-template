@@ -82,7 +82,7 @@ php bin/console doctrine:schema:create --env=test
 
 Do not use `doctrine:migrations:migrate --env=test` with the current test database. The test database uses SQLite, and the committed migration contains PostgreSQL specific SQL.
 
-Also keep the test commands on plain `php`. Running them through `symfony console` while the Docker services are up injects the dev `DATABASE_URL`, which wins over the SQLite URL in `.env.test` and connects the test environment to the development database.
+Also keep the test commands on plain `php`. Running them through the Symfony CLI while the Docker services are up injects the container `DATABASE_URL`, which wins over the SQLite URL in `.env.test`: the `dbname_suffix` `_test` then targets the `app_test` database of the container, which no setup step creates, and the run fails on connect. The development database is never reached that way. `TESTING.md` names the failure messages.
 
 ## Verify the setup
 
