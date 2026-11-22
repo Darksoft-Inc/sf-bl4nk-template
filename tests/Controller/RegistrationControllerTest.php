@@ -38,6 +38,9 @@ final class RegistrationControllerTest extends WebTestCase
         self::assertResponseIsSuccessful();
         self::assertPageTitleContains('Register');
 
+        // The terms checkbox label links to the placeholder terms page.
+        self::assertSelectorExists('label.form-check-label a[href="/docs/terms"]');
+
         $this->client->submitForm('Register', [
             'registration_form[email]' => 'me@example.com',
             'registration_form[plainPassword]' => 'CorrectHorseBatteryStaple42!',

@@ -274,7 +274,7 @@ app:
     avatar:
         save: 'Save the avatar'
     form:
-        agree_terms: 'Agree terms'
+        agree_terms: 'I agree to the <a href="%terms_url%">terms</a>'
         new_password: 'New password'
         repeat_password: 'Repeat Password'
         password:

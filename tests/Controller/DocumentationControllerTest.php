@@ -23,6 +23,16 @@ final class DocumentationControllerTest extends WebTestCase
         self::assertSelectorTextContains('main h1', 'Welcome');
     }
 
+    public function testTermsPageRendersItsPlaceholder(): void
+    {
+        $this->client->request('GET', '/docs/terms');
+
+        self::assertResponseIsSuccessful();
+        self::assertPageTitleContains('Terms');
+        self::assertSelectorTextContains('main h1', 'Terms');
+        self::assertSelectorTextContains('.alert-warning', 'This page is a placeholder.');
+    }
+
     public function testUnknownPageReturns404(): void
     {
         $this->client->request('GET', '/docs/unknown-page');
