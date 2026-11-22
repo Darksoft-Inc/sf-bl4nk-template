@@ -6,16 +6,25 @@
 // seconds to a minute and writes to the database it points at.
 //
 //   php bin/dataset-benchmark.php --env=test
-//   symfony php bin/dataset-benchmark.php --env=dev
-//   symfony php bin/dataset-benchmark.php --env=prod --count=40000
+//   php bin/dataset-benchmark.php --env=dev
+//   php bin/dataset-benchmark.php --env=prod --count=40000
 //
-// Run dev and prod through the Symfony CLI, so the compose DATABASE_URL
-// is injected; plain php sees the .env URL only. The load runs with
-// debug off, the state a production import runs in, and through the
-// console command the way an operator runs it. The bench corpus is one
-// map plus N points, the shape of the dimensioning measurements in
-// docs/DECISIONS.md, under slugs no real dataset uses ("bench-map" and
-// "bench-pNNNNN").
+// The script is a development tool. Its prod mode is the fake prod: the
+// local compose PostgreSQL under the prod kernel, never a real
+// production server, which is not configured here on purpose.
+//
+// The dev and prod runs resolve the compose connection themselves. A
+// DATABASE_URL set in the environment wins (the Symfony CLI injects one
+// through "symfony php"); otherwise the script asks Docker for the port
+// the database service publishes and rewrites the .env URL, so plain
+// php reaches the container too. The test environment needs no
+// container: it reads the SQLite URL from .env.test.
+//
+// The load runs with debug off, the state a production import runs in,
+// and through the console command the way an operator runs it. The
+// bench corpus is one map plus N points, the shape of the dimensioning
+// measurements in docs/DECISIONS.md, under slugs no real dataset uses
+// ("bench-map" and "bench-pNNNNN").
 
 use App\Kernel;
 use Doctrine\ORM\EntityManagerInterface;
@@ -23,8 +32,51 @@ use Symfony\Bundle\FrameworkBundle\Console\Application;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Dotenv\Dotenv;
+use Symfony\Component\Process\Process;
 
 require __DIR__.'/../vendor/autoload.php';
+
+/**
+ * The port the compose database service publishes, or null when Docker
+ * or the service is not reachable.
+ */
+function composePort(string $projectDir): ?int
+{
+    $process = new Process(['docker', 'compose', 'port', 'database', '5432'], $projectDir);
+    $process->run();
+
+    $output = trim($process->getOutput());
+
+    if (0 !== $process->getExitCode() || 1 !== preg_match('/:(\d+)$/', $output, $match)) {
+        return null;
+    }
+
+    return (int) $match[1];
+}
+
+/**
+ * The DATABASE_URL line of the .env file, or null when it is absent.
+ */
+function dotEnvDatabaseUrl(string $projectDir): ?string
+{
+    $env = file_get_contents($projectDir.'/.env');
+
+    if (false === $env || 1 !== preg_match('/^DATABASE_URL="?([^"\s]+)"?$/m', $env, $match)) {
+        return null;
+    }
+
+    return $match[1];
+}
+
+/**
+ * The URL with its port replaced, or unchanged when it carries no port.
+ */
+function urlWithPort(string $url, int $port): string
+{
+    $rewritten = preg_replace('~(://(?:[^/?#]*@)?[^/?#:]+):\d+~', \sprintf('$1:%d', $port), $url, 1);
+
+    return \is_string($rewritten) ? $rewritten : $url;
+}
 
 $environment = 'test';
 $count = 30000;
@@ -50,10 +102,27 @@ for ($i = 0, $n = \count($args); $i < $n; ++$i) {
     }
 }
 
+$projectDir = dirname(__DIR__);
+
 $_SERVER['APP_ENV'] = $_ENV['APP_ENV'] ?? $environment;
 $_SERVER['APP_DEBUG'] = $_ENV['APP_DEBUG'] ?? '0';
 
-(new Dotenv())->bootEnv(__DIR__.'/../.env');
+$databaseSource = 'environment';
+
+if (null === ($_SERVER['DATABASE_URL'] ?? $_ENV['DATABASE_URL'] ?? getenv('DATABASE_URL') ?: null)
+    && 'test' !== $environment
+) {
+    $port = composePort($projectDir);
+
+    if (null !== $port && null !== ($envUrl = dotEnvDatabaseUrl($projectDir))) {
+        $_SERVER['DATABASE_URL'] = urlWithPort($envUrl, $port);
+        $databaseSource = 'compose introspection';
+    } else {
+        $databaseSource = '.env default';
+    }
+}
+
+(new Dotenv())->bootEnv($projectDir.'/.env');
 
 $kernel = new Kernel($environment, false);
 $kernel->boot();
@@ -96,6 +165,12 @@ fclose($file);
 
 echo "dataset load benchmark\n";
 echo sprintf("environment: %s   corpus: 1 map + %d points\n", $environment, $count);
+echo sprintf("database: %s\n", $databaseSource);
+
+if ('.env default' === $databaseSource) {
+    echo "warning: the .env URL may not reach the compose database; start the containers or run through the Symfony CLI\n";
+}
+
 echo sprintf("kernel boot peak: %.1f MB\n", memory_get_peak_usage(true) / 1024 / 1024);
 
 $application = new Application($kernel);
