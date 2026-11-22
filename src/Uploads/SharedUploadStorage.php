@@ -5,6 +5,8 @@ namespace App\Uploads;
 use App\Entity\SharedUpload;
 use App\Entity\SharedUploadType;
 use App\Entity\User;
+use App\Reference\Reference;
+use App\Reference\ReferenceDetail;
 use App\Repository\SharedUploadRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
@@ -16,8 +18,27 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * its row. Every stored name matches the pattern of its kind, so every
  * file the pages handle is also a file the kinds can list and remove.
  */
+#[Reference(
+    slug: 'shared-files',
+    title: 'Shared files',
+    summary: 'Every member shares an image or a plain-text file with the others. '
+        .'The list shows the newest first and only the uploader removes a file.',
+    group: 'Files',
+    details: [
+        new ReferenceDetail('Accepted content', 'PNG, JPEG, WebP, GIF images or plain-text files, checked by content, not by name.'),
+        new ReferenceDetail('Size limit', 'At most '.self::MAX_SIZE.' per file.'),
+        new ReferenceDetail('Category', 'The sniffed content decides: a PNG named "notes.txt" is an image, and plain text always lands under a .txt name.'),
+        new ReferenceDetail('Removal', 'The uploader removes a file from its page, and the maintenance pages remove any file.'),
+    ],
+)]
 final class SharedUploadStorage
 {
+    /**
+     * The size limit every shared file obeys, enforced by the upload
+     * form and cited by the reference page.
+     */
+    public const MAX_SIZE = '2M';
+
     /**
      * The name rule of every stored image: 32 lower-case hex digits and
      * the extension of a raster image, the shape store() writes.

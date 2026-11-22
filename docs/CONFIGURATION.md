@@ -27,7 +27,7 @@ Replace both defaults before deployment. The current values are placeholders.
 
 ## Login audit retention
 
-`app.login_audit_retention_days` in `config/services.yaml` (90 by default) is the age at which a login audit row becomes removable. The scheduled cleanup and the manual trigger on `/admin/maintenance/cleanup` both remove the rows past that age. Lowering the value removes rows sooner; raising it keeps more history.
+`app.login_audit_retention_days` in `config/services.yaml` (90 by default) is the age at which a login audit row becomes removable. The scheduled cleanup and the manual trigger on `/admin/maintenance/cleanup` both remove the rows past that age. Lowering the value removes rows sooner; raising it keeps more history. The generated reference page at `/reference/login-audit-retention` cites this parameter, so the page shows the current value after a container rebuild.
 
 ## Map image pool
 

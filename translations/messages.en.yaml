@@ -11,6 +11,7 @@ app:
         announcements: Announcements
         maps: Maps
         shared: 'Shared files'
+        reference: Reference
     navigation:
         start: Start
         login: Log in
@@ -113,6 +114,10 @@ app:
             uploaded: 'The file has been shared.'
             deleted: 'The shared file has been removed.'
             not_deleted: 'The removal was refused.'
+    reference:
+        none: 'No reference pages are declared.'
+        related: 'Related'
+        back: 'Back to the reference index'
     admin:
         navigation:
             section: 'Admin sections'

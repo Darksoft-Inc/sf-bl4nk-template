@@ -14,9 +14,10 @@ The baseline is Symfony 8.2 (currently installed as a beta; a stable release is 
 - Scheduled maintenance: recurring tasks through the Symfony scheduler, recorded runs, and manual triggers from the admin pages.
 - Flexible dataset import: `app:dataset:load` reads YAML datasets keyed by a stored slug, in development and production.
 - Shared files: a members-only section where every member shares an image or a plain-text file, the list paginates newest first, and only the uploader removes a file.
+- Generated reference pages: `/reference` renders pages declared on services through the `Reference` attribute, validated at build time, with values that come from class constants and container parameters.
 - Interface: Bootstrap 5.3 compiled from Sass, Twig components, locked icons, and translations.
 
-The unbuilt target feature is the generated documentation pages. `TODO.md` at the repository root tracks the remaining work.
+Every target feature from `docs/PURPOSE.md` is built. `TODO.md` at the repository root tracks the remaining work, such as the production values and the stable Symfony release.
 
 ## Requirements
 

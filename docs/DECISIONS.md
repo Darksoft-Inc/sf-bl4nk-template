@@ -292,6 +292,24 @@ Evidence: the dimensioning target of 2,000 to 40,000 rows made the second parse 
 
 Consequence: memory holds the parsed records of the whole load for the duration of the write phase. The dimensioning ceiling bounds that at the measured 132 to 136 MB, and the floor does not feel it.
 
+## Generated reference pages
+
+Decision from 2026-11-22: the generated pages are declared on the services they document, collected into a registry at build time, and served from `/reference`.
+
+Evidence: a service declares a page with the `#[Reference]` attribute: a slug, a title, a summary, an optional group, a list of `ReferenceDetail` entries (a label, a text) rendered as a `<dl>`, and a list of related slugs rendered as links. `ReferenceCompilerPass`, registered in `Kernel::build()`, walks the container definitions, reads the attribute of every loadable class, and hands the pages to `ReferenceRegistry` as a plain array shape, because a compiled container cannot carry objects as arguments; the registry rebuilds the page objects from it. The metadata lives on services only: a class nothing instantiates has no page.
+
+The validation fails the build naming the page: a slug outside `Reference::SLUG_PATTERN`, a slug another page already carries, an empty title or summary, a detail that is not a `ReferenceDetail` or has an empty side, a related slug no page carries, and a `%parameter%` the container does not define. The slug rule takes lowercase letters and digits in segments separated by hyphens or dots. A class that fails to load is skipped: it carries no readable metadata, and this project ships without optional packages that some vendor classes reference, as the security bridge class that names a removed expression-language interface shows.
+
+Two channels keep the cited values true. A text may concatenate a class constant inside the attribute argument itself, a native constant expression PHP resolves at instantiation, and a text may cite a container parameter wrapped in `%...%`, which the pass resolves and refuses to leak when the value still holds a placeholder, such as an env() indirection. Constants change with the code and parameters change with services.yaml, and the container rebuilds exactly when either changes.
+
+The slug dot convention: "files.upload" and "files.storage" are valid names for pages of one theme. The registry keeps a slug opaque, no hierarchy is deduced and no link follows from a prefix, grouping on the index is the job of the `group` field.
+
+The routes stay separate from `/docs`: `/docs/{page}` would capture "reference" as a page name, and the two families differ in source (edited templates against service metadata) and in controller. The show route requirement is `Reference::SLUG_REQUIREMENT`, the pattern minus its anchors, kept beside `SLUG_PATTERN` so the validation and the route cannot drift.
+
+The text of a page is metadata, not a catalog key: every string goes through `trans`, and a literal renders as itself when no catalog entry exists, so a derived app writes plain text and translates later by adding catalog entries under the same literal. The chrome around the pages (the index title, the related heading, the back link) uses catalog keys as usual. The `Reference` attribute is repeatable on purpose: a duplicated declaration fails the build with a message naming the class, instead of an engine crash at `newInstance()` or a silent first-declaration win.
+
+Consequence: adding a page is one attribute on a service, and the rebuild validates it. Nothing lands in the database, so the feature ships no migration and no dataset type: the code is the source. The first pages document the starter's own services: `login-audit-retention` on `LoginAuditRetention`, whose retention window cites `%app.login_audit_retention_days%`, and `shared-files` on `SharedUploadStorage`, whose size limit cites `MAX_SIZE`, the constant the upload form enforces too.
+
 ## Rate limiting
 
 Decision from 2026-11-19: deferred to the production readiness pass.

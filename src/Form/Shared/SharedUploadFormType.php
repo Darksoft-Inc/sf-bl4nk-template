@@ -2,6 +2,7 @@
 
 namespace App\Form\Shared;
 
+use App\Uploads\SharedUploadStorage;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -21,7 +22,7 @@ final class SharedUploadFormType extends AbstractType
                 'mapped' => false,
                 'constraints' => [
                     new File(
-                        maxSize: '2M',
+                        maxSize: SharedUploadStorage::MAX_SIZE,
                         mimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'text/plain'],
                         mimeTypesMessage: 'app.shared.mime_types',
                         maxSizeMessage: 'app.shared.max_size',
