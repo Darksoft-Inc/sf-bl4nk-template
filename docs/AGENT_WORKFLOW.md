@@ -36,10 +36,11 @@ symfony console lint:yaml config/ datasets/
 symfony console lint:twig templates/
 vendor/bin/phpstan analyse --no-progress
 vendor/bin/php-cs-fixer fix --dry-run
+vendor/bin/twig-cs-fixer lint templates/
 symfony console doctrine:schema:validate
 ```
 
-Run `symfony console sass:build` after changing SCSS files. Run `vendor/bin/php-cs-fixer fix` (alias `format_php`) when the dry run reports style issues. Run `php bin/console ux:icons:lock` after using a new icon in a template.
+Run `symfony console sass:build` after changing SCSS files. Run `vendor/bin/php-cs-fixer fix` (alias `format_php`) when the dry run reports style issues, and `vendor/bin/twig-cs-fixer fix` (alias `format_twig`) when the template lint reports them. Run `php bin/console ux:icons:lock` after using a new icon in a template.
 
 ## Limits
 

@@ -2,7 +2,7 @@
 
 This project is a starter application for public-facing services. It holds the features that several applications share, so each new application can start from the same base and add its own domain rules. It is a working base, not a finished product.
 
-The current code provides the base and part of account management. The features listed below are the target. Use this document to decide whether to keep, remove, or change a package. Update the document when the target changes.
+The current code implements the baseline and most of the features listed below. `TODO.md` tracks the remaining work. Use this document to decide whether to keep, remove, or change a package. Update the document when the target changes.
 
 ## Application baseline
 
