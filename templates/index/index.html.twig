@@ -11,7 +11,8 @@
         <li><a href="{{ path('app_documentation_show', {page: 'welcome'}) }}">{{ 'app.navigation.documentation'|trans }}</a></li>
         {% if app.user %}
             <li><a href="{{ path('app_profile') }}">{{ 'app.navigation.profile'|trans }}</a></li>
-            <li><twig:LogoutLink>{{ 'app.navigation.logout'|trans }}</twig:LogoutLink></li>
+            {# PostLink directly, for the same reason as the navbar logout link. #}
+            <li><twig:PostLink href="{{ logout_path() }}" csrfTokenId="logout">{{ 'app.navigation.logout'|trans }}</twig:PostLink></li>
         {% else %}
             <li><a href="{{ path('app_login') }}">{{ 'app.navigation.login'|trans }}</a></li>
             <li><a href="{{ path('app_register') }}">{{ 'app.navigation.register'|trans }}</a></li>

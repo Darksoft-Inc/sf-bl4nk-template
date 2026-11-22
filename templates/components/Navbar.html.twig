@@ -47,10 +47,18 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <twig:LogoutLink class="nav-link d-inline-flex align-items-center">
+                        {# The logout link goes through PostLink directly: the
+                           LogoutLink recipe forwards the label through a
+                           block() expression, which escapes HTML, so an icon
+                           label printed as text. The icon stays a literal
+                           here so ux:icons:lock keeps discovering it. #}
+                        <twig:PostLink
+                            href="{{ logout_path() }}"
+                            csrfTokenId="logout"
+                            class="nav-link d-inline-flex align-items-center">
                             {{ ux_icon('bi:box-arrow-right', {class: 'me-1'}) }}
                             {{ 'app.navigation.logout'|trans }}
-                        </twig:LogoutLink>
+                        </twig:PostLink>
                     </li>
                 {% else %}
                     <li class="nav-item">

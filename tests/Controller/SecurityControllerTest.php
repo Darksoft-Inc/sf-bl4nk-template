@@ -66,8 +66,14 @@ final class SecurityControllerTest extends WebTestCase
         $this->client->followRedirect();
         self::assertResponseIsSuccessful();
 
-        // The logout link posts through a CSRF token since the logout-link
-        // recipe, so submitting the rendered form covers the real flow.
+        // The navbar logout link carries an icon: it renders inline, not as
+        // escaped text, through the PostLink label content.
+        $html = (string) $this->client->getResponse()->getContent();
+        self::assertMatchesRegularExpression('#<button[^>]*>\s*<svg#', $html);
+        self::assertStringNotContainsString('&lt;svg', $html);
+
+        // The logout link posts through a CSRF token, so submitting the
+        // rendered form covers the real flow.
         $this->client->submitForm('Log out');
         self::assertResponseRedirects('/');
         $this->client->followRedirect();
