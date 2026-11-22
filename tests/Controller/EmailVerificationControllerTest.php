@@ -72,19 +72,19 @@ final class EmailVerificationControllerTest extends WebTestCase
         $verificationLink = $this->extractVerificationLink();
 
         $this->client->request('GET', $verificationLink);
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Your email address has been verified.');
 
         // The link is still within its lifetime: repeated clicks report the
         // verified state instead of running the verification again.
         $this->client->request('GET', $verificationLink);
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Your email address has already been verified.');
 
         $this->client->request('GET', $verificationLink);
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Your email address has already been verified.');
 
@@ -113,11 +113,11 @@ final class EmailVerificationControllerTest extends WebTestCase
         // The same expired link clicked by a verified user reports the
         // verified state through the catch branch.
         $this->client->request('GET', $this->extractVerificationLink());
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
         $this->client->followRedirect();
 
         $this->client->request('GET', $expiredLink);
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
         $this->client->followRedirect();
         self::assertSelectorTextContains('.alert-success', 'Your email address has already been verified.');
 

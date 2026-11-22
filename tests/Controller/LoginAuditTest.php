@@ -45,11 +45,11 @@ final class LoginAuditTest extends WebTestCase
             '_username' => 'connected@example.com',
             '_password' => 'password',
         ]);
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
 
         // The second and third requests come from the same live session and
         // must not add audit rows or rewrite the metadata.
-        $this->client->request('GET', '/index');
+        $this->client->request('GET', '/');
         self::assertResponseIsSuccessful();
         $this->client->request('GET', '/profile');
         self::assertResponseIsSuccessful();
@@ -83,7 +83,7 @@ final class LoginAuditTest extends WebTestCase
             '_password' => 'password',
             '_remember_me' => true,
         ]);
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
 
         $rememberMe = $this->findRememberMeCookie();
         self::assertNotNull($rememberMe, 'The login response must set a remember-me cookie.');
@@ -93,7 +93,7 @@ final class LoginAuditTest extends WebTestCase
         $this->client->getCookieJar()->clear();
         $this->client->getCookieJar()->set($rememberMe);
 
-        $this->client->request('GET', '/index');
+        $this->client->request('GET', '/');
         self::assertResponseIsSuccessful();
 
         $rows = $this->loginAuditRows();
@@ -117,7 +117,7 @@ final class LoginAuditTest extends WebTestCase
             '_username' => 'plain@example.com',
             '_password' => 'password',
         ]);
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
 
         self::assertNull($this->findRememberMeCookie());
     }

@@ -103,7 +103,7 @@ final class ResetPasswordControllerTest extends WebTestCase
             'change_password_form[plainPassword][second]' => 'newStrongPassword',
         ]);
 
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
 
         $user = $this->userRepository->findOneBy(['email' => 'me@example.com']);
 
@@ -192,7 +192,7 @@ final class ResetPasswordControllerTest extends WebTestCase
             'change_password_form[plainPassword][second]' => 'NewStrongPassword42!',
         ]);
 
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
 
         $this->client->request('GET', $resetLink);
         self::assertResponseRedirects('/reset-password/reset');
@@ -218,7 +218,7 @@ final class ResetPasswordControllerTest extends WebTestCase
             'change_password_form[plainPassword][second]' => 'NewStrongPassword42!',
         ]);
 
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
 
         $this->client->request('GET', $resetLink);
         self::assertResponseRedirects('/reset-password/reset');

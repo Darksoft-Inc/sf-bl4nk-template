@@ -45,7 +45,7 @@ final class RegistrationControllerTest extends WebTestCase
         ]);
 
         // Ensure the response redirects after submitting the form, the user exists, and is not verified
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
         self::assertCount(1, $this->userRepository->findAll());
         self::assertFalse(($user = $this->userRepository->findAll()[0])->isVerified());
 
@@ -68,7 +68,7 @@ final class RegistrationControllerTest extends WebTestCase
 
         // "Click" the link and see if the user is verified
         $this->client->request('GET', $resetLink);
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
         $this->client->followRedirect();
 
         self::assertSelectorTextContains('.alert-success', 'Your email address has been verified.');
@@ -95,7 +95,7 @@ final class RegistrationControllerTest extends WebTestCase
     {
         $this->client->request('GET', '/register');
         $this->submitRegistrationForm('duplicate@example.com');
-        self::assertResponseRedirects('/index');
+        self::assertResponseRedirects('/');
 
         $this->client->request('GET', '/register');
         $this->submitRegistrationForm('duplicate@example.com');

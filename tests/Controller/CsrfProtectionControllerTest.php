@@ -113,7 +113,7 @@ final class CsrfProtectionControllerTest extends WebTestCase
 
         // The logout token is stateless CSRF: a page visit first gives the
         // next request a same-origin Referer, so only the bad token fails.
-        $this->client->request('GET', '/index');
+        $this->client->request('GET', '/');
         $this->client->request('POST', '/logout', ['_csrf_token' => 'not-a-real-token']);
 
         self::assertResponseStatusCodeSame(403);
