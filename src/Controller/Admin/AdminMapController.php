@@ -3,8 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\Map;
-use App\Form\MapFormType;
-use App\Form\MapImageFormType;
+use App\Form\Map\MapFormType;
+use App\Form\Map\MapImageFormType;
 use App\Repository\MapRepository;
 use App\Uploads\MapImageUploadKind;
 use Doctrine\ORM\EntityManagerInterface;

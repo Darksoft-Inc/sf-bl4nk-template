@@ -3,8 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\User;
-use App\Form\AvatarFormType;
-use App\Form\ChangePasswordFormType;
+use App\Form\Account\AvatarFormType;
+use App\Form\Account\ChangePasswordFormType;
 use App\Security\PasswordChanger;
 use App\Uploads\AvatarStorage;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

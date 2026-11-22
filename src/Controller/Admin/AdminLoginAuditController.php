@@ -2,7 +2,7 @@
 
 namespace App\Controller\Admin;
 
-use App\Form\LoginAuditSearchType;
+use App\Form\User\LoginAuditSearchType;
 use App\Repository\LoginAuditRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Account;
 
 use App\Entity\User;
+use App\Form\Support\PasswordConstraints;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
@@ -14,7 +15,7 @@ use Symfony\Component\Validator\Constraints\IsTrue;
 /**
  * @extends AbstractType<User>
  */
-class RegistrationFormType extends AbstractType
+final class RegistrationFormType extends AbstractType
 {
     public function __construct(private readonly PasswordConstraints $passwordConstraints)
     {

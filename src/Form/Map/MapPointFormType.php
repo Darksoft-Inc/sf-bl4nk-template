@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Map;
 
 use App\Entity\MapPoint;
+use App\Form\Support\KeepCurrentData;
+use App\Map\Symbols;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\NumberType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;

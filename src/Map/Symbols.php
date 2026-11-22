@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Map;
 
 /**
  * The symbols field of a point: ux-icons names separated by whitespace.

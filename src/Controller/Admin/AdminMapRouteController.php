@@ -3,8 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\MapRoute;
-use App\Form\MapRouteFormType;
-use App\Form\RoutePoints;
+use App\Form\Map\MapRouteFormType;
+use App\Map\RoutePoints;
 use App\Repository\MapRepository;
 use App\Repository\MapRouteRepository;
 use Doctrine\ORM\EntityManagerInterface;

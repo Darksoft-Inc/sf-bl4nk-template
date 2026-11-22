@@ -3,8 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\User;
-use App\Form\AdminUserFormType;
-use App\Form\AdminUserSearchType;
+use App\Form\User\AdminUserFormType;
+use App\Form\User\AdminUserSearchType;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

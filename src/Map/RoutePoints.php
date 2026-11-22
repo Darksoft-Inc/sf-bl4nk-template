@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Map;
 
 /**
  * Parses the route textarea: one "x, y" pair per line in the pixel space of

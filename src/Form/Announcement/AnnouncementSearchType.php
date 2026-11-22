@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Announcement;
 
+use App\Form\Field\AnnouncementAutocompleteField;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -9,13 +10,13 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @extends AbstractType<mixed>
  */
-final class AdminUserSearchType extends AbstractType
+final class AnnouncementSearchType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('user', AdminUserAutocompleteField::class, [
-                'label' => 'app.admin.user.search.label',
+            ->add('announcement', AnnouncementAutocompleteField::class, [
+                'label' => 'app.announcement.search.label',
                 'required' => false,
             ])
         ;

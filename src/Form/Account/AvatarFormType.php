@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Account;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
@@ -11,25 +11,21 @@ use Symfony\UX\Dropzone\Form\DropzoneType;
 /**
  * @extends AbstractType<mixed>
  */
-final class MapImageFormType extends AbstractType
+final class AvatarFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('image', DropzoneType::class, [
-                'label' => 'app.admin.map_images.file',
+            ->add('avatar', DropzoneType::class, [
+                'label' => 'app.account.avatar',
                 'required' => false,
                 'mapped' => false,
                 'constraints' => [
                     new File(
-                        // Matches the php.ini upload_max_filesize of the
-                        // current platform. Larger images take the
-                        // pre-existing path: an operator drops the file
-                        // into the map image directory.
                         maxSize: '2M',
                         mimeTypes: ['image/png', 'image/jpeg', 'image/webp', 'image/gif'],
-                        mimeTypesMessage: 'app.map_images.mime_types',
-                        maxSizeMessage: 'app.map_images.max_size',
+                        mimeTypesMessage: 'app.avatar.mime_types',
+                        maxSizeMessage: 'app.avatar.max_size',
                     ),
                 ],
             ])

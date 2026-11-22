@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Tests\Form;
+namespace App\Tests\Form\Support;
 
-use App\Form\PasswordConstraints;
+use App\Form\Support\PasswordConstraints;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints\Length;

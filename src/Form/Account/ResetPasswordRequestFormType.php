@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Account;
 
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints\NotBlank;
 /**
  * @extends AbstractType<mixed>
  */
-class ResetPasswordRequestFormType extends AbstractType
+final class ResetPasswordRequestFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {

@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Announcement;
-use App\Form\AnnouncementSearchType;
+use App\Form\Announcement\AnnouncementSearchType;
 use App\Repository\AnnouncementRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;

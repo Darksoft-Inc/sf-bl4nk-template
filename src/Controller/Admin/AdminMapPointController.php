@@ -3,8 +3,8 @@
 namespace App\Controller\Admin;
 
 use App\Entity\MapPoint;
-use App\Form\MapPointFormType;
-use App\Form\Symbols;
+use App\Form\Map\MapPointFormType;
+use App\Map\Symbols;
 use App\Repository\MapPointRepository;
 use App\Repository\MapRepository;
 use Doctrine\ORM\EntityManagerInterface;

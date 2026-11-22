@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Account;
 
+use App\Form\Support\PasswordConstraints;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
@@ -11,7 +12,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 /**
  * @extends AbstractType<mixed>
  */
-class ChangePasswordFormType extends AbstractType
+final class ChangePasswordFormType extends AbstractType
 {
     public function __construct(private readonly PasswordConstraints $passwordConstraints)
     {

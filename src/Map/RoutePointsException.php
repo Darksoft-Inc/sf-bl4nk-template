@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Map;
 
 /**
  * Thrown when route point text cannot be parsed. Carries the validators

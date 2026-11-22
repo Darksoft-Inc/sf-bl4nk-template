@@ -4,8 +4,8 @@ namespace App\Controller\Admin;
 
 use App\Entity\Announcement;
 use App\Entity\User;
-use App\Form\AdminAnnouncementSearchType;
-use App\Form\AnnouncementFormType;
+use App\Form\Announcement\AdminAnnouncementSearchType;
+use App\Form\Announcement\AnnouncementFormType;
 use App\Repository\AnnouncementRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Clock\ClockInterface;

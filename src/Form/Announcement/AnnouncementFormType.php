@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Form;
+namespace App\Form\Announcement;
 
 use App\Entity\Announcement;
 use Symfony\Component\Form\AbstractType;
